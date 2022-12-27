@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="camera_all_sides_margin">22dp</dimen>
+</resources>

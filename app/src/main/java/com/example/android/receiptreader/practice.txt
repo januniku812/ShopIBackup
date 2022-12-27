@@ -1,0 +1,52 @@
+{
+  "user_items": [
+    {
+      "user_item_store": "WALMART",
+      "user_item_date":"12/7/2022",
+      "user_item_name": "HRSPRAY",
+      "user_item_quantity": "2",
+      "user_item_total_amount_paid": "5.00",
+      "user_item_unit_price": "2.50"
+    },
+    {
+      "user_item_store": "WALMART",
+      "user_item_date":"12/12/2022",
+      "user_item_name": "ORANGES",
+      "user_item_quantity": "2",
+      "user_item_total_amount_paid": "4.00",
+      "user_item_unit_price": "2.00"
+    },
+    {
+      "user_item_store": "WALMART",
+      "user_item_date":"12/12/2022",
+      "user_item_name": "POMEGRANATE",
+      "user_item_quantity": "2",
+      "user_item_total_amount_paid": "4.00",
+      "user_item_unit_price": "2.00"
+    },
+    {
+      "user_item_store": "WALMART",
+      "user_item_date":"12/12/2022",
+      "user_item_name": "APPLES",
+      "user_item_quantity": "2",
+      "user_item_total_amount_paid": "4.00",
+      "user_item_unit_price": "2.00"
+    },
+    {
+      "user_item_store": "WALMART",
+      "user_item_date":"12/12/2022",
+      "user_item_name": "ORANGES",
+      "user_item_quantity": "2",
+      "user_item_total_amount_paid": "4.00",
+      "user_item_unit_price": "2.00"
+    },
+    {
+      "user_item_store": "WALMART",
+      "user_item_date":"12/12/2022",
+      "user_item_name": "ORANGES",
+      "user_item_quantity": "2",
+      "user_item_total_amount_paid": "4.00",
+      "user_item_unit_price": "2.00"
+    }
+  ]
+}

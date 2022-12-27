@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="user_item_details_text_style" parent="Theme.AppCompat.Light.DarkActionBar">
+    </style>
+</resources>

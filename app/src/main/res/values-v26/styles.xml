@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="user_item_details_text_style" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:textColor">@color/grey</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">9dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+    <style name="user_item_details_text_alt_style" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:textColor">@color/grey</item>
+        <item name="android:textSize">9dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+</resources>

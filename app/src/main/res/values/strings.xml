@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">ReceiptReader</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="activity_main_label">Activity Main</string>
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="second_camera_activity">Second Camera Activity</string>
+    <string name="capture">Capture</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Please capture a clean and well-light image of your receipt(towards the center)</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="placeholder_item_name">ORANGE JUICE</string>
+    <string name="placeholder_store_name">WALMART</string>
+    <string name="placeholder_date_user_item">10/21/22</string>
+    <string name="json_data_trial">{
+  "user_items": [
+    {
+      "user_item_store": "WALMART",
+      "user_item_date":"12/7/2022",
+      "user_item_name": "HRSPRAY",
+      "user_item_quantity": "2",
+      "user_item_total_amount_paid": "5.00",
+      "user_item_unit_price": "2.50"
+    }
+  ]
+}</string>
+    <string name="couldnt_analyze_receipt">Couldn\'t save and/or analyze receipt</string>
+    <string name="couldnt_connect_to_camera">Couldn\'t connect to camera; encountered an error</string>
+
+    <string name="camera_permission_not_grated">It seems your camera permission for is disabled, please allow our request or manually enable it in settings</string>
+    <string name="turkey">TURKEY</string>
+    <string name="shopping_lists">Shopping Lists</string>
+    <string name="store_history">Store History</string>
+    <string name="thanksgiving_dinner_to_buy">THANKSGIVING DINNER TO BUY</string>
+    <string name="store">Stores</string>
+    <string name="new_item_name">NEW ITEM NAME</string>
+    <string name="last_bought">Oct. 27 2022</string>
+    <string name="quantity_sl_item_placeholder">1</string>
+</resources>
