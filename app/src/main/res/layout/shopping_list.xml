@@ -20,20 +20,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 <!--             edit text view for the names of the stores-->
-            <EditText
-                style="@style/user_item_details_text_style"
-                android:id="@+id/store_list_name_edit_text"
-                android:fontFamily="sans-serif-condensed-medium"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_width="wrap_content"
-                android:visibility="gone"
-                android:text=""
-                android:layout_height="wrap_content"/>
+<!--            <EditText-->
+<!--                style="@style/user_item_details_text_style"-->
+<!--                android:id="@+id/store_list_name_edit_text"-->
+<!--                android:fontFamily="sans-serif-condensed-medium"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:visibility="gone"-->
+<!--                android:text=""-->
+<!--                android:layout_height="wrap_content"/>-->
             <TextView
                 style="@style/user_item_details_text_style"
-                android:id="@+id/store_list_name"
+                android:id="@+id/shopping_list_name"
                 android:fontFamily="sans-serif-condensed-medium"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"

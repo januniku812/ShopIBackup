@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:id="@+id/second_fragment_camera_constraint_layout"
     android:layout_height="match_parent"
-    tools:context=".SecondCameraActivity">
+    tools:context=".camera.SecondCameraActivity">
 
 
     <TextView

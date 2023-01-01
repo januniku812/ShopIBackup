@@ -1,4 +1,4 @@
-package com.example.android.receiptreader;
+package com.example.android.receiptreader.camera;
 import android.text.TextUtils;
 
 import java.io.BufferedReader;
@@ -15,6 +15,8 @@ import org.json.JSONObject;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+
+import com.example.android.receiptreader.Constants;
 import com.googlecode.tesseract.android.TessBaseAPI;
 import java.util.ArrayList;
 import java.util.Date;

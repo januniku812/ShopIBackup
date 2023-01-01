@@ -1,14 +1,9 @@
-package com.example.android.receiptreader;
+package com.example.android.receiptreader.camera;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Button;
@@ -20,14 +15,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.googlecode.tesseract.android.TessBaseAPI;
+import com.example.android.receiptreader.R;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import javax.security.auth.callback.Callback;
 
 public class SecondCameraActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     Camera camera;

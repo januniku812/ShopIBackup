@@ -3,8 +3,12 @@ package com.example.android.receiptreader;
 import java.util.ArrayList;
 
 public class Store {
-    ArrayList<UserItem> userItems;
+    ArrayList<StoreUserItem> storeUserItems;
     String storeName;
+
+    public Store() {
+
+    }
 
     public String getStoreName() {
         return storeName;
@@ -14,16 +18,16 @@ public class Store {
         this.storeName = storeName;
     }
 
-    public Store(ArrayList<UserItem> userItems, String storeName) {
-        this.userItems = userItems;
+    public Store(String storeName, ArrayList<StoreUserItem> storeUserItems) {
         this.storeName = storeName;
+        this.storeUserItems = storeUserItems;
     }
 
-    public ArrayList<UserItem> getUserItems() {
-        return userItems;
+    public ArrayList<StoreUserItem> getStoreUserItems() {
+        return storeUserItems;
     }
 
-    public void setUserItems(ArrayList<UserItem> userItems) {
-        this.userItems = userItems;
+    public void setStoreUserItems(ArrayList<StoreUserItem> storeUserItems) {
+        this.storeUserItems = storeUserItems;
     }
 }

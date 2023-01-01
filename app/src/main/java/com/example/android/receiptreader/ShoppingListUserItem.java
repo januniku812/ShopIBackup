@@ -1,23 +1,40 @@
 package com.example.android.receiptreader;
 
-public class ShoppingListItem {
-    String store;
+public class ShoppingListUserItem {
     String name;
+    String lastBought;
+    String userQuantity;
     String toRecordPrice;
     String toRecordQuantity;
     String toRecordUnitPrice;
+    String toRecordStore;
 
-    public ShoppingListItem(String store, String name) {
-        this.store = store;
+    public ShoppingListUserItem(String name, String lastBought, String userQuantity) {
         this.name = name;
+        this.lastBought = lastBought;
+        this.userQuantity = userQuantity;
+    }
+
+    public ShoppingListUserItem(String name, String lastBought, String userQuantity, String toRecordPrice, String toRecordQuantity, String toRecordUnitPrice, String toRecordStore) {
+        this.name = name;
+        this.lastBought = lastBought;
+        this.userQuantity = userQuantity;
+        this.toRecordPrice = toRecordPrice;
+        this.toRecordQuantity = toRecordQuantity;
+        this.toRecordUnitPrice = toRecordUnitPrice;
+        this.toRecordStore = toRecordStore;
+    }
+
+    public ShoppingListUserItem(){
+
     }
 
     public String getStore() {
-        return store;
+        return toRecordStore;
     }
 
     public void setStore(String store) {
-        this.store = store;
+        this.toRecordStore = store;
     }
 
     public String getName() {

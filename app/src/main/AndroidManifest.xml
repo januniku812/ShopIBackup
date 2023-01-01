@@ -25,8 +25,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SecondCameraActivity"
-            android:label="@string/second_camera_activity"
+            android:name=".StoreUserItemsActivity"
+            android:label="@string/store_user_items_activity"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
 
         </activity>

@@ -38,4 +38,19 @@
     <string name="new_item_name">NEW ITEM NAME</string>
     <string name="last_bought">Oct. 27 2022</string>
     <string name="quantity_sl_item_placeholder">1</string>
+    <string name="enter">ENTER</string>
+    <string name="cancel">CANCEL</string>
+    <string name="edit_store_name">EDIT STORE NAME</string>
+    <string name="edit_shopping_list">EDIT SHOPPING LIST</string>
+    <string name="walmart">WALMART</string>
+    <string name="password">password</string>
+    <string name="are_you_sure_you_want_to_delete">Are you sure you want to delete</string>
+    <string name="delete_store">delete store</string>
+    <string name="delete_shopping_list">delete shopping list</string>
+    <string name="yes">yes</string>
+    <string name="enter_new_name">Enter New Name</string>
+    <string name="add_store">add store</string>
+    <string name="store_name">Store name like Walmart, etc</string>
+    <string name="add_shopping_list">add shopping list</string>
+    <string name="store_user_items_activity">Store User Items</string>
 </resources>

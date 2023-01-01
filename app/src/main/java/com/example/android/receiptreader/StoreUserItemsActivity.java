@@ -2,10 +2,10 @@ package com.example.android.receiptreader;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.example.android.receiptreader.camera.SecondCameraActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.RequiresApi;
@@ -20,19 +20,15 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class UserItemsActivity extends AppCompatActivity {
+public class StoreUserItemsActivity extends AppCompatActivity {
 
-    TextView resultsForUserItemsView;
-    ListView userItemsListView;
+    TextView resultsForStoreUserItemsView;
+    ListView storeUserItemsListView;
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
@@ -49,49 +45,48 @@ public class UserItemsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        userItemsListView = findViewById(R.id.user_items_list_view);
-        resultsForUserItemsView = findViewById(R.id.results_for_user_item_text);
+        setContentView(R.layout.store_user_items_layout);
+        storeUserItemsListView = findViewById(R.id.user_items_list_view);
+        resultsForStoreUserItemsView = findViewById(R.id.results_for_user_item_text);
         SearchView searchView = findViewById(R.id.search_bar);
-        FloatingActionButton add_fab = findViewById(R.id.fab);
-        add_fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(UserItemsActivity.this, SecondCameraActivity.class);
-                startActivity(intent);
-
-            }
-        });
-
-        ArrayList<UserItem> userItems = new ArrayList<UserItem>();
+//        FloatingActionButton add_fab = findViewById(R.id.fab);
+//        add_fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(StoreUserItemsActivity.this, AddStoreUserItemActivity.class);
+//                startActivity(intent);
+//
+//            }
+//        });
+        String storeName = getIntent().getStringExtra("storeName");
+        ArrayList<StoreUserItem> storeUserItems = null;
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                userItems = QueryUtils.getUserItems();
-            }
-        } catch (Exception e) {
-            System.out.println("EXCEPTION MAIN THREAD");
+            storeUserItems = QueryUtils.getStoreUserItems(storeName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
 
 
-        userItemsListView.setAdapter(new UserItemAdapter(this, userItems));
+        storeUserItemsListView.setAdapter(new StoreUserItemAdapter(this, storeUserItems));
 
         hideSoftKeyboard(this);
         searchView.setIconified(false);
 
-        ArrayList<UserItem> finalUserItems = userItems;
+        ArrayList<StoreUserItem> finalStoreUserItems = storeUserItems;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
                                               @Override
                                               public boolean onQueryTextSubmit(String query) {
                                                   Integer searchQueryLength = query.length();
-                                                  ArrayList<UserItem> newUserItemList = new ArrayList<>();
-                                                  UserItemAdapter userItemAdapter = new UserItemAdapter(getApplicationContext(), newUserItemList);
-                                                  for(int i = 0; i < finalUserItems.size(); i++){
-                                                      UserItem userItem =  finalUserItems.get(i);
+                                                  ArrayList<StoreUserItem> newStoreUserItemList = new ArrayList<>();
+                                                  StoreUserItemAdapter storeUserItemAdapter = new StoreUserItemAdapter(getApplicationContext(), newStoreUserItemList);
+                                                  for(int i = 0; i < finalStoreUserItems.size(); i++){
+                                                      StoreUserItem storeUserItem =  finalStoreUserItems.get(i);
                                                       try{
-                                                          if(userItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
-                                                              newUserItemList.add(userItem);
+                                                          if(storeUserItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                                                              newStoreUserItemList.add(storeUserItem);
                                                           }
                                                       }
                                                       catch (StringIndexOutOfBoundsException exception){
@@ -99,7 +94,7 @@ public class UserItemsActivity extends AppCompatActivity {
                                                       }
 
                                                   }
-                                                  userItemsListView.setAdapter(userItemAdapter);
+                                                  storeUserItemsListView.setAdapter(storeUserItemAdapter);
                                                   return false;
 
                                               }
@@ -107,13 +102,13 @@ public class UserItemsActivity extends AppCompatActivity {
                                               @Override
                                               public boolean onQueryTextChange(String newText) {
                                                   Integer searchQueryLength = newText.length();
-                                                  ArrayList<UserItem> newMainGodList = new ArrayList<UserItem>();
-                                                  UserItemAdapter userItemAdapter = new UserItemAdapter(getApplicationContext(),newMainGodList);
-                                                  for(int i = 0; i < finalUserItems.size(); i++){
-                                                      UserItem userItem = (UserItem) finalUserItems.get(i);
+                                                  ArrayList<StoreUserItem> newMainGodList = new ArrayList<StoreUserItem>();
+                                                  StoreUserItemAdapter storeUserItemAdapter = new StoreUserItemAdapter(getApplicationContext(),newMainGodList);
+                                                  for(int i = 0; i < finalStoreUserItems.size(); i++){
+                                                      StoreUserItem storeUserItem = (StoreUserItem) finalStoreUserItems.get(i);
                                                       try{
-                                                          if(userItem.getItemName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
-                                                              newMainGodList.add(userItem);
+                                                          if(storeUserItem.getItemName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                                              newMainGodList.add(storeUserItem);
                                                           }
                                                       }
                                                       catch(StringIndexOutOfBoundsException exception){
@@ -122,13 +117,13 @@ public class UserItemsActivity extends AppCompatActivity {
                                                   }
                                                   // if user has deleted all their text
                                                   if (newText.isEmpty()) {
-                                                      resultsForUserItemsView.setVisibility(View.GONE);
+                                                      resultsForStoreUserItemsView.setVisibility(View.GONE);
                                                   }
                                                   else {
-                                                      resultsForUserItemsView.setText("Results for " + newText);
-                                                      resultsForUserItemsView.setVisibility(View.VISIBLE);
+                                                      resultsForStoreUserItemsView.setText("Results for " + newText);
+                                                      resultsForStoreUserItemsView.setVisibility(View.VISIBLE);
                                                   }
-                                                  userItemsListView.setAdapter(userItemAdapter);
+                                                  storeUserItemsListView.setAdapter(storeUserItemAdapter);
                                                   return false;
                                               }
 

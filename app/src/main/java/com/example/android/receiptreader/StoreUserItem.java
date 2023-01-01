@@ -1,13 +1,13 @@
 package com.example.android.receiptreader;
 
-public class UserItem {
+public class StoreUserItem {
     String store;
     String dateOfPurchase;
     String itemName;
     String quantity;
     String totalAmountPaid;
     String unitPrice;
-    public UserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice) {
+    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice) {
         this.store = store;
         this.dateOfPurchase = dateOfPurchase;
         this.itemName = itemName;
@@ -16,7 +16,7 @@ public class UserItem {
         this.unitPrice = unitPrice;
     }
 
-    public UserItem() {
+    public StoreUserItem() {
 
     }
 

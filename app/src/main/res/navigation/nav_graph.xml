@@ -17,7 +17,7 @@
     </activity>
     <fragment
         android:id="@+id/SecondCameraActivity"
-        android:name="com.example.android.receiptreader.SecondCameraActivity"
+        android:name="com.example.android.receiptreader.camera.SecondCameraActivity"
         android:label="@string/second_camera_activity"
         tools:layout="@layout/second_fragment_camera">
 

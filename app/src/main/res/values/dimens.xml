@@ -1,4 +1,6 @@
 <resources>
-    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fab_margin">5dp</dimen>
     <dimen name="camera_all_sides_margin">22dp</dimen>
+    <dimen name="card_element_margin">10dp</dimen>
+    <dimen name="content_padding_normal">15dp</dimen>
 </resources>

@@ -6,7 +6,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/user_item_card_view"
         app:cardCornerRadius="10dp"
-        app:cardElevation="20dp"
+        app:cardElevation="5dp"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
@@ -21,7 +21,7 @@
             android:layout_height="match_parent">
             <TextView
                 style="@style/user_item_details_text_style"
-                android:id="@+id/store_list_name"
+                android:id="@+id/store_item_name"
                 android:fontFamily="sans-serif-condensed-medium"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"

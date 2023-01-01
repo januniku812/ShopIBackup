@@ -1,21 +1,35 @@
 package com.example.android.receiptreader;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
+import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -30,9 +44,146 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+//    TextView resultsForStoresViews;
+//    TextView resultsForShoppingListsViews;
+    ShoppingListAdapter shoppingListAdapter;
+    StoreListAdapter storeListAdapter;
+    ArrayList<Store> stores;
+    ArrayList<ShoppingList> shoppingLists;
+    String inputTextToRetrieved = "";
+    ListView shoppingListsView;
+    ListView storesListView;
 
-    TextView resultsForUserItemsView;
-    ListView userItemsListView;
+    private void showDialog(String title, int jsonEditCode, @Nullable String originalName) {
+        final int finalJsonEditCode = jsonEditCode;
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder
+                        (MainActivity.this, R.style.AlertDialogCustom);
+        View view = LayoutInflater.from(MainActivity.this).inflate(
+                R.layout.custom_dialog,
+                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+        );
+        builder.setView(view);
+        ((TextView) view.findViewById(R.id.textTitle))
+                .setText(title);
+        ImageView icon = (ImageView) view.findViewById(R.id.imageIcon);
+        TextView editText = view.findViewById(R.id.custom_dialog_edit_text);
+        Button enterButton = (Button) view.findViewById(R.id.enterButton);
+        if(jsonEditCode == JSONEditCodes.DELETE_STORE || jsonEditCode == JSONEditCodes.DELETE_SHOPPING_LIST){
+            editText.setVisibility(View.INVISIBLE);
+            icon.setMinimumHeight(50);
+            icon.setMinimumWidth(50);
+            enterButton.setText(R.string.yes);
+            icon.setImageResource(R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
+            TextView delete_text =  (TextView) view.findViewById(R.id.delete_text);
+        delete_text.setVisibility(View.VISIBLE);
+        delete_text.setText(String.format("Are you sure you want to delete %s, this action is permanent and cannot be undone", originalName));
+        }
+        else if(finalJsonEditCode == JSONEditCodes.ADD_NEW_STORE || finalJsonEditCode == JSONEditCodes.ADD_NEW_SHOPPING_LIST){
+            icon.setMinimumHeight(25);
+            icon.setMinimumWidth(25);
+            icon.setImageResource(R.drawable.ic_baseline_add_24); // making the pop up icon a edit symbol
+            editText.setVisibility(View.VISIBLE);
+            enterButton.setText(getString(R.string.enter));
+            view.findViewById(R.id.delete_text).setVisibility(View.INVISIBLE); // making sure the are you sure you want to delete text is not going to show up from previous possible uses
+
+        }
+        else{ // edit functions
+            icon.setMinimumHeight(25);
+            icon.setMinimumWidth(25);
+            icon.setImageResource(R.drawable.ic_baseline_edit_24); // making the pop up icon a edit symbol
+            editText.setVisibility(View.VISIBLE);
+            editText.setText(originalName);
+//            editText.setHint(getString(R.string.enter_new_name));
+            enterButton.setText(getString(R.string.enter));
+            view.findViewById(R.id.delete_text).setVisibility(View.INVISIBLE); // making sure the are you sure you want to delete text is not going to show up from previous possible uses
+
+        }
+        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+        enterButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View view) {
+                if(finalJsonEditCode == JSONEditCodes.EDIT_STORE_NAME){
+                    try {
+                        System.out.println("EDIT TEXT VAL SUBMIT MOMENT: "+ editText.getText());
+                        QueryUtils.editStoreName(originalName, String.valueOf(editText.getText()));
+                        stores =  QueryUtils.getStores();
+                        storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
+                        storesListView.setAdapter(storeListAdapter);
+                    } catch (IOException | ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(finalJsonEditCode == JSONEditCodes.EDIT_SHOPPING_LIST_NAME){
+                    try {
+                        QueryUtils.editShoppingListName(originalName, String.valueOf(editText.getText()));
+                        shoppingLists =  QueryUtils.getShoppingLists();
+                        shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
+                        shoppingListsView.setAdapter(shoppingListAdapter);
+                    } catch (IOException | ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(finalJsonEditCode == JSONEditCodes.ADD_NEW_STORE){ // should only be triggered by add fab button for stores
+                    try {
+                        QueryUtils.addNewStore(String.valueOf(editText.getText()));
+                        stores =  QueryUtils.getStores();
+                        storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
+                        storesListView.setAdapter(storeListAdapter);
+                    } catch (ParseException | IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                if(finalJsonEditCode == JSONEditCodes.ADD_NEW_SHOPPING_LIST){ // should only be triggered by add fab button for shopping lists
+                    try {
+                        System.out.println("IM BEING ACCESSED @addNewShoppingList finalJsonEditCode in showDialog");
+                        QueryUtils.addShoppingList(String.valueOf(editText.getText()));
+                        shoppingLists =  QueryUtils.getShoppingLists();
+                        shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
+                        shoppingListsView.setAdapter(shoppingListAdapter);
+                    } catch (ParseException | IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                if(finalJsonEditCode == JSONEditCodes.DELETE_STORE){ // should only be triggered by add fab button for shopping lists
+                    try {
+                        QueryUtils.deleteStore(originalName);
+                        stores =  QueryUtils.getStores();
+                        storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
+                        storesListView.setAdapter(storeListAdapter);
+                    } catch (ParseException | IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                if(finalJsonEditCode == JSONEditCodes.DELETE_SHOPPING_LIST){ // should only be triggered by add fab button for shopping lists
+                    try {
+                        QueryUtils.deleteShoppingList(originalName);
+                        shoppingLists =  QueryUtils.getShoppingLists();
+                        shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
+                        shoppingListsView.setAdapter(shoppingListAdapter);
+                    } catch (ParseException | IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                alertDialog.dismiss();
+            }
+        });
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+        alertDialog.show();
+    }
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
@@ -50,48 +201,51 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        userItemsListView = findViewById(R.id.user_items_list_view);
-        resultsForUserItemsView = findViewById(R.id.results_for_user_item_text);
-        SearchView searchView = findViewById(R.id.search_bar);
-        FloatingActionButton add_fab = findViewById(R.id.fab);
-        add_fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SecondCameraActivity.class);
-                startActivity(intent);
-
-            }
-        });
-
-        ArrayList<UserItem> userItems = new ArrayList<UserItem>();
+        shoppingListsView = (ListView) findViewById(R.id.shopping_list_items_list_view);
+        storesListView = (ListView) findViewById(R.id.stores_list_view);
+        SearchView shoppingListSearchView = findViewById(R.id.shopping_list_search_bar);
+        SearchView storesSearchView = findViewById(R.id.store_list_search_bars);
+        FloatingActionButton addStoreFab = (FloatingActionButton) findViewById(R.id.store_list_fab);
+        FloatingActionButton addShoppingListFab = (FloatingActionButton) findViewById(R.id.shopping_list_fab);
+        stores = new ArrayList<Store>();
+        shoppingLists = new ArrayList<ShoppingList>();
+        // retrieving data to passed to adapters
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                userItems = QueryUtils.getUserItems();
+                shoppingLists = QueryUtils.getShoppingLists();
+                stores = QueryUtils.getStores();
             }
         } catch (Exception e) {
             System.out.println("EXCEPTION MAIN THREAD");
             e.printStackTrace();
         }
-
-
-        userItemsListView.setAdapter(new UserItemAdapter(this, userItems));
+        shoppingListAdapter = new ShoppingListAdapter(this, shoppingLists);
+        storeListAdapter = new StoreListAdapter(this, stores);
+        shoppingListsView.setAdapter(shoppingListAdapter);
+        storesListView.setAdapter(storeListAdapter);
 
         hideSoftKeyboard(this);
-        searchView.setIconified(false);
-
-        ArrayList<UserItem> finalUserItems = userItems;
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
+        shoppingListSearchView.setIconified(false);
+        storesSearchView.setIconified(false);
+        // all functions for searching through the stores list view
+        storesSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     Integer searchQueryLength = query.length();
-                    ArrayList<UserItem> newUserItemList = new ArrayList<>();
-                    UserItemAdapter userItemAdapter = new UserItemAdapter(getApplicationContext(), newUserItemList);
-                    for(int i = 0; i < finalUserItems.size(); i++){
-                        UserItem userItem =  finalUserItems.get(i);
+                    ArrayList<Store> newStoreList = new ArrayList<>();
+                    StoreListAdapter storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
+                    try {
+                        stores = QueryUtils.getStores();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    for(int i = 0; i < stores.size(); i++){
+                        Store store =  stores.get(i);
                         try{
-                            if(userItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
-                                newUserItemList.add(userItem);
+                            if(store.getStoreName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                                newStoreList.add(store);
                             }
                         }
                         catch (StringIndexOutOfBoundsException exception){
@@ -99,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                     }
-                    userItemsListView.setAdapter(userItemAdapter);
+                    storesListView.setAdapter(storeListAdapter);
                     return false;
 
                 }
@@ -107,28 +261,27 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onQueryTextChange(String newText) {
                     Integer searchQueryLength = newText.length();
-                    ArrayList<UserItem> newMainGodList = new ArrayList<UserItem>();
-                    UserItemAdapter userItemAdapter = new UserItemAdapter(getApplicationContext(),newMainGodList);
-                    for(int i = 0; i < finalUserItems.size(); i++){
-                        UserItem userItem = (UserItem) finalUserItems.get(i);
+                    ArrayList<Store> newStoreList = new ArrayList<Store>();
+                    StoreListAdapter storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
+                    try {
+                        stores = QueryUtils.getStores();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    for(int i = 0; i < stores.size(); i++){
+                        Store store = (Store) stores.get(i);
                         try{
-                            if(userItem.getItemName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
-                                newMainGodList.add(userItem);
+                            if(store.getStoreName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                newStoreList.add(store);
                             }
                         }
                         catch(StringIndexOutOfBoundsException exception){
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
                         }
                     }
-                    // if user has deleted all their text
-                    if (newText.isEmpty()) {
-                        resultsForUserItemsView.setVisibility(View.GONE);
-                    }
-                    else {
-                        resultsForUserItemsView.setText("Results for " + newText);
-                        resultsForUserItemsView.setVisibility(View.VISIBLE);
-                    }
-                    userItemsListView.setAdapter(userItemAdapter);
+                    storesListView.setAdapter(storeListAdapter);
                     return false;
                 }
 
@@ -137,13 +290,166 @@ public class MainActivity extends AppCompatActivity {
 
         );
         // filter through user_items list with user items list adapter
-        searchView.setOnCloseListener( new SearchView.OnCloseListener() {
+        storesSearchView.setOnCloseListener( new SearchView.OnCloseListener() {
                @Override
                public boolean onClose() {
                    return false;
                 }
             }
         );
+
+
+        // all functions for searching through the shoppingLists list view
+        shoppingListSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Integer searchQueryLength = query.length();
+                ArrayList<ShoppingList> newShoppingListList = new ArrayList<>();
+                ShoppingListAdapter ShoppingListListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
+                // updating shopping list
+                try {
+                    shoppingLists = QueryUtils.getShoppingLists();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                for(int i = 0; i < shoppingLists.size(); i++){
+                    ShoppingList shoppingList =  shoppingLists.get(i);
+                    try{
+                        if(shoppingList.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                            newShoppingListList.add(shoppingList);
+                        }
+                    }
+                    catch (StringIndexOutOfBoundsException exception){
+//                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
+                    }
+
+                }
+                shoppingListsView.setAdapter(ShoppingListListAdapter);
+                return false;
+
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Integer searchQueryLength = newText.length();
+                ArrayList<ShoppingList> newShoppingListList = new ArrayList<ShoppingList>();
+                ShoppingListAdapter ShoppingListListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
+                // updating shopping list
+                try {
+                    shoppingLists = QueryUtils.getShoppingLists();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                for(int i = 0; i < shoppingLists.size(); i++){
+                    ShoppingList shoppingList = (ShoppingList) shoppingLists.get(i);
+                    try{
+                        if(shoppingList.getName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                            newShoppingListList.add(shoppingList);
+                        }
+                    }
+                    catch(StringIndexOutOfBoundsException exception){
+//                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
+                    }
+                }
+                shoppingListsView.setAdapter(ShoppingListListAdapter);
+                return false;
+            }
+
+
+        }
+
+        );
+        // filter through user_items list with user items list adapter
+        shoppingListSearchView.setOnCloseListener( new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                return false;
+            }
+        }
+        );
+        // listener for editing a specific store name
+        storesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Store store = (Store) storeListAdapter.getItem(i);
+                String originalStoreName = store.getStoreName();
+                View selectedStoreView = storeListAdapter.getView(i, view, adapterView);
+                ImageView editViewIcon = (ImageView) selectedStoreView.findViewById(R.id.edit_name_button);
+                ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
+                ImageView historyButton = (ImageView) selectedStoreView.findViewById(R.id.history_button);
+                ImageView shoppingCartButton = (ImageView) selectedStoreView.findViewById(R.id.select_shopping_mode);
+                editViewIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showDialog(getString(R.string.edit_store_name),JSONEditCodes.EDIT_STORE_NAME, originalStoreName);
+                    }
+                });
+                deleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showDialog(getString(R.string.delete_store),  JSONEditCodes.DELETE_STORE, originalStoreName);
+                    }
+                });
+
+                historyButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        System.out.println("MADE IT STORE historyButton @onClick");
+                        Intent intent = new Intent(MainActivity.this, StoreUserItemsActivity.class);
+                        intent.putExtra("storeName", store.getStoreName());
+                        startActivity(intent);
+                    }
+                });
+
+            }
+        });
+
+        shoppingListsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ShoppingList shoppingList = (ShoppingList) shoppingListAdapter.getItem(i);
+                String originalShoppingListName = shoppingList.getName();
+                View selectedStoreView = shoppingListAdapter.getView(i, view, adapterView);
+                ImageView editViewIcon = (ImageView) selectedStoreView.findViewById(R.id.edit_name_sl_button);
+                ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
+                editViewIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showDialog(getString(R.string.edit_shopping_list), JSONEditCodes.EDIT_SHOPPING_LIST_NAME, originalShoppingListName);
+
+                    }
+                });
+                deleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showDialog(getString(R.string.delete_shopping_list), JSONEditCodes.DELETE_SHOPPING_LIST, originalShoppingListName);
+                    }
+                });
+
+            }
+        });
+
+        addStoreFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog(getString(R.string.add_store), JSONEditCodes.ADD_NEW_STORE, null);
+            }
+        });
+
+        addShoppingListFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog(getString(R.string.add_shopping_list), JSONEditCodes.ADD_NEW_SHOPPING_LIST, null);
+            }
+        });
+
     }
 
     @Override

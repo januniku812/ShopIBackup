@@ -1,13 +1,9 @@
 package com.example.android.receiptreader;
 
 
-import android.content.res.Resources;
 import android.os.Build;
-import android.os.FileUtils;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -15,72 +11,326 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class QueryUtils  {
+    // TODO: create getStoreUserItems() and getShoppingListUsesItems() and if storeAlreadyExists(), shoppingListAlreadyExists(), and if storeUserItemAlreadyExists() and if shoppingListUserItem() already exist
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static ArrayList<UserItem> getUserItems() throws IOException, ParseException {
-
-        String jsonData = Constants.user_items_json_data_str;
-        Object object = new JSONParser().parse(jsonData
+    public static ArrayList<StoreUserItem> getStoreUserItems(String storeName) throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
         );
-//                 Object object = new JSONParser().parse(new String(Files.readAllBytes(Paths.get(filePath))));
-//        Object object = new JSONParser().parse("{\n" +
-//                "  \"user_items\": [\n" +
-//                "    {\n" +
-//                "      \"user_item_store\": \"WALMART\",\n" +
-//                "      \"user_item_date\":\"12/7/2022\",\n" +
-//                "      \"user_item_name\": \"HRSPRAY\",\n" +
-//                "      \"user_item_quantity\": \"2\",\n" +
-//                "      \"user_item_total_amount_paid\": \"5.00\",\n" +
-//                "      \"user_item_unit_price\": \"2.50\"\n" +
-//                "    }\n" +
-//                "  ]\n" +
-//                "}");
-        ArrayList<UserItem> userItemArrayList = new ArrayList<>();
 
-        UserItem userItem = new UserItem();
+        ArrayList<StoreUserItem> storeUserItemArrayList = new ArrayList<>();
+
         try{
             JSONObject jsonObject = (JSONObject) object;
-            JSONArray userItemsList = (JSONArray) jsonObject.get("user_items");
-            for(int i = 0; i < userItemsList.size(); i++){
-                JSONObject userItemObject = (JSONObject) userItemsList.get(i);
-                String userItemStoreName = (String) userItemObject.get("user_item_store");
-                String userItemDate = (String) userItemObject.get("user_item_date");
-                String userItemName = (String) userItemObject.get("user_item_name");
-                String userItemQuantity = (String) userItemObject.get("user_item_quantity");
-                String userItemTotalAmountPaid = (String) userItemObject.get("user_item_total_amount_paid");
-                String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
-                UserItem userItemToAdd = new UserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
-                userItemArrayList.add(userItemToAdd);
-
+            JSONArray stores = (JSONArray) jsonObject.get("stores");
+            for(int i = 0; i < stores.size(); i++){
+                JSONObject store = (JSONObject) stores.get(i);
+                if(store.get("store_name").equals(storeName)){
+                    JSONArray store_user_items = (JSONArray) jsonParser.parse(store.get("store_user_items").toString());
+                    for(int i2 = 0; i2 < store_user_items.size(); i2++){
+                        JSONObject userItemObject = (JSONObject) store_user_items.get(i);
+                        String userItemStoreName = (String) userItemObject.get("user_item_store");
+                        String userItemDate = (String) userItemObject.get("user_item_date");
+                        String userItemName = (String) userItemObject.get("user_item_name");
+                        String userItemQuantity = (String) userItemObject.get("user_item_quantity");
+                        String userItemTotalAmountPaid = (String) userItemObject.get("user_item_total_amount_paid");
+                        String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
+                        StoreUserItem userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
+                        storeUserItemArrayList.add(userItemToAdd);
+                    }
+                }
             }
 
         }catch(Exception e){
             e.printStackTrace();
         }
-         return userItemArrayList;
+        return storeUserItemArrayList;
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<ShoppingListUserItem> getShoppingListUsersItems(String shoppingListName) throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = new JSONParser().parse(jsonData
+        );
+
+        ArrayList<ShoppingListUserItem> ShoppingListUserItemArraylist = new ArrayList<>();
+
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shopping_lists.size(); i++){
+                JSONObject shopping_list = (JSONObject) shopping_lists.get(i);
+                if(shopping_list.get("shopping_list_user_name").equals(shoppingListName)){
+                    JSONArray shopping_list_user_items = (JSONArray) jsonParser.parse(shopping_list.get("shopping_list_user_items").toString());
+                    for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                        JSONObject ShoppingListUserItemObject = (JSONObject) shopping_list_user_items.get(i);
+                        String shopping_list_item_name = (String) ShoppingListUserItemObject.get("shopping_list_item_name");
+                        String shopping_list_item_last_bought = (String) ShoppingListUserItemObject.get("shopping_list_item_last_bought");
+                        String shopping_list_item_quantity = (String) ShoppingListUserItemObject.get("shopping_list_item_quantity");
+                        ShoppingListUserItem shoppingListUserItemToAdd = new ShoppingListUserItem(shopping_list_item_name, shopping_list_item_last_bought, shopping_list_item_quantity);
+                        ShoppingListUserItemArraylist.add(shoppingListUserItemToAdd);
+                    }
+                }
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return ShoppingListUserItemArraylist;
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<Store> getStores() throws IOException, ParseException {
+
+        String jsonData = Constants.json_data_str;
+        Object object = new JSONParser().parse(jsonData
+        );
+        ArrayList<Store> storeArrayList = new ArrayList<>();
+        StoreUserItem userItem = new StoreUserItem();
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray userItemsList = (JSONArray) jsonObject.get("stores");
+            for(int i = 0; i < userItemsList.size(); i++){
+                JSONObject storeObject = (JSONObject) userItemsList.get(i);
+                ArrayList<StoreUserItem> userItemArrayList = new ArrayList<>();
+                String store_name = (String) storeObject.get("store_name");
+                System.out.println("STORE USER ITEMS 3 FOR " + store_name + ": " + storeObject.get("store_user_items"));
+                JSONArray store_user_items = (JSONArray) new JSONParser().parse(storeObject.get("store_user_items").toString());
+                for(int i2 = 0; i2 < store_user_items.size(); i2++){
+                    JSONObject userItemObject = (JSONObject) store_user_items.get(i2);
+                    String userItemStoreName = (String) userItemObject.get("user_item_store");
+                    String userItemDate = (String) userItemObject.get("user_item_date");
+                    String userItemName = (String) userItemObject.get("user_item_name");
+                    String userItemQuantity = (String) userItemObject.get("user_item_quantity");
+                    String userItemTotalAmountPaid = (String) userItemObject.get("user_item_total_amount_paid");
+                    String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
+                    StoreUserItem userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
+                    userItemArrayList.add(userItemToAdd);
+                }
+                Store storeToAdd = new Store(store_name, store_user_items);
+                storeArrayList.add(storeToAdd);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return storeArrayList;
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<ShoppingList> getShoppingLists() throws IOException, ParseException {
 
 
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        ArrayList<ShoppingList> shoppingListArray = new ArrayList<>();
+        StoreUserItem userItem = new StoreUserItem();
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray userItemsList = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < userItemsList.size(); i++){
+                JSONObject storeObject = (JSONObject) userItemsList.get(i);
+                String shopping_list_name = (String) storeObject.get("shopping_list_name");
+                JSONArray shopping_list_user_items = (JSONArray) jsonParser.parse(storeObject.get("shopping_list_user_items").toString());
+                ArrayList<ShoppingListUserItem> ShoppingListUserItemArraylist = new ArrayList<ShoppingListUserItem>();
+                for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                    JSONObject userItemObject = (JSONObject) shopping_list_user_items.get(i2);
+                    String shopping_list_item_name = (String) userItemObject.get("shopping_list_item_name");
+                    String shopping_list_item_last_bought = (String) userItemObject.get("shopping_list_item_last_bought");
+                    String shopping_list_item_quantity = (String) userItemObject.get("shopping_list_item_quantity");
+                    ShoppingListUserItem ShoppingListUserItemToAdd = new ShoppingListUserItem(shopping_list_item_name, shopping_list_item_last_bought, shopping_list_item_quantity);
+                    ShoppingListUserItemArraylist.add(ShoppingListUserItemToAdd);
+                }
+                ShoppingList shoppingListToAdd = new ShoppingList(shopping_list_name, ShoppingListUserItemArraylist);
+                shoppingListArray.add(shoppingListToAdd);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return shoppingListArray;
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static void editStoreName(String originalName, String replacementName) throws IOException, ParseException {
+        System.out.println("IVE BEEN ACCESSED - editStoreName func");
+        System.out.println("ORIGINAL NAME PARAMETER editStoreName func @QueryUtils: " + originalName);
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        ArrayList<ShoppingList> shoppingListArray = new ArrayList<>();
+        StoreUserItem userItem = new StoreUserItem();
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray stores = (JSONArray) jsonObject.get("stores");
+            for(int i = 0; i < stores.size(); i++){
+                JSONObject storeObject = (JSONObject) stores.get(i);
+                String store_name = (String) storeObject.get("store_name");
+                System.out.println("STORE NAME: " + store_name);
+                if(store_name.equals(originalName)){
+                    System.out.println("IVE BEEN ACCESSED - editStoreName func replacement");
+                    storeObject.replace("store_name", replacementName);
+                }
+                JSONArray store_user_items = (JSONArray) jsonParser.parse(storeObject.get("store_user_items").toString());
+//                JSONArray store_user_items_to_be_replaced = new JSONArray();
+                for(int i2 = 0; i2 < store_user_items.size(); i2++){
+                    JSONObject store_user_item = (JSONObject) store_user_items.get(i2);
+                    System.out.println("REPLACING: " + store_user_item.get("user_item_store") + " WITH " + replacementName);
+                    store_user_item.replace("user_item_store", replacementName);
+//                    store_user_items_to_be_replaced.add(store_user_items);
+                    System.out.println("STORE USER ITEM: " + store_user_item);
+                }
+//                store_user_items = store_user_items_to_be_replaced;
+                storeObject.replace("store_user_items", store_user_items);
+            }
+            System.out.println("STORE OBJECT: " + stores);
+            // update json data string value
+            System.out.println("IVE BEEN ACCESSED - editStoreName func updation");
+            Constants.json_data_str = jsonObject.toJSONString();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<ShoppingList> editShoppingListName(String originalName, String replacementName) throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        Object object = new JSONParser().parse(jsonData
+        );
+        ArrayList<ShoppingList> shoppingListArray = new ArrayList<>();
+        StoreUserItem userItem = new StoreUserItem();
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shopping_lists.size(); i++){
+                JSONObject storeObject = (JSONObject) shopping_lists.get(i);
+                ArrayList<StoreUserItem> userItemArrayList = new ArrayList<>();
+                String shopping_list_name = (String) storeObject.get("shopping_list_name");
+                if(shopping_list_name.equals(originalName)){
+                    storeObject.replace("shopping_list_name", replacementName);
+                }
+            }
+            // update json data string value
+            Constants.json_data_str = jsonObject.toJSONString();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return shoppingListArray;
+
+    }
+
+    public static void addNewStore(String storeName) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        Object object = new JSONParser().parse(jsonData
+        );
+        ArrayList<ShoppingList> shoppingListArray = new ArrayList<>();
+        StoreUserItem userItem = new StoreUserItem();
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray stores = (JSONArray) jsonObject.get("stores");
+            JSONObject storeJsonObjectToAdd = new JSONObject();
+            storeJsonObjectToAdd.put("store_name", storeName);
+            storeJsonObjectToAdd.put("store_user_items", "[]");
+            stores.add(storeJsonObjectToAdd);
+            // update json data string value
+            System.out.println("I REACHED @addNewStore : " + jsonObject);
+            Constants.json_data_str = jsonObject.toJSONString();
+            System.out.println("I REACHED @addNewStore  2: " + Constants.json_data_str);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void addShoppingList(String shoppingListName) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        Object object = new JSONParser().parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+            JSONObject shoppingListJsonObjectToAdd = new JSONObject();
+            shoppingListJsonObjectToAdd.put("shopping_list_name", shoppingListName);
+            shoppingListJsonObjectToAdd.put("shopping_list_user_items", "[]");
+            shopping_lists.add(shoppingListJsonObjectToAdd);
+            // update json data string value
+            System.out.println("IM BEING ACCESSED @addNewShoppingList Query Utils finalJSONObject: " + jsonObject);
+            Constants.json_data_str = jsonObject.toJSONString();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteStore(String storeName) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        Object object = new JSONParser().parse(jsonData);
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray stores = (JSONArray) jsonObject.get("stores");
+            for(int i = 0; i < stores.size(); i++){
+                JSONObject store = (JSONObject) stores.get(i);
+                if(store.get("store_name").equals(storeName)){
+                    System.out.println("MADE IT DELETE: " + storeName);
+                    stores.remove(store);
+                }
+            }
+            System.out.println("TO UPDATE JSON OBJECT @deleteStore: " + jsonObject);
+            // update json data string value
+            Constants.json_data_str = jsonObject.toJSONString();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteShoppingList(String shoppingListName) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        Object object = new JSONParser().parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shopping_lists.size(); i++){
+                JSONObject shoppingList = (JSONObject) shopping_lists.get(i);
+                if(shoppingList.get("shopping_list_name").equals(shoppingListName)){
+                    shopping_lists.remove(shoppingList);
+                }
+            }
+            // update json data string value
+            Constants.json_data_str = jsonObject.toJSONString();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
         File file = new File("practice.txt");
 //        File file = new File(filePath);
-        ArrayList<UserItem> userItemArrayList = new ArrayList<>();
+        ArrayList<StoreUserItem> userItemArrayList = new ArrayList<>();
 //        Scanner scanner = new Scanner(file);
 //        file.setWritable(true);
 //        file.setReadable(true);
 //        file.canRead();
         System.out.println("EXISTS: " + file.exists());
     }
+
 }
