@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -46,6 +47,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         shoppingListUserItemsListView = findViewById(R.id.shopping_list_user_items_list_view);
         resultsForshoppingListUserItemsView = findViewById(R.id.results_for_user_item_text);
         SearchView searchView = findViewById(R.id.search_bar);
+        ImageView historyButton = (ImageView) findViewById(R.id.history_button_sl_item);
         FloatingActionButton add_fab = findViewById(R.id.sl_fab);
         add_fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,6 +138,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                            }
                                        }
         );
+        historyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                
+            }
+        });
     }
 
     @Override
