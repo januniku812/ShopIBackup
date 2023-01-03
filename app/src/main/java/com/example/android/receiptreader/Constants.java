@@ -50,13 +50,37 @@ public final class Constants {
             "        },\n" +
             "        {\n" +
             "          \"user_item_store\": \"walmart\",\n" +
+            "          \"user_item_date\":\"12/03/2022\",\n" +
+            "          \"user_item_name\": \"TURKEY\",\n" +
+            "          \"user_item_quantity\": \"2\",\n" +
+            "          \"user_item_total_amount_paid\": \"4.00\",\n" +
+            "          \"user_item_unit_price\": \"2.00\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"user_item_store\": \"walmart\",\n" +
             "          \"user_item_date\":\"12/12/2022\",\n" +
             "          \"user_item_name\": \"ORANGES\",\n" +
             "          \"user_item_quantity\": \"2\",\n" +
             "          \"user_item_total_amount_paid\": \"4.00\",\n" +
             "          \"user_item_unit_price\": \"2.00\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"user_item_store\": \"walmart\",\n" +
+            "          \"user_item_date\":\"12/03/2022\",\n" +
+            "          \"user_item_name\": \"TURKEY\",\n" +
+            "          \"user_item_quantity\": \"2\",\n" +
+            "          \"user_item_total_amount_paid\": \"4.00\",\n" +
+            "          \"user_item_unit_price\": \"2.00\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"user_item_store\": \"walmart\",\n" +
+            "          \"user_item_date\":\"12/03/2022\",\n" +
+            "          \"user_item_name\": \"BREAD\",\n" +
+            "          \"user_item_quantity\": \"2\",\n" +
+            "          \"user_item_total_amount_paid\": \"4.00\",\n" +
+            "          \"user_item_unit_price\": \"2.00\"\n" +
             "        }\n" +
-            "        ]\n" +
+            "      ]\n" +
             "    }\n" +
             "  ],\n" +
             "  \"shopping_lists\":[\n" +
@@ -69,7 +93,12 @@ public final class Constants {
             "          \"shopping_list_item_quantity\": \"1\"\n" +
             "        },\n" +
             "        {\n" +
-            "          \"shopping_list_item_name\": \"Pomegrenate\",\n" +
+            "          \"shopping_list_item_name\": \"Pomegranate\",\n" +
+            "          \"shopping_list_item_last_bought\":\"\",\n" +
+            "          \"shopping_list_item_quantity\": \"1\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"shopping_list_item_name\": \"Grapes\",\n" +
             "          \"shopping_list_item_last_bought\":\"\",\n" +
             "          \"shopping_list_item_quantity\": \"1\"\n" +
             "        }\n" +

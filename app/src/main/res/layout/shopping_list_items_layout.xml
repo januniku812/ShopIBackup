@@ -36,14 +36,14 @@
         <ListView
 
             tools:listitem="@layout/shopping_list_item"
-            android:id="@+id/user_items_list_view"
+            android:id="@+id/shopping_list_user_items_list_view"
             android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/sl_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

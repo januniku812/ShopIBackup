@@ -28,7 +28,11 @@
             android:name=".StoreUserItemsActivity"
             android:label="@string/store_user_items_activity"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
-
+        </activity>
+        <activity
+            android:name=".ShoppingListUserItemsActivity"
+            android:label="@string/store_user_items_activity"
+            android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
     </application>
 

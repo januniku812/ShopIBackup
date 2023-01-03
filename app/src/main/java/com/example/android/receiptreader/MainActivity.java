@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -192,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         if (view == null) {
             view = new View(activity);
         }
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         System.out.println("made it hideSoftKeyboard");
     }
@@ -419,6 +421,9 @@ public class MainActivity extends AppCompatActivity {
                 View selectedStoreView = shoppingListAdapter.getView(i, view, adapterView);
                 ImageView editViewIcon = (ImageView) selectedStoreView.findViewById(R.id.edit_name_sl_button);
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
+                Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+                intent.putExtra("shoppingListName",shoppingList.getName());
+                startActivity(intent);
                 editViewIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -434,6 +439,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
             }
+
         });
 
         addStoreFab.setOnClickListener(new View.OnClickListener() {
@@ -449,6 +455,7 @@ public class MainActivity extends AppCompatActivity {
                 showDialog(getString(R.string.add_shopping_list), JSONEditCodes.ADD_NEW_SHOPPING_LIST, null);
             }
         });
+
 
     }
 

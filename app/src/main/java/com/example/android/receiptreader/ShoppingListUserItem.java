@@ -29,6 +29,30 @@ public class ShoppingListUserItem {
 
     }
 
+    public String getLastBought() {
+        return lastBought;
+    }
+
+    public void setLastBought(String lastBought) {
+        this.lastBought = lastBought;
+    }
+
+    public String getUserQuantity() {
+        return userQuantity;
+    }
+
+    public void setUserQuantity(String userQuantity) {
+        this.userQuantity = userQuantity;
+    }
+
+    public String getToRecordStore() {
+        return toRecordStore;
+    }
+
+    public void setToRecordStore(String toRecordStore) {
+        this.toRecordStore = toRecordStore;
+    }
+
     public String getStore() {
         return toRecordStore;
     }

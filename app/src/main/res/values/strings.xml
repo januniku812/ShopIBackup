@@ -36,7 +36,7 @@
     <string name="thanksgiving_dinner_to_buy">THANKSGIVING DINNER TO BUY</string>
     <string name="store">Stores</string>
     <string name="new_item_name">NEW ITEM NAME</string>
-    <string name="last_bought">Oct. 27 2022</string>
+    <string name="last_bought">10/27/22</string>
     <string name="quantity_sl_item_placeholder">1</string>
     <string name="enter">ENTER</string>
     <string name="cancel">CANCEL</string>
@@ -53,4 +53,5 @@
     <string name="store_name">Store name like Walmart, etc</string>
     <string name="add_shopping_list">add shopping list</string>
     <string name="store_user_items_activity">Store User Items</string>
+    <string name="not_previously_bought">not previously bought</string>
 </resources>

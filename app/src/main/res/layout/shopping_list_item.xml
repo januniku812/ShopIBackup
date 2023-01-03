@@ -16,7 +16,7 @@
         android:layout_height="40dp">
         <androidx.constraintlayout.widget.ConstraintLayout
 
-            android:id="@+id/user_item_card_view_cl"
+            android:id="@+id/shopping_list_user_item_card_view_cl"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -56,6 +56,7 @@
                 app:layout_constraintStart_toEndOf="@id/check_circle"
                 android:layout_width="wrap_content"
                 android:text="@string/turkey"
+                android:gravity="center_vertical"
                 android:layout_height="wrap_content"/>
             <TextView
                 style="@style/user_item_details_text_style"
@@ -70,8 +71,8 @@
                 style="@style/user_item_details_text_style"
                 android:id="@+id/quantity_sl_item"
                 android:textSize="15sp"
-                app:layout_constraintStart_toEndOf="@id/shopping_list_item_name"
                 app:layout_constraintEnd_toStartOf="@id/history_button_sl_item"
+                app:layout_constraintStart_toEndOf="@id/last_bought_date"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_width="wrap_content"
