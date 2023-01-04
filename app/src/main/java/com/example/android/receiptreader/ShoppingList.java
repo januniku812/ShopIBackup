@@ -11,6 +11,14 @@ public class ShoppingList {
         this.shoppingListUserItemArraylist = shoppingListUserItemArraylist;
     }
 
+    public ShoppingList(String name) {
+        this.name = name;
+    }
+
+    public ShoppingList() {
+
+    }
+
     public String getName() {
         return name;
     }

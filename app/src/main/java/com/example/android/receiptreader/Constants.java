@@ -89,7 +89,7 @@ public final class Constants {
             "      \"shopping_list_user_items\": [\n" +
             "        {\n" +
             "          \"shopping_list_item_name\": \"Turkey\",\n" +
-            "          \"shopping_list_item_last_bought\":\"12/7/2022\",\n" +
+            "          \"shopping_list_item_last_bought\":\"\",\n" +
             "          \"shopping_list_item_quantity\": \"1\"\n" +
             "        },\n" +
             "        {\n" +

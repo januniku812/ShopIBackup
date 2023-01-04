@@ -1,7 +1,28 @@
 package com.example.android.receiptreader;
 
+import java.util.ArrayList;
+
 public class ShoppingListUserItem {
+    ArrayList<ShoppingList> otherShoppingListsExistingIn;
+    ArrayList<StoreUserItem> storeUserItemsHistory;
     String name;
+
+    public ArrayList<ShoppingList> getOtherShoppingListsExistingIn() {
+        return otherShoppingListsExistingIn;
+    }
+
+    public void setOtherShoppingListsExistingIn(ArrayList<ShoppingList> otherShoppingListsExistingIn) {
+        this.otherShoppingListsExistingIn = otherShoppingListsExistingIn;
+    }
+
+    public ArrayList<StoreUserItem> getStoreUserItemsHistory() {
+        return storeUserItemsHistory;
+    }
+
+    public void setStoreUserItemsHistory(ArrayList<StoreUserItem> storeUserItemsHistory) {
+        this.storeUserItemsHistory = storeUserItemsHistory;
+    }
+
     String lastBought;
     String userQuantity;
     String toRecordPrice;

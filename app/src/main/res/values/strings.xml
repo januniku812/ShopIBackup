@@ -54,4 +54,6 @@
     <string name="add_shopping_list">add shopping list</string>
     <string name="store_user_items_activity">Store User Items</string>
     <string name="not_previously_bought">not previously bought</string>
+    <string name="delete_shopping_list_item">delete shopping list item</string>
+    <string name="shopping_list_user_item_history">Shopping list User Item History</string>
 </resources>

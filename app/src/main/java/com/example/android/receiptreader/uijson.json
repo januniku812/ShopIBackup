@@ -45,7 +45,7 @@
         },
         {
           "user_item_store": "walmart",
-          "user_item_date":"12/03/2022",
+          "user_item_date":"12/05/2022",
           "user_item_name": "TURKEY",
           "user_item_quantity": "2",
           "user_item_total_amount_paid": "4.00",
@@ -84,7 +84,7 @@
       "shopping_list_user_items": [
         {
           "shopping_list_item_name": "Turkey",
-          "shopping_list_item_last_bought":"12/7/2022",
+          "shopping_list_item_last_bought":"",
           "shopping_list_item_quantity": "1"
         },
         {

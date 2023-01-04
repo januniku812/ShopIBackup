@@ -1,6 +1,8 @@
 package com.example.android.receiptreader;
 
-public class StoreUserItem {
+import java.io.Serializable;
+
+public class StoreUserItem implements Serializable {
     String store;
     String dateOfPurchase;
     String itemName;

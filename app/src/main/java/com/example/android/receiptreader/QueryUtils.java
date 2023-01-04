@@ -21,6 +21,123 @@ public class QueryUtils  {
     public static String strip(String string){
         return string.replaceAll(" ","");
     }
+    @RequiresApi
+    public static void deleteShoppingListUserItem(String shoppingListUserItemName, String shoppingListName) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shopping_lists.size(); i++){
+                JSONObject shoppingList = (JSONObject) shopping_lists.get(i);
+                if(shoppingList.get("shopping_list_name").equals(shoppingListName)) {
+                    System.out.println("MADE iT DELETE FUNC 1: " + shoppingList.get("shopping_list_name"));
+                    JSONArray shopping_list_user_items = (JSONArray)shoppingList.get("shopping_list_user_items");
+                    for (int i3 = 0; i3 < shopping_list_user_items.size(); i3++) {
+                        JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i3);
+                        if (shopping_list_user_item.get("shopping_list_item_name").equals(shoppingListUserItemName)) {
+                            System.out.println("MADE iT DELETE FUNC: " + shopping_list_user_item.get("shopping_list_item_name"));
+                            shopping_list_user_items.remove(shopping_list_user_item);
+                        }
+                    }
+                }
+            }
+            System.out.println("JSON OBJ: "+ jsonObject.toJSONString());
+            // update json data string value
+            Constants.json_data_str = jsonObject.toJSONString();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<StoreUserItem> getHistoryOfShoppingListItem(String shoppingListUserItemName) throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        System.out.println(shoppingListUserItemName + "@getWhenShoppingListUserWhenLastBought");
+        ArrayList<StoreUserItem> storeUserItemsHistoryOfShoppingListItem = new ArrayList<>();
+
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray stores = (JSONArray) jsonObject.get("stores");
+            for(int i = 0; i < stores.size(); i++){
+                JSONObject store = (JSONObject) stores.get(i);
+                JSONArray store_user_items = (JSONArray) jsonParser.parse(store.get("store_user_items").toString());
+                System.out.println("STORE USER ITEMS: " + store_user_items);
+                for(int i2 = 0; i2 < store_user_items.size(); i2++){
+                    System.out.println("SIZE: " + store_user_items.size());
+                    JSONObject userItemObject = (JSONObject) store_user_items.get(i2);
+                    StoreUserItem userItemToAdd = new StoreUserItem();
+                    System.out.println("USER ITEM OBJECT: " + strip(userItemObject.get("user_item_name").toString()));
+                    if(strip(userItemObject.get("user_item_name").toString()).equalsIgnoreCase(strip(shoppingListUserItemName))) {
+                        String userItemName = (String) userItemObject.get("user_item_name");
+                        String userItemDate = (String) userItemObject.get("user_item_date");
+                        String userItemQuantity = (String) userItemObject.get("user_item_quantity");
+                        String userItemStore = (String) userItemObject.get("user_item_store");
+                        String userItemTotalAmountPaid = (String) userItemObject.get("user_item_total_amount_paid");
+                        String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
+                        userItemToAdd = new StoreUserItem(userItemStore, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
+                        System.out.println("ADDING " + userItemToAdd.getItemName() + " FOR " + shoppingListUserItemName);
+                        storeUserItemsHistoryOfShoppingListItem.add(userItemToAdd);
+                    }
+                }
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        if(!storeUserItemsHistoryOfShoppingListItem.isEmpty()) {
+            return storeUserItemsHistoryOfShoppingListItem;
+        } else{
+            return null;
+        }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<ShoppingList> ifShoppingListItemExistsInOtherShoppingLists(String shoppingListUserItemName) throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        System.out.println(shoppingListUserItemName + "@getWhenShoppingListUserWhenLastBought");
+        ArrayList<ShoppingList> shoppingLists = new ArrayList<>();
+
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shopping_lists.size(); i++){
+                JSONObject shopping_list = (JSONObject) shopping_lists.get(i);
+                JSONArray shopping_list_user_items = (JSONArray) jsonParser.parse(shopping_list.get("shopping_list_user_items").toString());
+                for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                    System.out.println("SIZE: " + shopping_list_user_items.size());
+                    JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
+                    ShoppingList shoppingListToAdd = new ShoppingList();
+                    System.out.println("USER ITEM OBJECT: " + strip(shopping_list_user_item.get("shopping_list_item_name").toString()));
+                    if(strip(shopping_list_user_item.get("shopping_list_item_name").toString()).equalsIgnoreCase(strip(shoppingListUserItemName))) {
+                        String shopping_list_name = (String) shopping_list.get("shopping_list_name");
+                        shoppingListToAdd = new ShoppingList(shopping_list_name);
+                        shoppingLists.add(shoppingListToAdd);
+                    }
+                }
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        if(shoppingLists.size() == 0) {
+            return null;
+        } else{
+            return shoppingLists;
+        }
+
+    }
+
     // TODO: create getStoreUserItems() and getShoppingListUsesItems() and if storeAlreadyExists(), shoppingListAlreadyExists(), and if storeUserItemAlreadyExists() and if shoppingListUserItem() already exist
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static String getWhenShoppingListUserItemLastBought(String shoppingListUserItemName) throws IOException, ParseException {
@@ -74,7 +191,6 @@ public class QueryUtils  {
         }
 
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static ArrayList<StoreUserItem> getStoreUserItems(String storeName) throws IOException, ParseException {
