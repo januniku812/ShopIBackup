@@ -36,26 +36,34 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/store_name"
-                app:layout_constraintEnd_toStartOf="@id/item_name"
+                app:layout_constraintEnd_toStartOf="@id/item_name_cl"
                 android:layout_width="wrap_content"
                 android:text="@string/placeholder_date_user_item"
                 android:layout_height="wrap_content"/>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/item_name_cl"
+                android:layout_width="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/store_date"
+                app:layout_constraintEnd_toStartOf="@id/quantity"
+                android:layout_height="match_parent">
             <TextView
                 style="@style/user_item_details_text_style"
                 android:id="@+id/item_name"
+                android:textColor="@color/light_blue_3"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/store_date"
-                app:layout_constraintEnd_toStartOf="@id/quantity"
                 android:layout_width="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:text="ORANGE JUICE"
                 android:layout_height="wrap_content"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
             <TextView
                 style="@style/user_item_details_text_style"
                 android:id="@+id/quantity"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/item_name"
+                app:layout_constraintStart_toEndOf="@id/item_name_cl"
                 app:layout_constraintEnd_toStartOf="@id/amount_paid"
                 android:layout_width="wrap_content"
                 android:text="2"

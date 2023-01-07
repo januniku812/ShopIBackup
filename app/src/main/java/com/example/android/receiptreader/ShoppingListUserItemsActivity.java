@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -103,19 +105,29 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.shopping_list_items_layout);
+        String shoppingListName = getIntent().getStringExtra("shoppingListName");
         shoppingListUserItemsListView = findViewById(R.id.shopping_list_user_items_list_view);
         resultsForshoppingListUserItemsView = findViewById(R.id.results_for_user_item_text);
         SearchView searchView = findViewById(R.id.search_bar);
-        FloatingActionButton add_fab = findViewById(R.id.sl_fab);
-        add_fab.setOnClickListener(new View.OnClickListener() {
+        Toolbar toolBar = findViewById(R.id.my_toolbar);
+        TextView titleTextView = findViewById(R.id.title);
+        titleTextView.setText(shoppingListName);
+        toolBar.setNavigationOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ShoppingListUserItemsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+        ImageButton add_item_button = findViewById(R.id.add_image_button);
+        add_item_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ShoppingListUserItemsActivity.this, AddShoppingListUserItemActivity.class);
+                intent.putExtra("shoppingListName", shoppingListName);
                 startActivity(intent);
-
             }
         });
-        String shoppingListName = getIntent().getStringExtra("shoppingListName");
         shoppingListUserItems = null;
         try {
             shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
@@ -207,7 +219,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
                 ImageView reorderButton = (ImageView) selectedStoreView.findViewById(R.id.reorder_item_button);
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
-
+                ImageView increaseQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_add_button);
+                ImageView decreasedQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_minus_button);
                 ArrayList<ShoppingList> shoppingListsContainingSl = shoppingListUserItem.getOtherShoppingListsExistingIn();
                 if(shoppingListsContainingSl != null) {
                     duplicateIndicator.setOnClickListener(new View.OnClickListener() {
@@ -216,7 +229,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             Intent intent = new Intent(ShoppingListUserItemsActivity.this, ShoppingListsHistoryActivity.class);
                             Bundle args = new Bundle();
                             args.putString("shoppingListUserItemName", shoppingListUserItemName);
-                            args.putSerializable("shoppingListsContainingSl", shoppingListsContainingSl);
+                            args.putString("shoppingListName", shoppingListName);
+                            args.putSerializable("shoppingListsContainingSlItem", shoppingListsContainingSl);
                             intent.putExtra("BUNDLE", args);
                             startActivity(intent);
                         }
@@ -233,6 +247,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             ArrayList<StoreUserItem> storeUserItemsHistory = shoppingListUserItem.getStoreUserItemsHistory();
                             Intent intent = new Intent(ShoppingListUserItemsActivity.this, ShoppingListUserItemHistoryActivity.class);
                             Bundle args = new Bundle();
+                            args.putString("classComingFrom", "ShoppingListUserItemsActivity");
+                            args.putString("title", shoppingListUserItemName);
+                            args.putString("shoppingListName", shoppingListName);
                             args.putSerializable("storeUserItemsHistory", storeUserItemsHistory);
                             intent.putExtra("BUNDLE", args);
                             startActivity(intent);
@@ -244,6 +261,36 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         showDeleteDialog(getString(R.string.delete_shopping_list_item), shoppingListUserItemName, shoppingListName);
+                    }
+                });
+
+                increaseQuantityButton.setOnClickListener(new View.OnClickListener() {
+                    // increment quantity and update the adapter
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            QueryUtils.increaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName);
+                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                        } catch (ParseException | IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                decreasedQuantityButton.setOnClickListener(new View.OnClickListener() {
+                    // increment quantity and update the adapter
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            QueryUtils.decreaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName);
+                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                        } catch (ParseException | IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
 

@@ -83,17 +83,37 @@
       "shopping_list_name": "Christmas To-Buy",
       "shopping_list_user_items": [
         {
-          "shopping_list_item_name": "Turkey",
-          "shopping_list_item_last_bought":"",
-          "shopping_list_item_quantity": "1"
-        },
-        {
           "shopping_list_item_name": "Pomegranate",
           "shopping_list_item_last_bought":"",
           "shopping_list_item_quantity": "1"
         },
         {
+          "shopping_list_item_name": "Turkey",
+          "shopping_list_item_last_bought":"",
+          "shopping_list_item_quantity": "1"
+        },
+        {
           "shopping_list_item_name": "Grapes",
+          "shopping_list_item_last_bought":"",
+          "shopping_list_item_quantity": "1"
+        }
+      ]
+    },
+    {
+      "shopping_list_name": "Other Christmas To-Buy",
+      "shopping_list_user_items": [
+        {
+          "shopping_list_item_name": "Grapes",
+          "shopping_list_item_last_bought":"",
+          "shopping_list_item_quantity": "1"
+        },
+        {
+          "shopping_list_item_name": "Turkey",
+          "shopping_list_item_last_bought":"",
+          "shopping_list_item_quantity": "1"
+        },
+        {
+          "shopping_list_item_name": "Bread",
           "shopping_list_item_last_bought":"",
           "shopping_list_item_quantity": "1"
         }

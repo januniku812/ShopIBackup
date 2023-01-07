@@ -1,12 +1,14 @@
 package com.example.android.receiptreader;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,10 +38,35 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.store_user_items_layout);
         storeUserItems = (ArrayList<StoreUserItem>) getIntent().getBundleExtra("BUNDLE").getSerializable("storeUserItemsHistory");
+        String title = getIntent().getBundleExtra("BUNDLE").getString("title");
+        String classComingFrom = getIntent().getBundleExtra("BUNDLE").getString("classComingFrom");
         storeUserItemAdapter = new StoreUserItemAdapter(this, storeUserItems);
         storeUserItemsListView = findViewById(R.id.user_items_list_view);
         storeUserItemsListView.setAdapter( storeUserItemAdapter);
         SearchView searchView = findViewById(R.id.search_bar);
+        TextView titleTextView = findViewById(R.id.title);
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("MADE IT setNavOnCLcikListener");
+                if(classComingFrom.equals("StoreUserItemsActivity")){
+                    Intent intent = new Intent(ShoppingListUserItemHistoryActivity.this, StoreUserItemsActivity.class);
+                    System.out.println("data: " + getIntent().getBundleExtra("BUNDLE").getString("storeComingFrom"));
+                    intent.putExtra("storeName", getIntent().getBundleExtra("BUNDLE").getString("storeComingFrom"));
+                    startActivity(intent);
+                }
+                else
+                if(classComingFrom.equals("ShoppingListUserItemsActivity")){
+                    System.out.println("data: " + getIntent().getBundleExtra("BUNDLE").getString("storeComingFrom"));
+                    Intent intent = new Intent(ShoppingListUserItemHistoryActivity.this, ShoppingListUserItemsActivity.class);
+                    intent.putExtra("shoppingListName", getIntent().getBundleExtra("BUNDLE").getString("shoppingListName"));
+                    startActivity(intent);
+                }
+            }
+        });
+        titleTextView.setText(title);
         resultsForStoreUserItemsView = findViewById(R.id.results_for_user_item_text);
         hideSoftKeyboard(this);
         searchView.setIconified(false);

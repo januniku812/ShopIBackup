@@ -6,14 +6,33 @@
     android:layout_height="match_parent"
     tools:context=".StoreUserItemsActivity"
     android:orientation="vertical">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+        <TextView
+            android:textSize="15sp"
+            android:textColor="@color/white"
+            style="@style/user_item_details_text_style"
+            android:text="@string/add_an_item_to_to_buy"
+            android:id="@+id/title_store_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </androidx.appcompat.widget.Toolbar>
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:weightSum="2"
         android:layout_height="wrap_content">
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/outlinedTextField"
-            android:layout_weight="1.95"
+            android:layout_weight="1.85"
             android:layout_marginStart="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,15 +41,17 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
+                android:id="@+id/new_item_edit_text"
                 android:hint="@string/new_item_name"
                 android:layout_height="match_parent"
+                android:inputType="text"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
         <ImageButton
             android:id="@+id/submit_button"
             android:backgroundTint="@color/light_blue"
-            android:layout_weight="0.05"
+            android:layout_weight="0.15"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:src="@drawable/ic_baseline_check_24"/>

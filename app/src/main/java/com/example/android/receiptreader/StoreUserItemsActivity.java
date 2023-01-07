@@ -10,15 +10,18 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
 import org.json.simple.parser.ParseException;
 
@@ -26,7 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class StoreUserItemsActivity extends AppCompatActivity {
-
+    StoreUserItemAdapter storeUserItemAdapter;
     TextView resultsForStoreUserItemsView;
     ListView storeUserItemsListView;
     public void hideSoftKeyboard(Activity activity) {
@@ -49,16 +52,17 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         storeUserItemsListView = findViewById(R.id.user_items_list_view);
         resultsForStoreUserItemsView = findViewById(R.id.results_for_user_item_text);
         SearchView searchView = findViewById(R.id.search_bar);
-//        FloatingActionButton add_fab = findViewById(R.id.fab);
-//        add_fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(StoreUserItemsActivity.this, AddShoppingListUserItemActivity.class);
-//                startActivity(intent);
-//
-//            }
-//        });
+        TextView titleTextView = findViewById(R.id.title);
         String storeName = getIntent().getStringExtra("storeName");
+        titleTextView.setText(storeName);
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(StoreUserItemsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
         ArrayList<StoreUserItem> storeUserItems = null;
         try {
             storeUserItems = QueryUtils.getStoreUserItems(storeName);
@@ -68,7 +72,7 @@ public class StoreUserItemsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
+        storeUserItemAdapter = new StoreUserItemAdapter(this, storeUserItems);
         storeUserItemsListView.setAdapter(new StoreUserItemAdapter(this, storeUserItems));
 
         hideSoftKeyboard(this);
@@ -138,6 +142,38 @@ public class StoreUserItemsActivity extends AppCompatActivity {
                                                return false;
                                            }
                                        }
+        );
+        storeUserItemsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    StoreUserItem storeUserItem = (StoreUserItem) storeUserItemAdapter.getItem(i);
+                    String nameToPass = storeUserItem.getItemName();
+                    View selectedStoreView = storeUserItemAdapter.getView(i, view, adapterView);
+                    ConstraintLayout storeUserItemNameCl = selectedStoreView.findViewById(R.id.item_name_cl);
+//                    storeUserItemNameCl.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+                            // reusing the shopping list user item history as it can work for giving the history of a record of an item saved in a store as well
+                            Intent intent = new Intent(StoreUserItemsActivity.this, ShoppingListUserItemHistoryActivity.class);
+                            ArrayList<StoreUserItem> storeUserItemsToPass = new ArrayList<>();
+                            try {
+                                 storeUserItemsToPass = QueryUtils.getHistoryOfShoppingListItem(nameToPass);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            Bundle args = new Bundle();
+                            args.putString("classComingFrom", "StoreUserItemsActivity");
+                            args.putString("title", nameToPass);
+                            args.putString("storeComingFrom", storeName);
+                            args.putSerializable("storeUserItemsHistory", storeUserItemsToPass);
+                            intent.putExtra("BUNDLE", args);
+                            startActivity(intent);
+//                        }
+//                    });
+                }
+        }
         );
     }
 

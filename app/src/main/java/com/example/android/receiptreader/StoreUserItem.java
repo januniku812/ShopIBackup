@@ -22,6 +22,14 @@ public class StoreUserItem implements Serializable {
 
     }
 
+    public String getTotalAmountPaid() {
+        return totalAmountPaid;
+    }
+
+    public void setTotalAmountPaid(String totalAmountPaid) {
+        this.totalAmountPaid = totalAmountPaid;
+    }
+
     // getters and setters
     public String getStore() {
         return store;

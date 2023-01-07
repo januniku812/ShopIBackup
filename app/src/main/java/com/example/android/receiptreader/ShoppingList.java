@@ -1,8 +1,9 @@
 package com.example.android.receiptreader;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ShoppingList {
+public class ShoppingList implements Serializable {
     String name;
     ArrayList<ShoppingListUserItem> shoppingListUserItemArraylist;
 

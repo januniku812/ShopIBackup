@@ -49,15 +49,16 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
         TextView lastBoughtDate = (TextView) newItemView.findViewById(R.id.last_bought_date);
         ImageView historyButton = (ImageView) newItemView.findViewById(R.id.history_button_sl_item);
         ImageView blue_check_mark = (ImageView) newItemView.findViewById(R.id.check_circle);
-        if (shoppingListUserItem.getLastBought().isEmpty()) { // sometimes the user might manually type a name of an item already bought and it will not have last bought saved in it
+        if (shoppingListUserItem.getLastBought().equals("")) { // sometimes the user might manually type a name of an item already bought and it will not have last bought saved in it
             try {
-                String whenShoppingListUserItemLastBought = QueryUtils.getWhenShoppingListUserItemLastBought(shoppingListUserItem.getName());
+                String whenShoppingListUserItemLastBought = QueryUtils.getWhenShoppingListUserItemLastBought(shoppingListUserItemName);
                 if (!whenShoppingListUserItemLastBought.equals("not previously bought")) {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                    blue_check_mark.setVisibility(View.VISIBLE);
+                    System.out.println("MADE IT grstrstrststrstrstrstrstr :" + position + shoppingListUserItemName + " SET TEXT " + whenShoppingListUserItemLastBought);
                     lastBoughtDate.setText(whenShoppingListUserItemLastBought);
                     shoppingListUserItem.setLastBought(whenShoppingListUserItemLastBought); // will help when running search view updated adapters
-                    blue_check_mark.setVisibility(View.VISIBLE);
                 } else {
+                    System.out.println("MADE IT 2:" + shoppingListUserItemName);
                     lastBoughtDate.setText(R.string.last_bought);
                     lastBoughtDate.setVisibility(View.INVISIBLE);
                     blue_check_mark.setVisibility(View.INVISIBLE);
@@ -76,10 +77,14 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
         else{ // sometimes the item will be previously bought or the item's last bought will be updated in line 55 as above for search view adapter efficiency
             lastBoughtDate.setText(shoppingListUserItem.getLastBought());
         }
-            try {
+        try {
                 ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
                 if (otherShoppingListsSlExistsIn == null) {
+                    System.out.println("OTHER SHOPPING LISTS: " + otherShoppingListsSlExistsIn.size());
                     duplicateIndicator.setImageResource(R.drawable.ic_baseline_grey_content_copy_24);
+                }
+                else{
+                    duplicateIndicator.setImageResource(R.drawable.ic_round_content_copy_24);
                 }
                 shoppingListUserItem.setOtherShoppingListsExistingIn(otherShoppingListsSlExistsIn);
             }
@@ -93,6 +98,9 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             if(storeUserItemsHistory == null){
                 historyButton.setImageResource(R.drawable.ic_baseline_grey_history_24);
             }
+            else{
+                historyButton.setImageResource(R.drawable.ic_baseline_history_24);
+            }
             shoppingListUserItem.setStoreUserItemsHistory(storeUserItemsHistory);
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,7 +108,7 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             e.printStackTrace();
         }
         TextView quantity = (TextView) newItemView.findViewById(R.id.quantity_sl_item);
-            quantity.setText(shoppingListUserItem.getUserQuantity());
+        quantity.setText(shoppingListUserItem.getUserQuantity());
 
             return newItemView;
     }

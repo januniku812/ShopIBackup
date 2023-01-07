@@ -10,17 +10,43 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <SearchView
-            android:id="@+id/search_bar"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="5dp"
-            android:background="@color/white_two"
-            android:inputType="text"
-            android:queryHint="Search For a Item" />
-
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            <TextView
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                style="@style/user_item_details_text_style"
+                android:text="@string/walmart"
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </androidx.appcompat.widget.Toolbar>
+        <LinearLayout
+            android:id="@+id/container"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/add_image_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/light_blue"
+                android:src="@drawable/add_sign"/>
+            <SearchView
+                android:id="@+id/search_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white_two"
+                android:inputType="text"
+                android:queryHint="Search For a Item" />
+    </LinearLayout>
         <TextView
             android:id="@+id/results_for_user_item_text"
             style="@style/user_item_details_text_style"
@@ -41,24 +67,4 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/sl_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/add_sign" />
-
-    <!--    <Button-->
-    <!--        android:id="@+id/button_second"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="@string/previous"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/textview_second" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>

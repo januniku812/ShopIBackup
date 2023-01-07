@@ -21,12 +21,12 @@
             android:layout_height="match_parent">
             <TextView
                 style="@style/user_item_details_text_style"
-                android:id="@+id/item_name"
+                android:id="@+id/simple_user_item_name"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_width="wrap_content"
-                android:text="ORANGE JUICE"
+                android:text="@string/orange_juice"
                 android:layout_height="wrap_content"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

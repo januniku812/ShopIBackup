@@ -385,8 +385,8 @@ public class MainActivity extends AppCompatActivity {
                 View selectedStoreView = storeListAdapter.getView(i, view, adapterView);
                 ImageView editViewIcon = (ImageView) selectedStoreView.findViewById(R.id.edit_name_button);
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
-                ImageView historyButton = (ImageView) selectedStoreView.findViewById(R.id.history_button);
                 ImageView shoppingCartButton = (ImageView) selectedStoreView.findViewById(R.id.select_shopping_mode);
+                ConstraintLayout store_name_cl = (ConstraintLayout) selectedStoreView.findViewById(R.id.store_name_cl);
                 editViewIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -400,13 +400,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                historyButton.setOnClickListener(new View.OnClickListener() {
+                store_name_cl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         System.out.println("MADE IT STORE historyButton @onClick");
                         Intent intent = new Intent(MainActivity.this, StoreUserItemsActivity.class);
                         intent.putExtra("storeName", store.getStoreName());
-                        startActivity(intent);
+                        intent.putExtra("title", store.getStoreName());
+                startActivity(intent);
+            }
+        });
+                shoppingCartButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Constants.storeBeingShoppedIn = store.getStoreName(); // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
                     }
                 });
 
@@ -422,9 +429,16 @@ public class MainActivity extends AppCompatActivity {
                 View selectedStoreView = shoppingListAdapter.getView(i, view, adapterView);
                 ImageView editViewIcon = (ImageView) selectedStoreView.findViewById(R.id.edit_name_sl_button);
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
-                Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
-                intent.putExtra("shoppingListName",shoppingList.getName());
-                startActivity(intent);
+                ConstraintLayout shopping_list_name_cl = (ConstraintLayout) selectedStoreView.findViewById(R.id.shopping_list_name_cl);
+                shopping_list_name_cl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+                        intent.putExtra("shoppingListName",originalShoppingListName);
+                        startActivity(intent);
+
+                    }
+                });
                 editViewIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

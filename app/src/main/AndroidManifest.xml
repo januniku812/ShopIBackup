@@ -39,6 +39,16 @@
             android:label="@string/shopping_list_user_item_history"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
+        <activity
+            android:name=".ShoppingListsHistoryActivity"
+            android:label="@string/shopping_lists_history"
+            android:theme="@style/Theme.ReceiptReader.ActionBar">
+        </activity>
+        <activity
+            android:name=".AddShoppingListUserItemActivity"
+            android:label="@string/add_shopping_list_user_item_activity"
+            android:theme="@style/Theme.ReceiptReader.ActionBar">
+        </activity>
     </application>
 
 </manifest>

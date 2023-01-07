@@ -56,4 +56,11 @@
     <string name="not_previously_bought">not previously bought</string>
     <string name="delete_shopping_list_item">delete shopping list item</string>
     <string name="shopping_list_user_item_history">Shopping list User Item History</string>
+    <string name="shopping_lists_history">Multiple Occurences Details</string>
+    <string name="shopping_lists_with">Shopping Lists With %s</string>
+    <string name="orange_juice">ORANGE JUICE</string>
+    <string name="add_shopping_list_user_item_activity">Add Shopping List User Item Activity</string>
+    <string name="add_an_item">Add An Item</string>
+    <string name="tbs">TURKEYBS</string>
+    <string name="add_an_item_to_to_buy">Add An Item - To Buy</string>
 </resources>
