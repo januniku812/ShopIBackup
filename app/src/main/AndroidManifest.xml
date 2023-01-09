@@ -13,10 +13,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:windowSoftInputMode="stateAlwaysHidden"
         android:theme="@style/Theme.ReceiptReader">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:windowSoftInputMode="stateHidden"
+
             android:theme="@style/Theme.ReceiptReader.ActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,26 +28,31 @@
             </intent-filter>
         </activity>
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name=".StoreUserItemsActivity"
             android:label="@string/store_user_items_activity"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name=".ShoppingListUserItemsActivity"
             android:label="@string/store_user_items_activity"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name=".ShoppingListUserItemHistoryActivity"
             android:label="@string/shopping_list_user_item_history"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name=".ShoppingListsHistoryActivity"
             android:label="@string/shopping_lists_history"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name=".AddShoppingListUserItemActivity"
             android:label="@string/add_shopping_list_user_item_activity"
             android:theme="@style/Theme.ReceiptReader.ActionBar">

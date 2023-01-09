@@ -79,12 +79,14 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
         }
         try {
                 ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
-                if (otherShoppingListsSlExistsIn == null) {
-                    System.out.println("OTHER SHOPPING LISTS: " + otherShoppingListsSlExistsIn.size());
-                    duplicateIndicator.setImageResource(R.drawable.ic_baseline_grey_content_copy_24);
+
+                if(otherShoppingListsSlExistsIn.size() > 1){
+                    duplicateIndicator.setImageResource(R.drawable.ic_round_content_copy_24);
                 }
                 else{
-                    duplicateIndicator.setImageResource(R.drawable.ic_round_content_copy_24);
+
+                    System.out.println("OTHER SHOPPING LISTS: " + otherShoppingListsSlExistsIn.size());
+                    duplicateIndicator.setImageResource(R.drawable.ic_baseline_grey_content_copy_24);
                 }
                 shoppingListUserItem.setOtherShoppingListsExistingIn(otherShoppingListsSlExistsIn);
             }

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:id="@+id/user_item_card_view"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        style="@style/user_item_details_text_style"
+        android:layout_height="45dp">
+        <androidx.constraintlayout.widget.ConstraintLayout
+
+            android:id="@+id/user_item_card_view_cl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!--             edit text view for the names of the stores-->
+            <!--            <EditText-->
+            <!--                style="@style/user_item_details_text_style"-->
+            <!--                android:id="@+id/store_list_name_edit_text"-->
+            <!--                android:fontFamily="sans-serif-condensed-medium"-->
+            <!--                app:layout_constraintTop_toTopOf="parent"-->
+            <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--                app:layout_constraintStart_toStartOf="parent"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:visibility="gone"-->
+            <!--                android:text=""-->
+            <!--                android:layout_height="wrap_content"/>-->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/shopping_list_name_cl"
+                android:layout_width="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_height="match_parent">
+                <TextView
+                    style="@style/user_item_details_text_style"
+                    android:id="@+id/shopping_list_name"
+                    android:fontFamily="sans-serif-condensed-medium"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_width="wrap_content"
+                    android:text="@string/thanksgiving_dinner_to_buy"
+                    android:layout_height="wrap_content"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+</LinearLayout>

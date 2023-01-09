@@ -66,7 +66,7 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
                 }
             }
         });
-        titleTextView.setText(title);
+        titleTextView.setText(String.format(getString(R.string.purchase_history), title));
         resultsForStoreUserItemsView = findViewById(R.id.results_for_user_item_text);
         hideSoftKeyboard(this);
         searchView.setIconified(false);

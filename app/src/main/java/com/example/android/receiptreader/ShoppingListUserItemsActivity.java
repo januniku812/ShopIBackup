@@ -48,7 +48,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         System.out.println("made it hideSoftKeyboard");
     }
 
-    private void showDeleteDialog(String title, String originalName, String shoppingListName) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void showDialog(String title, String originalName, String shoppingListName, Integer jsonEditCode) throws IOException, ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
                         (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
@@ -62,37 +63,77 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ImageView icon = (ImageView) view.findViewById(R.id.imageIcon);
         TextView editText = view.findViewById(R.id.custom_dialog_edit_text);
         Button enterButton = (Button) view.findViewById(R.id.enterButton);
-        editText.setVisibility(View.INVISIBLE);
-        icon.setMinimumHeight(50);
-        icon.setMinimumWidth(50);
-        enterButton.setText(R.string.yes);
-        icon.setImageResource(R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
-        TextView delete_text =  (TextView) view.findViewById(R.id.delete_text);
-        delete_text.setVisibility(View.VISIBLE);
-        delete_text.setText(String.format("Are you sure you want to delete %s, this action is permanent and cannot be undone", originalName));
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
-        view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
-            }
-        });
-        enterButton.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onClick(View view) {
-                try {
-                    QueryUtils.deleteShoppingListUserItem(originalName, shoppingListName);
-                    shoppingListUserItems =  QueryUtils.getShoppingListUsersItems(shoppingListName);
-                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
-                    shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);} catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
+        if(jsonEditCode == JSONEditCodes.DELETE_SHOPPING_LIST_ITEM) {
+            editText.setVisibility(View.INVISIBLE);
+            icon.setMinimumHeight(50);
+            icon.setMinimumWidth(50);
+            enterButton.setText(R.string.yes);
+            icon.setImageResource(R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
+            TextView delete_text = (TextView) view.findViewById(R.id.delete_text);
+            delete_text.setVisibility(View.VISIBLE);
+            delete_text.setText(String.format("Are you sure you want to delete %s, this action is permanent and cannot be undone", originalName));
+
+            view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    alertDialog.dismiss();
                 }
-                alertDialog.dismiss();
-            }
-        });
+            });
+            enterButton.setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void onClick(View view) {
+                    try {
+                        QueryUtils.deleteShoppingListUserItem(originalName, shoppingListName);
+                        shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    alertDialog.dismiss();
+                }
+            });
+        }else if(jsonEditCode == JSONEditCodes.REORDER_SHOPPING_LIST_ITEM){
+            editText.setVisibility(View.INVISIBLE);
+            enterButton.setVisibility(View.GONE);
+            icon.setMinimumHeight(50);
+            icon.setMinimumWidth(50);
+            icon.setImageResource(R.drawable.ic_baseline_remove_circle_outline_24);
+            ListView shopping_list_reorder_lv = (ListView) view.findViewById(R.id.reorder_shopping_list_view);
+            ArrayList<ShoppingList> shoppingListsForMoving = QueryUtils.getShoppingLists();
+            shopping_list_reorder_lv.setVisibility(View.VISIBLE);
+            ReorderShoppingListAdapter reorderShoppingListAdapter = new ReorderShoppingListAdapter(this, shoppingListsForMoving);
+            shopping_list_reorder_lv.setAdapter(reorderShoppingListAdapter);
+            shopping_list_reorder_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                                                @Override
+                                                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                                                    ShoppingList shoppingList = (ShoppingList) reorderShoppingListAdapter.getItem(i);
+                                                                    String shoppingListToMoveTo = shoppingList.getName();
+                                                                    try {
+                                                                        QueryUtils.reorderShoppingListItem(shoppingListName, shoppingListToMoveTo, originalName);
+                                                                        shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+                                                                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                                                                        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                                                                    } catch (ParseException | IOException e) {
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                    alertDialog.dismiss();
+
+                                                                }
+                                                            });
+                    view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            alertDialog.dismiss();
+                        }
+                    });
+
+
+        }
         if (alertDialog.getWindow() != null) {
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         }
@@ -115,7 +156,28 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         toolBar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ShoppingListUserItemsActivity.this, MainActivity.class);
+                Intent intent = new Intent();
+                if(getIntent().getStringExtra("classComingFrom") != null && getIntent().getStringExtra("classComingFrom").equals("ShoppingListsHistoryActivity")){
+                     intent =  new Intent(ShoppingListUserItemsActivity.this, ShoppingListsHistoryActivity.class);
+                     Bundle args = new Bundle();
+                    if(getIntent().getStringExtra("originalNavPathSLUTIShoppingList") != null){
+                        System.out.println("ORIGINALNAVPATH NAME: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
+                        intent.putExtra("originalNavPathSLUTIShoppingList", getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
+                    }else {
+                        System.out.println("ORIGINALNAVPATH NAME REAL START: " + shoppingListName);
+                        intent.putExtra("originalNavPathSLUTIShoppingList", shoppingListName);
+
+                    }
+                    args.putString("shoppingListUserItemName", getIntent().getStringExtra("shoppingListUserItemName"));
+                    args.putSerializable("shoppingListsContainingSlItem", getIntent().getBundleExtra("BUNDLE").getSerializable("shoppingListsContainingSlItem"));
+                    intent.putExtra("BUNDLE", args);
+                }
+                else{
+
+                     intent = new Intent(ShoppingListUserItemsActivity.this, MainActivity.class);
+
+
+                }
                 startActivity(intent);
             }
         });
@@ -222,7 +284,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ImageView increaseQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_add_button);
                 ImageView decreasedQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_minus_button);
                 ArrayList<ShoppingList> shoppingListsContainingSl = shoppingListUserItem.getOtherShoppingListsExistingIn();
-                if(shoppingListsContainingSl != null) {
+                if(shoppingListsContainingSl.size() > 1) {
                     duplicateIndicator.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -230,7 +292,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             Bundle args = new Bundle();
                             args.putString("shoppingListUserItemName", shoppingListUserItemName);
                             args.putString("shoppingListName", shoppingListName);
-                            args.putSerializable("shoppingListsContainingSlItem", shoppingListsContainingSl);
+                            if(getIntent().getStringExtra("originalNavPathSLUTIShoppingList") != null){
+                                System.out.println("ORIGINALNAVPATH NAME: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
+                                intent.putExtra("originalNavPathSLUTIShoppingList", getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
+                            }else {
+                                System.out.println("ORIGINALNAVPATH NAME REAL START: " + shoppingListName);
+                                intent.putExtra("originalNavPathSLUTIShoppingList", shoppingListName);
+
+                            }args.putSerializable("shoppingListsContainingSlItem", shoppingListsContainingSl);
                             intent.putExtra("BUNDLE", args);
                             startActivity(intent);
                         }
@@ -249,6 +318,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             Bundle args = new Bundle();
                             args.putString("classComingFrom", "ShoppingListUserItemsActivity");
                             args.putString("title", shoppingListUserItemName);
+                            if(getIntent().getStringExtra("originalNavPathSLUTIShoppingList") != null){
+                                System.out.println("ORIGINALNAVPATH NAME: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
+                                intent.putExtra("originalNavPathSLUTIShoppingList", getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
+                            }else {
+                                System.out.println("ORIGINALNAVPATH NAME REAL START: " + shoppingListName);
+                                intent.putExtra("originalNavPathSLUTIShoppingList", shoppingListName);
+
+                            }
                             args.putString("shoppingListName", shoppingListName);
                             args.putSerializable("storeUserItemsHistory", storeUserItemsHistory);
                             intent.putExtra("BUNDLE", args);
@@ -260,7 +337,28 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 deleteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        showDeleteDialog(getString(R.string.delete_shopping_list_item), shoppingListUserItemName, shoppingListName);
+                        try {
+                            showDialog(getString(R.string.delete_shopping_list_item), shoppingListUserItemName, shoppingListName, JSONEditCodes.DELETE_SHOPPING_LIST_ITEM);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+
+                reorderButton.setOnClickListener( new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            showDialog(getString(R.string.reorder_shopping_list), shoppingListUserItemName, shoppingListName, JSONEditCodes.REORDER_SHOPPING_LIST_ITEM);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 });
 

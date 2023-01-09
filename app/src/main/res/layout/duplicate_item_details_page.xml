@@ -10,17 +10,28 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
-            android:layout_marginTop="10dp"
-            android:id="@+id/results_for_sl_user_item_text"
-            style="@style/user_item_details_text_style"
-            android:textSize="18dp"
-            android:fontFamily="sans-serif-condensed-light"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="14dp"
-            android:text="Shopping lists with ____"
-            android:visibility="visible" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            <TextView
+                android:layout_marginTop="10dp"
+                android:textColor="@color/white"
+                android:id="@+id/textTitle"
+                style="@style/user_item_details_text_style"
+                android:textSize="18dp"
+                android:fontFamily="sans-serif-condensed-light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="14dp"
+                android:text="Shopping lists with "
+                android:visibility="visible" />
+        </androidx.appcompat.widget.Toolbar>
         <SearchView
             android:id="@+id/duplicate_item_details_page_search_bar"
             android:layout_width="match_parent"

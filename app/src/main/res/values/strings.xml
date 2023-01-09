@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ReceiptReader</string>
+    <string name="app_name">ShopI</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="activity_main_label">Activity Main</string>
@@ -63,4 +63,6 @@
     <string name="add_an_item">Add An Item</string>
     <string name="tbs">TURKEYBS</string>
     <string name="add_an_item_to_to_buy">Add An Item - To Buy</string>
+    <string name="reorder_shopping_list">Reorder Shopping List</string>
+    <string name="purchase_history">Purchase History - %s</string>
 </resources>

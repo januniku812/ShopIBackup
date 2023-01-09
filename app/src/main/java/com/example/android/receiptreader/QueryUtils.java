@@ -1,6 +1,7 @@
 package com.example.android.receiptreader;
 
 
+import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.Nullable;
@@ -21,6 +22,43 @@ import java.util.Date;
 public class QueryUtils  {
     public static String strip(String string){
         return string.replaceAll(" ","");
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static void reorderShoppingListItem(String originalShoppingList, String shoppingListToMoveTo, String shoppingListItemName) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        Object object = new JSONParser().parse(jsonData
+        );
+        JSONObject shoppingListItemObj = new JSONObject();
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shoppingLists = (JSONArray) jsonObject.get("shopping_lists");
+            // getting item from original shopping list
+            for(int i = 0; i < shoppingLists.size(); i++){
+                System.out.println("MADE IT @ogSl : " + originalShoppingList);
+                JSONObject shoppingList = (JSONObject) shoppingLists.get(i);
+                if(shoppingList.get("shopping_list_name").toString().equalsIgnoreCase(originalShoppingList)){
+                    System.out.println("MADE IT @ogSl 2 : " + shoppingListItemName);
+                    JSONArray shopping_list_user_items = (JSONArray) shoppingList.get("shopping_list_user_items");
+                    for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                        JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
+                        if(shopping_list_user_item.get("shopping_list_item_name").toString().equals(shoppingListItemName)){
+                            shoppingListItemObj = shopping_list_user_item;
+                            shopping_list_user_items.remove(shopping_list_user_item);
+                            Constants.json_data_str = jsonObject.toJSONString();
+                        }
+                    }
+                }
+            }
+            // finding shopping list to move it and placing it there
+            QueryUtils.addShoppingListItemWithQuantity(shoppingListToMoveTo, shoppingListItemName, shoppingListItemObj.get("shopping_list_item_last_bought").toString(), shoppingListItemObj.get("shopping_list_item_quantity").toString());
+            // update json data string value
+            System.out.println("I REACHED @addNewStore : " + jsonObject);
+            System.out.println("I REACHED @addNewStore  2: " + Constants.json_data_str);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -139,6 +177,57 @@ public class QueryUtils  {
                         shoppingListUserItemToAdd.put("shopping_list_item_last_bought", "");
                     }
                     shoppingListUserItemToAdd.put("shopping_list_item_quantity", "1");
+                    shopping_list_user_items.add(shoppingListUserItemToAdd);
+                }
+            }
+            // update json data string value
+            System.out.println("I REACHED @addNewStore : " + jsonObject);
+            Constants.json_data_str = jsonObject.toJSONString();
+            System.out.println("I REACHED @addNewStore  2: " + Constants.json_data_str);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static boolean addShoppingListItemWithQuantity(String shoppingListName, String shoppingListItemName, String lastBoughtDate, String quantity) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        Object object = new JSONParser().parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shoppingLists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shoppingLists.size(); i++){
+                System.out.println("MADE IT @addShoppingListItem : " + shoppingListItemName);
+                JSONObject shoppingList = (JSONObject) shoppingLists.get(i);
+                if(shoppingList.get("shopping_list_name").toString().equals(shoppingListName)){
+                    System.out.println("MADE IT @addShoppingListItem : " + shoppingListName);
+                    JSONArray shopping_list_user_items = (JSONArray) shoppingList.get("shopping_list_user_items");
+                    for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                        JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
+                        if(strip(shopping_list_user_item.get("shopping_list_item_name").toString()).equalsIgnoreCase(shoppingListItemName)){
+                            System.out.println("RUNNING FOR 2 fljlfsjlaksfj: " + shoppingListItemName);
+                            Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + Integer.parseInt(quantity);
+                            System.out.println("BEFORE: " + shopping_list_user_item);
+                            shopping_list_user_item.replace("shopping_list_item_quantity", quantityToPut.toString());
+                            System.out.println("AFTER: " + shopping_list_user_item);
+                            System.out.println("I REACHED @addNewStore 3: " + jsonObject);
+                            Constants.json_data_str = jsonObject.toJSONString();
+                            return false;
+                        }
+                    }
+                    System.out.println("RUNNING FOR 2: " + shoppingListItemName);
+                    JSONObject shoppingListUserItemToAdd = new JSONObject();
+                    shoppingListUserItemToAdd.put("shopping_list_item_name", shoppingListItemName);
+                    if(lastBoughtDate != null){
+                        shoppingListUserItemToAdd.put("shopping_list_item_last_bought", lastBoughtDate);
+                    } else{
+                        shoppingListUserItemToAdd.put("shopping_list_item_last_bought", "");
+                    }
+                    shoppingListUserItemToAdd.put("shopping_list_item_quantity", quantity);
                     shopping_list_user_items.add(shoppingListUserItemToAdd);
                 }
             }

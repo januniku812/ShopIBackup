@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -34,9 +35,19 @@ public class ShoppingListsHistoryActivity extends AppCompatActivity {
         duplicateItemDetailsShoppingListAdapter = new DuplicateItemDetailsShoppingListAdapter(this, shoppingLists);
         shoppingListsView.setAdapter(duplicateItemDetailsShoppingListAdapter);
         SearchView shoppingListSearchView = findViewById(R.id.duplicate_item_details_page_search_bar);
-        TextView header = findViewById(R.id.results_for_sl_user_item_text);
-        header.setText(String.format(getString(R.string.shopping_lists_with), shoppingListUserItemName));
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ShoppingListsHistoryActivity.this, ShoppingListUserItemsActivity.class);
+                System.out.println("ORIGINALNAVPATH NAME FINAL: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
+                intent.putExtra("shoppingListName", getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
+                startActivity(intent);
 
+            }
+        });
+        TextView title = (TextView) findViewById(R.id.textTitle);
+        title.setText(String.format(getString(R.string.shopping_lists_with), shoppingListUserItemName));
         // all functions for searching through the shoppingLists list view
         shoppingListSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -123,7 +134,13 @@ public class ShoppingListsHistoryActivity extends AppCompatActivity {
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
                 Intent intent = new Intent(ShoppingListsHistoryActivity.this, ShoppingListUserItemsActivity.class);
                 intent.putExtra("shoppingListName",shoppingList.getName());
+                intent.putExtra("shoppingListUserItemName",shoppingListUserItemName);
+                System.out.println("ORIGINALNAVPATH NAME: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
+                intent.putExtra("originalNavPathSLUTIShoppingList",getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
                 intent.putExtra("classComingFrom","ShoppingListsHistoryActivity");
+                Bundle args = new Bundle();
+                args.putSerializable("shoppingListsContainingSlItem", shoppingLists);
+                intent.putExtra("BUNDLE", args);
                 startActivity(intent);
             }
 

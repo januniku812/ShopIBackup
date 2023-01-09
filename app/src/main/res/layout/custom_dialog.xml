@@ -39,6 +39,15 @@
             android:src="@drawable/ic_baseline_edit_24"
             app:tint="@color/white" />
 
+        <ListView
+            android:id="@+id/reorder_shopping_list_view"
+            app:layout_constraintTop_toBottomOf="@id/textTitle"
+            android:padding="15dp"
+            android:visibility="gone"
+            tools:listitem="@layout/reorder_shopping_list"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"/>
+
         <EditText
             android:id="@+id/custom_dialog_edit_text"
             style="@style/user_item_details_text_style"
@@ -85,6 +94,7 @@
         android:textColor="@color/white"
         android:textSize="14sp"
         android:theme="@style/Button.White"
+        android:layout_marginTop="15dp"
         android:text="@string/cancel"
         app:layout_constraintBottom_toBottomOf="@id/layoutDialog"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,6 +107,7 @@
         android:id="@+id/enterButton"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="40dp"
+        android:layout_marginTop="15dp"
         android:textColor="@color/white"
         android:textSize="14sp"
         android:text="@string/enter"

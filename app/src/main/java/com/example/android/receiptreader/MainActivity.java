@@ -19,6 +19,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 
 import android.view.Menu;
@@ -194,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         if (view == null) {
             view = new View(activity);
         }
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         System.out.println("made it hideSoftKeyboard");
     }
