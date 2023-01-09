@@ -65,4 +65,9 @@
     <string name="add_an_item_to_to_buy">Add An Item - To Buy</string>
     <string name="reorder_shopping_list">Reorder Shopping List</string>
     <string name="purchase_history">Purchase History - %s</string>
+    <string name="quantity">Quantity</string>
+    <string name="unit_price">Unit Price</string>
+    <string name="record_details_for">Record Details For Item</string>
+    <string name="audio_permission_granted">Audio Permission Granted</string>
+    <string name="cant_use_this_feature">Can\'t Use Save Microphone Feature Without Granted Record Audio Permission</string>
 </resources>

@@ -1,10 +1,15 @@
 package com.example.android.receiptreader;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,19 +17,22 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import org.json.simple.parser.ParseException;
 
@@ -35,6 +43,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     ShoppingListUserItemAdapter shoppingListUserItemAdapter;
     TextView resultsForshoppingListUserItemsView;
     ListView shoppingListUserItemsListView;
+    int quantityMicrophoneState = 0;
+    int unitPriceMicrophoneState = 0;
     ArrayList<ShoppingListUserItem> shoppingListUserItems;
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -97,12 +107,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     alertDialog.dismiss();
                 }
             });
-        }else if(jsonEditCode == JSONEditCodes.REORDER_SHOPPING_LIST_ITEM){
+        }
+        else if(jsonEditCode == JSONEditCodes.REORDER_SHOPPING_LIST_ITEM){
             editText.setVisibility(View.INVISIBLE);
             enterButton.setVisibility(View.GONE);
             icon.setMinimumHeight(50);
             icon.setMinimumWidth(50);
-            icon.setImageResource(R.drawable.ic_baseline_remove_circle_outline_24);
+            icon.setImageResource(R.drawable.ic_baseline_arrow_circle_right_24);
             ListView shopping_list_reorder_lv = (ListView) view.findViewById(R.id.reorder_shopping_list_view);
             ArrayList<ShoppingList> shoppingListsForMoving = QueryUtils.getShoppingLists();
             shopping_list_reorder_lv.setVisibility(View.VISIBLE);
@@ -140,6 +151,200 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+
+    private void speakWithVoiceDialog(String shoppingListUserItemName) {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder
+                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+        View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
+                R.layout.voice_input_dialog,
+                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+        );
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+
+        } else {
+            builder.setView(view);
+            final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+            Button cancel_button = view.findViewById(R.id.cancel_button);
+            Button enter_button = view.findViewById(R.id.enterButton);
+            EditText quantityEditText = view.findViewById(R.id.quantity_edit_text);
+            EditText unitPriceEditText = view.findViewById(R.id.unit_price_edit_text);
+            ImageView quantityMicrophone = view.findViewById(R.id.quantity_microphone);
+            ImageView unitPriceMicrophone = view.findViewById(R.id.unit_price_microphone);
+            cancel_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    alertDialog.dismiss();
+                }
+            });
+            enter_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, EnglishWordsToNumbers.replaceNumbers(String.valueOf(quantityEditText.getText())), unitPriceEditText.getText());
+
+
+                }
+            });
+            SpeechRecognizer quantitySpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            SpeechRecognizer unitPriceSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            final Intent unitPriceRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+
+            // when the users click on the textviews next to the edit texts for hold details, listening starts
+            quantityMicrophone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(quantityMicrophoneState == 0){
+                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
+                        quantitySpeechRecognizer.startListening(speechRecognizerIntent);
+                        quantityMicrophoneState = 1;
+                    }
+                    else if(quantityMicrophoneState == 1){
+                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                        quantitySpeechRecognizer.stopListening();
+                        quantityMicrophoneState = 0;
+
+                    }
+                }
+            });
+
+            quantitySpeechRecognizer.setRecognitionListener(new RecognitionListener() {
+                @Override
+                public void onReadyForSpeech(Bundle bundle) {
+
+                }
+
+                @Override
+                public void onBeginningOfSpeech() {
+
+                }
+
+                @Override
+                public void onRmsChanged(float v) {
+
+                }
+
+                @Override
+                public void onBufferReceived(byte[] bytes) {
+
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+
+                }
+
+                @Override
+                public void onError(int i) {
+
+                }
+
+                @Override
+                public void onResults(Bundle bundle) {
+                    ArrayList<String> data = bundle.getStringArrayList(quantitySpeechRecognizer.RESULTS_RECOGNITION);
+                    quantityEditText.setText(data.get(0));
+                }
+
+                @Override
+                public void onPartialResults(Bundle bundle) {
+                    ArrayList<String> data = bundle.getStringArrayList(quantitySpeechRecognizer.RESULTS_RECOGNITION);
+                    quantityEditText.setText(data.get(0));
+
+                }
+
+                @Override
+                public void onEvent(int i, Bundle bundle) {
+
+                }
+            });
+
+            unitPriceMicrophone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(unitPriceMicrophoneState == 0){
+                        unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
+                        unitPriceSpeechRecognizer.startListening(unitPriceRecognizerIntent);
+                        unitPriceMicrophoneState = 1;
+                    }
+                    else if(unitPriceMicrophoneState == 1){
+                        unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                        unitPriceSpeechRecognizer.stopListening();
+                        unitPriceMicrophoneState = 0;
+
+                    }
+
+                }
+            });
+
+            unitPriceSpeechRecognizer.setRecognitionListener(new RecognitionListener() {
+                @Override
+                public void onReadyForSpeech(Bundle bundle) {
+
+                }
+
+                @Override
+                public void onBeginningOfSpeech() {
+
+                }
+
+                @Override
+                public void onRmsChanged(float v) {
+
+                }
+
+                @Override
+                public void onBufferReceived(byte[] bytes) {
+
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+
+                }
+
+                @Override
+                public void onError(int i) {
+
+                }
+
+                @Override
+                public void onResults(Bundle bundle) {
+                    ArrayList<String> data = bundle.getStringArrayList(unitPriceSpeechRecognizer.RESULTS_RECOGNITION);
+                    unitPriceEditText.setText(data.get(0));
+
+                }
+
+                @Override
+                public void onPartialResults(Bundle bundle) {
+                    ArrayList<String> data = bundle.getStringArrayList(unitPriceSpeechRecognizer.RESULTS_RECOGNITION);
+                    unitPriceEditText.setText(data.get(0));
+
+                }
+
+                @Override
+                public void onEvent(int i, Bundle bundle) {
+
+                }
+            });
+
+        }
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 1){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, getString(R.string.audio_permission_granted), Toast.LENGTH_SHORT);
+            }else{
+                Toast.makeText(this, getString(R.string.cant_use_this_feature), Toast.LENGTH_SHORT);
+
+            }
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -392,6 +597,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 });
 
+                microphoneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        speakWithVoiceDialog(shoppingListUserItemName);
+                    }
+                });
             }
 
 

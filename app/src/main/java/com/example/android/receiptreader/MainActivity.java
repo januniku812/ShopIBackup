@@ -415,6 +415,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         Constants.storeBeingShoppedIn = store.getStoreName(); // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
+                        view.setBackgroundColor(getResources().getColor(R.color.light_blue_2));
                     }
                 });
 
