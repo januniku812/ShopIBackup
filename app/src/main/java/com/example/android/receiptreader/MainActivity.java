@@ -1,12 +1,8 @@
 package com.example.android.receiptreader;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
-import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -17,31 +13,23 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -135,10 +123,15 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(finalJsonEditCode == JSONEditCodes.ADD_NEW_STORE){ // should only be triggered by add fab button for stores
                     try {
-                        QueryUtils.addNewStore(String.valueOf(editText.getText()));
-                        stores =  QueryUtils.getStores();
-                        storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
-                        storesListView.setAdapter(storeListAdapter);
+                        String editTextVal =String.valueOf(editText.getText());
+                        if(!QueryUtils.ifStoreAlreadyExists(editTextVal)) {
+                            QueryUtils.addNewStore(editTextVal);
+                            stores = QueryUtils.getStores();
+                            storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
+                            storesListView.setAdapter(storeListAdapter);
+                        } else {
+                            Toast.makeText(MainActivity.this, String.format(getString(R.string.store_already_exists), editTextVal), Toast.LENGTH_SHORT).show();
+                        }
                     } catch (ParseException | IOException e) {
                         e.printStackTrace();
                     }
@@ -146,11 +139,16 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(finalJsonEditCode == JSONEditCodes.ADD_NEW_SHOPPING_LIST){ // should only be triggered by add fab button for shopping lists
                     try {
+                        String editTextVal =String.valueOf(editText.getText());
                         System.out.println("IM BEING ACCESSED @addNewShoppingList finalJsonEditCode in showDialog");
-                        QueryUtils.addShoppingList(String.valueOf(editText.getText()));
-                        shoppingLists =  QueryUtils.getShoppingLists();
-                        shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
-                        shoppingListsView.setAdapter(shoppingListAdapter);
+                        if(!QueryUtils.ifShoppingListAlreadyExists(editTextVal)) {
+                            QueryUtils.addShoppingList(String.valueOf(editText.getText()));
+                            shoppingLists = QueryUtils.getShoppingLists();
+                            shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
+                            shoppingListsView.setAdapter(shoppingListAdapter);
+                        } else {
+                            Toast.makeText(MainActivity.this, String.format(getString(R.string.shopping_list_already_exists), editTextVal), Toast.LENGTH_SHORT).show();
+                        }
                     } catch (ParseException | IOException e) {
                         e.printStackTrace();
                     }

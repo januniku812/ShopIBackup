@@ -2,9 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layoutDialogContainer"
+    android:id="@+id/layoutDialogContainerVID"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:minWidth="500dp"
+    android:minHeight="500dp"
     android:layout_margin="20dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,26 +31,24 @@
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent" />
 
-<!--        <ImageView-->
-<!--            android:id="@+id/imageIcon"-->
-<!--            android:layout_width="50dp"-->
-<!--            android:layout_height="50dp"-->
-<!--            android:layout_marginEnd="10dp"-->
-<!--            android:contentDescription="@string/app_name"-->
-<!--            android:src="@drawable/microphone_foreground"-->
-<!--            app:layout_constraintBottom_toBottomOf="@id/textTitle"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="@id/textTitle"-->
-<!--            app:tint="@color/white" />-->
+        <!--        <ImageView-->
+        <!--            android:id="@+id/imageIcon"-->
+        <!--            android:layout_width="50dp"-->
+        <!--            android:layout_height="50dp"-->
+        <!--            android:layout_marginEnd="10dp"-->
+        <!--            android:contentDescription="@string/app_name"-->
+        <!--            android:src="@drawable/microphone_foreground"-->
+        <!--            app:layout_constraintBottom_toBottomOf="@id/textTitle"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="@id/textTitle"-->
+        <!--            app:tint="@color/white" />-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/quantity_detail_ly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:orientation="horizontal"
             android:padding="10dp"
-            android:weightSum="1"
             app:layout_constraintTop_toBottomOf="@id/textTitle">
 
             <EditText
@@ -57,11 +57,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginStart="4dp"
-                android:layout_weight="0.95"
                 android:background="@drawable/grey_dialog_background"
                 android:hint="@string/quantity"
                 android:inputType="text"
                 android:textColor="@color/black"
+                android:digits="0123456789."
                 android:textColorHint="@color/grey"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -72,9 +72,9 @@
             <ImageView
                 android:id="@+id/quantity_microphone"
                 android:layout_width="40dp"
-                android:tint="@color/grey"
                 android:layout_height="40dp"
                 android:src="@drawable/microphone_foreground"
+                android:tint="@color/grey"
                 app:layout_constraintBottom_toBottomOf="@id/quantity_edit_text"
                 app:layout_constraintEnd_toEndOf="@id/quantity_edit_text"
                 app:layout_constraintTop_toTopOf="@id/quantity_edit_text" />
@@ -88,7 +88,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="10dp"
-            android:weightSum="1"
             app:layout_constraintTop_toBottomOf="@id/quantity_detail_ly">
 
 
@@ -105,6 +104,7 @@
                 android:inputType="text"
                 android:textColor="@color/black"
                 android:textColorHint="@color/grey"
+                android:digits="0123456789."
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -113,9 +113,9 @@
             <ImageView
                 android:id="@+id/unit_price_microphone"
                 android:layout_width="40dp"
-                android:tint="@color/grey"
                 android:layout_height="40dp"
                 android:src="@drawable/microphone_foreground"
+                android:tint="@color/grey"
                 app:layout_constraintBottom_toBottomOf="@id/unit_price_edit_text"
                 app:layout_constraintEnd_toEndOf="@id/unit_price_edit_text"
                 app:layout_constraintTop_toTopOf="@id/unit_price_edit_text" />

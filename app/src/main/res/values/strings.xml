@@ -70,4 +70,6 @@
     <string name="record_details_for">Record Details For Item</string>
     <string name="audio_permission_granted">Audio Permission Granted</string>
     <string name="cant_use_this_feature">Can\'t Use Save Microphone Feature Without Granted Record Audio Permission</string>
+    <string name="store_already_exists">%s Already Exists Under Stores</string>
+    <string name="shopping_list_already_exists">%s Already Exists Under Shopping Lists</string>
 </resources>

@@ -3,6 +3,7 @@ package com.example.android.receiptreader;
 
 import android.content.Intent;
 import android.os.Build;
+import android.text.Editable;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -23,6 +24,104 @@ public class QueryUtils  {
     public static String strip(String string){
         return string.replaceAll(" ","");
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice) throws ParseException {
+        System.out.println("IVE BEEN ACCESSED - saveDetailsOfShoppingListUserItem func");
+        System.out.println("ORIGINAL NAME PARAMETER saveDetailsOfShoppingListUserItem func @QueryUtils: " + storeName);
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray stores = (JSONArray) jsonObject.get("stores");
+            for(int i = 0; i < stores.size(); i++){
+                JSONObject storeObject = (JSONObject) stores.get(i);
+                String store_name = (String) storeObject.get("store_name");
+                JSONArray store_user_items = (JSONArray) storeObject.get("store_user_items");
+                System.out.println("STORE NAME: " + store_name);
+                if(store_name.equalsIgnoreCase(storeName)){
+                    System.out.println("STORE NAME 2: " + store_name);
+                    JSONObject storeUserItemToAdd = new JSONObject();
+                    storeUserItemToAdd.put("user_item_store", storeName);
+                    storeUserItemToAdd.put("user_item_date", date);
+                    storeUserItemToAdd.put("user_item_name", shoppingListUserItemName);
+                    storeUserItemToAdd.put("user_item_quantity", quantity);
+                    if(!quantity.equals("not filled") && !unitPrice.equals("not filled")){
+                        storeUserItemToAdd.put("user_item_total_amount_paid", String.valueOf(Integer.parseInt(quantity) * Integer.parseInt(unitPrice)));
+
+                    } else{
+                        storeUserItemToAdd.put("user_item_total_amount_paid", "not enough info given");
+                    }
+                    storeUserItemToAdd.put("user_item_unit_price", unitPrice);
+                    System.out.println("STORE USER ITEM TO ADD @saveDetailsOfShoppingListUserItem: " + storeUserItemToAdd.toJSONString());
+                    store_user_items.add(storeUserItemToAdd);
+                    System.out.println("STORE USER ITEMS @saveDetailsOfShoppingListUserItem: " + store_user_items);
+
+
+                }
+            }
+            System.out.println("JSON DATA STR @saveDetailsOfShoppingListUserItem: " + Constants.json_data_str);
+            Constants.json_data_str = jsonObject.toJSONString();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean ifShoppingListAlreadyExists(String shoppingListName) throws ParseException {
+        System.out.println("IVE BEEN ACCESSED - editStoreName func");
+        System.out.println("ORIGINAL NAME PARAMETER ifShoppingListAlreadyExists func @QueryUtils: " + shoppingListName);
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shoppingLists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shoppingLists.size(); i++){
+                JSONObject shoppingList = (JSONObject) shoppingLists.get(i);
+                String shopping_list_name = (String) shoppingList.get("shopping_list_name");
+                System.out.println("STORE NAME: " + shopping_list_name);
+                if(strip(shopping_list_name).equalsIgnoreCase(strip(shoppingListName))){
+                    System.out.println("IVE BEEN ACCESSED - ifShoppingListAlreadyExists: " + shoppingListName);
+                    return true;
+                }
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean ifStoreAlreadyExists(String storeName) throws ParseException {
+        System.out.println("IVE BEEN ACCESSED - editStoreName func");
+        System.out.println("ORIGINAL NAME PARAMETER ifStoreAlreadyExists func @QueryUtils: " + storeName);
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray stores = (JSONArray) jsonObject.get("stores");
+            for(int i = 0; i < stores.size(); i++){
+                JSONObject storeObject = (JSONObject) stores.get(i);
+                String store_name = (String) storeObject.get("store_name");
+                System.out.println("STORE NAME: " + store_name);
+                if(strip(store_name).equalsIgnoreCase(strip(storeName))){
+                    System.out.println("IVE BEEN ACCESSED - ifStoreAlreadyExists: " + store_name);
+                    return true;
+                }
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void reorderShoppingListItem(String originalShoppingList, String shoppingListToMoveTo, String shoppingListItemName) throws ParseException {
@@ -263,7 +362,7 @@ public class QueryUtils  {
                         String userItemDate = (String) userItemObject.get("user_item_date");
                         String userItemName = (String) userItemObject.get("user_item_name");
                         String userItemQuantity = (String) userItemObject.get("user_item_quantity");
-                        String userItemTotalAmountPaid = (String) userItemObject.get("user_item_total_amount_paid");
+                        String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
                         String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
                         StoreUserItem userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
                         storeUserItemArrayList.add(userItemToAdd);
@@ -335,7 +434,7 @@ public class QueryUtils  {
                         String userItemDate = (String) userItemObject.get("user_item_date");
                         String userItemQuantity = (String) userItemObject.get("user_item_quantity");
                         String userItemStore = (String) userItemObject.get("user_item_store");
-                        String userItemTotalAmountPaid = (String) userItemObject.get("user_item_total_amount_paid");
+                        String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
                         String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
                         userItemToAdd = new StoreUserItem(userItemStore, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
                         System.out.println("ADDING " + userItemToAdd.getItemName() + " FOR " + shoppingListUserItemName);
@@ -475,7 +574,7 @@ public class QueryUtils  {
                         String userItemDate = (String) userItemObject.get("user_item_date");
                         String userItemName = (String) userItemObject.get("user_item_name");
                         String userItemQuantity = (String) userItemObject.get("user_item_quantity");
-                        String userItemTotalAmountPaid = (String) userItemObject.get("user_item_total_amount_paid");
+                        String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
                         String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
                         StoreUserItem userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
                         storeUserItemArrayList.add(userItemToAdd);
@@ -547,7 +646,7 @@ public class QueryUtils  {
                     String userItemDate = (String) userItemObject.get("user_item_date");
                     String userItemName = (String) userItemObject.get("user_item_name");
                     String userItemQuantity = (String) userItemObject.get("user_item_quantity");
-                    String userItemTotalAmountPaid = (String) userItemObject.get("user_item_total_amount_paid");
+                    String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
                     String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
                     StoreUserItem userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
                     userItemArrayList.add(userItemToAdd);
@@ -769,5 +868,4 @@ public class QueryUtils  {
 //        file.canRead();
         System.out.println("EXISTS: " + file.exists());
     }
-
 }
