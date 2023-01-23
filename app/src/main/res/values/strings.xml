@@ -72,4 +72,6 @@
     <string name="cant_use_this_feature">Can\'t Use Save Microphone Feature Without Granted Record Audio Permission</string>
     <string name="store_already_exists">%s Already Exists Under Stores</string>
     <string name="shopping_list_already_exists">%s Already Exists Under Shopping Lists</string>
+    <string name="chose_a_store">You have not currently selected a store(main page), please select what store you would like to save %s in below</string>
+    <string name="couldnt_rec_value">Couldn\'t recognize %s as a numeric value, please enter values such as 1-10, 1.99, etc.</string>
 </resources>

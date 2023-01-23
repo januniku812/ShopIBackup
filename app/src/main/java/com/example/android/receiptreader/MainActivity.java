@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         stores =  QueryUtils.getStores();
                         storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                         storesListView.setAdapter(storeListAdapter);
+                        alertDialog.dismiss();
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();
                     }
@@ -117,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                         shoppingLists =  QueryUtils.getShoppingLists();
                         shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
                         shoppingListsView.setAdapter(shoppingListAdapter);
+                        alertDialog.dismiss();
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();
                     }
@@ -129,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                             stores = QueryUtils.getStores();
                             storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                             storesListView.setAdapter(storeListAdapter);
+                            alertDialog.dismiss();
                         } else {
                             Toast.makeText(MainActivity.this, String.format(getString(R.string.store_already_exists), editTextVal), Toast.LENGTH_SHORT).show();
                         }
@@ -146,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                             shoppingLists = QueryUtils.getShoppingLists();
                             shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
                             shoppingListsView.setAdapter(shoppingListAdapter);
+                            alertDialog.dismiss();
                         } else {
                             Toast.makeText(MainActivity.this, String.format(getString(R.string.shopping_list_already_exists), editTextVal), Toast.LENGTH_SHORT).show();
                         }
@@ -160,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
                         stores =  QueryUtils.getStores();
                         storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                         storesListView.setAdapter(storeListAdapter);
+                        alertDialog.dismiss();
                     } catch (ParseException | IOException e) {
                         e.printStackTrace();
                     }
@@ -171,12 +176,12 @@ public class MainActivity extends AppCompatActivity {
                         shoppingLists =  QueryUtils.getShoppingLists();
                         shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
                         shoppingListsView.setAdapter(shoppingListAdapter);
+                        alertDialog.dismiss();
                     } catch (ParseException | IOException e) {
                         e.printStackTrace();
                     }
 
                 }
-                alertDialog.dismiss();
             }
         });
         if (alertDialog.getWindow() != null) {
@@ -413,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         Constants.storeBeingShoppedIn = store.getStoreName(); // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
-                        view.setBackgroundColor(getResources().getColor(R.color.light_blue_2));
+                        selectedStoreView.setBackgroundColor(getResources().getColor(R.color.light_blue_2));
                     }
                 });
 

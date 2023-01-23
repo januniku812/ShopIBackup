@@ -130,6 +130,6 @@ public class EnglishWordsToNumbers {
             }
         }
 
-        return result;
+        return Integer.valueOf(result).toString();
     }
 }

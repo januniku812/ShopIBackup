@@ -49,8 +49,13 @@ public class QueryUtils  {
                     storeUserItemToAdd.put("user_item_name", shoppingListUserItemName);
                     storeUserItemToAdd.put("user_item_quantity", quantity);
                     if(!quantity.equals("not filled") && !unitPrice.equals("not filled")){
-                        storeUserItemToAdd.put("user_item_total_amount_paid", String.valueOf(Integer.parseInt(quantity) * Integer.parseInt(unitPrice)));
+                        try {
+                            storeUserItemToAdd.put("user_item_total_amount_paid", String.valueOf(Integer.parseInt(quantity) * Integer.parseInt(unitPrice)));
+                        } catch(NumberFormatException e){
+                            storeUserItemToAdd.put("user_item_total_amount_paid", String.valueOf(Double.parseDouble(quantity) * Double.parseDouble(unitPrice)));
 
+
+                        }
                     } else{
                         storeUserItemToAdd.put("user_item_total_amount_paid", "not enough info given");
                     }
