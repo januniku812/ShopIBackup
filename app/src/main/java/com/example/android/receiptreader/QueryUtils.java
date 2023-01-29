@@ -1,4 +1,5 @@
 package com.example.android.receiptreader;
+import com.example.android.receiptreader.MainActivity;
 
 
 import android.content.Intent;
@@ -15,6 +16,7 @@ import org.json.simple.parser.ParseException;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +41,7 @@ public class QueryUtils  {
             for(int i = 0; i < stores.size(); i++){
                 JSONObject storeObject = (JSONObject) stores.get(i);
                 String store_name = (String) storeObject.get("store_name");
-                JSONArray store_user_items = (JSONArray) storeObject.get("store_user_items");
+                JSONArray store_user_items = (JSONArray) jsonParser.parse(String.valueOf(storeObject.get("store_user_items")));
                 System.out.println("STORE NAME: " + store_name);
                 if(store_name.equalsIgnoreCase(storeName)){
                     System.out.println("STORE NAME 2: " + store_name);
@@ -52,7 +54,8 @@ public class QueryUtils  {
                         try {
                             storeUserItemToAdd.put("user_item_total_amount_paid", String.valueOf(Integer.parseInt(quantity) * Integer.parseInt(unitPrice)));
                         } catch(NumberFormatException e){
-                            storeUserItemToAdd.put("user_item_total_amount_paid", String.valueOf(Double.parseDouble(quantity) * Double.parseDouble(unitPrice)));
+                            DecimalFormat df = new DecimalFormat("#.##");
+                            storeUserItemToAdd.put("user_item_total_amount_paid", String.valueOf(df.format(Double.parseDouble(quantity) * Double.parseDouble(unitPrice))));
 
 
                         }
@@ -62,15 +65,16 @@ public class QueryUtils  {
                     storeUserItemToAdd.put("user_item_unit_price", unitPrice);
                     System.out.println("STORE USER ITEM TO ADD @saveDetailsOfShoppingListUserItem: " + storeUserItemToAdd.toJSONString());
                     store_user_items.add(storeUserItemToAdd);
+                    storeObject.replace("store_user_items", store_user_items);
                     System.out.println("STORE USER ITEMS @saveDetailsOfShoppingListUserItem: " + store_user_items);
-
 
                 }
             }
-            System.out.println("JSON DATA STR @saveDetailsOfShoppingListUserItem: " + Constants.json_data_str);
             Constants.json_data_str = jsonObject.toJSONString();
+            System.out.println("JSON DATA STR @saveDetailsOfShoppingListUserItem: " + Constants.json_data_str);
 
         }catch(Exception e){
+            System.out.println("EXCEPTION @saveDetailsOfShoppingListUserItem:");
             e.printStackTrace();
         }
     }
@@ -663,9 +667,17 @@ public class QueryUtils  {
         }catch(Exception e){
             e.printStackTrace();
         }
-        return storeArrayList;
-
+        return setAllStoresToNotBeingShoppedInExcept(storeArrayList, Constants.storeBeingShoppedIn);
     }
+
+
+    public static ArrayList<Store> setAllStoresToNotBeingShoppedInExcept(ArrayList<Store> stores, String storeName) {
+        for(Store store: stores){
+            store.setIfHighlighted(store.getStoreName().equals(storeName));
+        }
+        return stores;
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static ArrayList<ShoppingList> getShoppingLists() throws IOException, ParseException {

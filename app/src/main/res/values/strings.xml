@@ -74,4 +74,5 @@
     <string name="shopping_list_already_exists">%s Already Exists Under Shopping Lists</string>
     <string name="chose_a_store">You have not currently selected a store(main page), please select what store you would like to save %s in below</string>
     <string name="couldnt_rec_value">Couldn\'t recognize %s as a numeric value, please enter values such as 1-10, 1.99, etc.</string>
+    <string name="no_speech_detected">No Speech Detected</string>
 </resources>

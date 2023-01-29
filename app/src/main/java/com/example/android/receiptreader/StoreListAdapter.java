@@ -1,6 +1,7 @@
 package com.example.android.receiptreader;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,11 @@ public class StoreListAdapter extends ArrayAdapter<Store> {
         //find the text view in the user item individual view and setting it with object name data
         TextView storeName = (TextView) newItemView.findViewById(R.id.store_item_name);
         storeName.setText(store.getStoreName());
+
+        if(store.isIfHighlighted()){ // set color to blue if it is the store being shopped in
+            View cardView = newItemView.findViewById(R.id.user_item_card_view);
+            cardView.setBackgroundResource(R.drawable.light_blue_card_view_bkg);
+        }
 
         return newItemView;
 

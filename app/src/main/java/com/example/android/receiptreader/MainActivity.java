@@ -417,8 +417,21 @@ public class MainActivity extends AppCompatActivity {
                 shoppingCartButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Constants.storeBeingShoppedIn = store.getStoreName(); // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
-                        selectedStoreView.setBackgroundColor(getResources().getColor(R.color.light_blue_2));
+                        if(Constants.storeBeingShoppedIn.isEmpty()) {
+                            Constants.storeBeingShoppedIn = store.getStoreName(); // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
+                            store.setIfHighlighted(true);
+                        } else{
+                            if(Constants.storeBeingShoppedIn.equals(originalStoreName)){
+                                Constants.storeBeingShoppedIn = "";
+                                stores = setAllStoresToNotBeingShoppedInExcept(stores, Constants.storeBeingShoppedIn);
+                            }
+                            else {
+                                stores = setAllStoresToNotBeingShoppedInExcept(stores, store.getStoreName());
+                            }
+                        }
+                        // update list view
+                        storeListAdapter = new StoreListAdapter(MainActivity.this, stores);
+                        storesListView.setAdapter(storeListAdapter);
                     }
                 });
 
@@ -477,6 +490,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public ArrayList<Store> setAllStoresToNotBeingShoppedInExcept(ArrayList<Store> stores, String storeName) {
+        for(Store store: stores){
+            store.setIfHighlighted(store.getStoreName().equals(storeName));
+        }
+        return stores;
     }
 
     @Override

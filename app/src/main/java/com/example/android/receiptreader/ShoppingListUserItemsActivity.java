@@ -198,8 +198,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         SpeechRecognizer unitPriceSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         final Intent quantitySpeechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         quantitySpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        quantitySpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS , 800);
         quantitySpeechRecognizerIntent .putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         final Intent unitPriceRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        unitPriceRecognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS , 800);
         // when the users click on the textviews next to the edit texts for hold details, listening starts
         RecognitionListener quantityRecognitionListener = new RecognitionListener() {
             @Override
@@ -226,7 +228,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onEndOfSpeech() {
                 System.out.println("@onEndOfSpeech - quantity");
-
+                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
             }
 
             @Override
@@ -237,17 +239,32 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onResults(Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                System.out.println("@onResults - quantity: " + data.get(0));
-                if(data.get(0).matches(".*[a-z].*")) {
-                    System.out.println("A_Z CONTIANING ONE: "+ data.get(0));
-                    if(EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")){
-                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
-                    }else {
-                        quantityEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
-                    }
-                } else{
-                    quantityEditText.setText(data.get(0));
+                try {
+                    System.out.println("@onResults - quantity: " + data.get(0));
+                    if (data.get(0).matches(".*[a-z].*")) {
+                        System.out.println("A_Z CONTIANING ONE: " + data.get(0));
+                        if (EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")) {
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
+                        } else {
+                            quantityEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
+                        }
+                    } else {
+                        quantityEditText.setText(data.get(0));
 
+                    }
+                }
+                catch (Exception e){
+                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT);
+                    final Runnable stopListeningRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            quantitySpeechRecognizer.stopListening();
+                            System.out.println("MADE IT");
+                        }
+                    };
+                    stopListeningRunnable.run();
+                    quantityMicrophoneState = 0;
                 }
             }
 
@@ -255,14 +272,18 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onPartialResults(Bundle bundle) {
                 System.out.println("@onPartialResults - quantity");
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                if(data.get(0).matches(".*[a-z].*")) {
-                    if(EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")){
-                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
-                    }else {
-                        quantityEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
+                try {
+                    if (data.get(0).matches(".*[a-z].*")) {
+                        if (EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")) {
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
+                        } else {
+                            quantityEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
+                        }
+                    } else {
+                        quantityEditText.setText(data.get(0));
+
                     }
-                } else{
-                    quantityEditText.setText(data.get(0));
+                } catch (Exception e){
 
                 }
 
@@ -271,14 +292,18 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onEvent(int i, Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                if(data.get(0).matches(".*[a-z].*")) {
-                    if(EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")){
-                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
-                    }else {
-                        quantityEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
+                try {
+                    if (data.get(0).matches(".*[a-z].*")) {
+                        if (EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")) {
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
+                        } else {
+                            quantityEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
+                        }
+                    } else {
+                        quantityEditText.setText(data.get(0));
+
                     }
-                } else{
-                    quantityEditText.setText(data.get(0));
+                } catch (Exception e){
 
                 }
             }
@@ -293,7 +318,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         ActivityCompat.requestPermissions(ShoppingListUserItemsActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
 
                     } else {
-                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
+                       quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
                         final Runnable startListeningRunnable = new Runnable() {
                             @Override
                             public void run() {
@@ -345,6 +370,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
             @Override
             public void onEndOfSpeech() {
+                unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
 
             }
 
@@ -356,15 +382,30 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onResults(Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(unitPriceSpeechRecognizer.RESULTS_RECOGNITION);
-                if(data.get(0).matches(".*[a-z].*")) {
-                    if(EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")){
-                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
-                    }else {
-                        unitPriceEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
-                    }
-                } else{
-                    unitPriceEditText.setText(data.get(0));
+                try {
+                    if (data.get(0).matches(".*[a-z].*")) {
+                        if (EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")) {
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
+                        } else {
+                            unitPriceEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
+                        }
+                    } else {
+                        unitPriceEditText.setText(data.get(0));
 
+                    }
+                }
+                catch (Exception e){
+                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT);
+                    final Runnable stopListeningRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            unitPriceSpeechRecognizer.stopListening();
+                            System.out.println("MADE IT");
+                        }
+                    };
+                    stopListeningRunnable.run();
+                    unitPriceMicrophoneState = 0;
                 }
 
             }
@@ -372,13 +413,18 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onPartialResults(Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(unitPriceSpeechRecognizer.RESULTS_RECOGNITION);
-                if(data.get(0).matches(".*[a-z].*")) {
-                    if(EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")){
-                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
-                    }else {
-                        unitPriceEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
-                    }                } else{
-                    unitPriceEditText.setText(data.get(0));
+                try {
+                    if (data.get(0).matches(".*[a-z].*")) {
+                        if (EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")) {
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
+                        } else {
+                            unitPriceEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
+                        }
+                    } else {
+                        unitPriceEditText.setText(data.get(0));
+
+                    }
+                } catch (Exception e){
 
                 }
 
@@ -387,13 +433,18 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onEvent(int i, Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(unitPriceSpeechRecognizer.RESULTS_RECOGNITION);
-                if(data.get(0).matches(".*[a-z].*")) {
-                    if(EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")){
-                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
-                    }else {
-                        unitPriceEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
-                    }                } else{
-                    unitPriceEditText.setText(data.get(0));
+                try {
+                    if (data.get(0).matches(".*[a-z].*")) {
+                        if (EnglishWordsToNumbers.replaceNumbers(data.get(0)).equals("000")) {
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), data.get(0)), Toast.LENGTH_SHORT);
+                        } else {
+                            unitPriceEditText.setText(EnglishWordsToNumbers.replaceNumbers(data.get(0)));
+                        }
+                    } else {
+                        unitPriceEditText.setText(data.get(0));
+
+                    }
+                } catch (Exception e){
 
                 }
 

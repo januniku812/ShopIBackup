@@ -5,6 +5,15 @@ import java.util.ArrayList;
 public class Store {
     ArrayList<StoreUserItem> storeUserItems;
     String storeName;
+    boolean ifHighlighted = false;
+
+    public boolean isIfHighlighted() {
+        return ifHighlighted;
+    }
+
+    public void setIfHighlighted(boolean ifHighlighted) {
+        this.ifHighlighted = ifHighlighted;
+    }
 
     public Store() {
 
