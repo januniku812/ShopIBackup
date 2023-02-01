@@ -50,7 +50,7 @@
                         app:srcCompat="@drawable/add_sign" />
                     <TextView
                         style="@style/user_item_details_text_style"
-                        android:textSize="17sp"
+                        android:textSize="20sp"
                         android:layout_marginStart="5dp"
                         android:layout_gravity="center_vertical"
                         android:id="@+id/shopping_lists_title"
@@ -117,7 +117,7 @@
                     <TextView
                         style="@style/user_item_details_text_style"
                         android:layout_marginEnd="5dp"
-                        android:textSize="17dp"
+                        android:textSize="20sp"
                         android:layout_marginStart="5dp"
                         android:id="@+id/stores_label"
                         android:layout_width="wrap_content"

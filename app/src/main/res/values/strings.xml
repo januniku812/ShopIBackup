@@ -75,4 +75,12 @@
     <string name="chose_a_store">You have not currently selected a store(main page), please select what store you would like to save %s in below</string>
     <string name="couldnt_rec_value">Couldn\'t recognize %s as a numeric value, please enter values such as 1-10, 1.99, etc.</string>
     <string name="no_speech_detected">No Speech Detected</string>
+    <string name="additional_weight">Additional weight detail(not neccesary)</string>
+    <string name="you_need_weight_unit">Please record your customary or metric measurement of weight, such as pounds or kilograms, as you have weight toggled in quantity details</string>
+    <string name="only_enter_normal_numeric_value">Please only record numeric values such as \'three\'(3), as you have \'each\' toggled in quantity details</string>
+    <string name="add_proper_unit_of_weight_after_numeric_value">%s is not a proper unit of weight or numeric value, please enter input such as \'1.5 lbs\'</string>
+    <string name="add_proper_unit_of_weight_after_numeric_value_2">Please add a proper unit of measurement after your literal numeric value \'%s\'</string>
+
+    <string name="add_weight_ms">If you wish to record an addition weight despite the details of your item being an individually priced one, please properly record it with details such as \'1.5 pounds\'(lbs) with the voice function or manually, otherwise just leave it blank</string>
+    <string name="please_only_stand_alone_values_for_individuals">Please only enter stand alone numeric values like \'three(3)\' as you have your pricing details set as individually priced</string>
 </resources>

@@ -28,7 +28,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice) throws ParseException {
+    public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice, String measurementUnit, String additionalWeight) throws ParseException {
         System.out.println("IVE BEEN ACCESSED - saveDetailsOfShoppingListUserItem func");
         System.out.println("ORIGINAL NAME PARAMETER saveDetailsOfShoppingListUserItem func @QueryUtils: " + storeName);
         String jsonData = Constants.json_data_str;
@@ -62,7 +62,7 @@ public class QueryUtils  {
                     } else{
                         storeUserItemToAdd.put("user_item_total_amount_paid", "not enough info given");
                     }
-                    storeUserItemToAdd.put("user_item_unit_price", unitPrice);
+                    storeUserItemToAdd.put("user_item_unit_price", unitPrice + " /" + measurementUnit);
                     System.out.println("STORE USER ITEM TO ADD @saveDetailsOfShoppingListUserItem: " + storeUserItemToAdd.toJSONString());
                     store_user_items.add(storeUserItemToAdd);
                     storeObject.replace("store_user_items", store_user_items);
@@ -250,7 +250,8 @@ public class QueryUtils  {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static boolean addShoppingListItem(String shoppingListName, String shoppingListItemName, String lastBoughtDate) throws ParseException {
         String jsonData = Constants.json_data_str;
-        Object object = new JSONParser().parse(jsonData
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
         );
         ArrayList<ShoppingList> shoppingListArray = new ArrayList<>();
         StoreUserItem userItem = new StoreUserItem();
@@ -262,7 +263,7 @@ public class QueryUtils  {
                 JSONObject shoppingList = (JSONObject) shoppingLists.get(i);
                 if(shoppingList.get("shopping_list_name").toString().equalsIgnoreCase(shoppingListName)){
                     System.out.println("MADE IT @addShoppingListItem : " + shoppingListItemName);
-                    JSONArray shopping_list_user_items = (JSONArray) shoppingList.get("shopping_list_user_items");
+                    JSONArray shopping_list_user_items = (JSONArray) jsonParser.parse(shoppingList.get("shopping_list_user_items").toString());
                     for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
                         JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
                         if(strip(shopping_list_user_item.get("shopping_list_item_name").toString()).equalsIgnoreCase(shoppingListItemName)){
@@ -286,6 +287,8 @@ public class QueryUtils  {
                     }
                     shoppingListUserItemToAdd.put("shopping_list_item_quantity", "1");
                     shopping_list_user_items.add(shoppingListUserItemToAdd);
+                    System.out.println("I REACHED @addNewStore 2445 : " + shopping_list_user_items);
+                    shoppingList.replace("shopping_list_user_items",shopping_list_user_items);
                 }
             }
             // update json data string value

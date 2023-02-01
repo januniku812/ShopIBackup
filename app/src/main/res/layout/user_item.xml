@@ -29,6 +29,7 @@
                 app:layout_constraintEnd_toStartOf="@id/store_date"
                 android:layout_width="wrap_content"
                 android:text="@string/placeholder_store_name"
+                android:textAllCaps="true"
                 android:layout_height="wrap_content"/>
             <TextView
                 style="@style/user_item_details_text_style"
