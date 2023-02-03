@@ -21,12 +21,18 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View newItemView = convertView;
-        if(newItemView == null) {
-            newItemView = LayoutInflater.from(getContext()).inflate(R.layout.user_item, parent, false);
-        }
-
-        //get the{@link Deity} object located at this position in the list
+        //get the{@link StoreUserItem} object located at this position in the list
         StoreUserItem storeUserItem = getItem(position);
+        String additionalWeightUnitPriceDetail = storeUserItem.getAdditionalWeightUnitPriceDetail();
+        if(newItemView == null) {
+            System.out.println("ADDITIONAL WEIGHT DETAIL " + storeUserItem.getItemName() + " : " + additionalWeightUnitPriceDetail);
+            if(additionalWeightUnitPriceDetail != null){
+              newItemView = LayoutInflater.from(getContext()).inflate(R.layout.user_item_with_extra_weight_detail, parent, false);
+            }
+            else{
+              newItemView = LayoutInflater.from(getContext()).inflate(R.layout.user_item, parent, false);
+            }
+        }
 
         //find the text view in the user item individual view and setting it with object name data
         TextView userItemStore = (TextView) newItemView.findViewById(R.id.store_name);
@@ -51,7 +57,13 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
         //find the text view in the user item individual view and setting it with object amount paid data
         TextView userItemUnitPrice = (TextView) newItemView.findViewById(R.id.unit_price);
         userItemUnitPrice.setText(storeUserItem.getUnitPrice());
+
+        TextView extraWeighBasedUnitPrice = (TextView) newItemView.findViewById(R.id.extra_weight_based_unit_price);
+
+        if(extraWeighBasedUnitPrice != null){
+            extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail);
+        }
         return newItemView;
-                                             
+
     }
 }

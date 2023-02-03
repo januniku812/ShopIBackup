@@ -47,18 +47,18 @@
                 app:layout_constraintStart_toEndOf="@id/store_date"
                 app:layout_constraintEnd_toStartOf="@id/quantity"
                 android:layout_height="match_parent">
-            <TextView
-                style="@style/user_item_details_text_style"
-                android:id="@+id/item_name"
-                android:textColor="@color/light_blue_3"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_width="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:text="ORANGE JUICE"
-                android:textAllCaps="true"
-                android:layout_height="wrap_content"/>
+                <TextView
+                    android:textAllCaps="true"
+                    style="@style/user_item_details_text_style"
+                    android:id="@+id/item_name"
+                    android:textColor="@color/light_blue_3"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_width="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:text="ORANGE JUICE"
+                    android:layout_height="wrap_content"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
             <TextView
                 style="@style/user_item_details_text_style"
@@ -84,10 +84,21 @@
                 style="@style/user_item_details_text_style"
                 android:id="@+id/unit_price"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/amount_paid"
+                app:layout_constraintStart_toEndOf="@id/amount_paid"
+                android:layout_width="wrap_content"
+                android:text="3.15 /ea"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_height="wrap_content"/>
+            <TextView
+                style="@style/user_item_details_text_style"
+                android:textColor="@color/extra_weight_detail_color"
+                android:id="@+id/extra_weight_based_unit_price"
+                app:layout_constraintTop_toTopOf="@id/amount_paid"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/amount_paid"
                 android:layout_width="wrap_content"
-                android:text="3.15"
+                android:text="2 /lb"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_height="wrap_content"/>
 

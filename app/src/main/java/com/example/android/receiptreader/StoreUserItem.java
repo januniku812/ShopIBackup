@@ -9,6 +9,16 @@ public class StoreUserItem implements Serializable {
     String quantity;
     String totalAmountPaid;
     String unitPrice;
+    String additionalWeightUnitPriceDetail;
+
+    public String getAdditionalWeightUnitPriceDetail() {
+        return additionalWeightUnitPriceDetail;
+    }
+
+    public void setAdditionalWeightUnitPriceDetail(String additionalWeightUnitPriceDetail) {
+        this.additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail;
+    }
+
     public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice) {
         this.store = store;
         this.dateOfPurchase = dateOfPurchase;
@@ -16,6 +26,16 @@ public class StoreUserItem implements Serializable {
         this.quantity = quantity;
         this.totalAmountPaid = totalAmountPaid;
         this.unitPrice = unitPrice;
+    }
+
+    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String additionalWeightUnitPriceDetail) {
+        this.store = store;
+        this.dateOfPurchase = dateOfPurchase;
+        this.itemName = itemName;
+        this.quantity = quantity;
+        this.totalAmountPaid = totalAmountPaid;
+        this.unitPrice = unitPrice;
+        this.additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail;
     }
 
     public StoreUserItem() {

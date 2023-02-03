@@ -82,7 +82,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/quantity_microphone"
                 app:layout_constraintTop_toTopOf="@id/quantity_microphone"
                 android:id="@+id/eachWeightToggleButton"
-                android:layout_width="50dp"
+                android:layout_width="60dp"
                 app:layout_constraintEnd_toStartOf="@id/quantity_microphone"
                 android:layout_height="28dp"
                 android:background="@drawable/edit_weight_toggle_button"
