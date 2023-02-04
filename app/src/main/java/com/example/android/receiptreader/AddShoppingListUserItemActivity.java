@@ -71,7 +71,7 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
                 newItemEditText.setText(shoppingListUserItemName);
                 try {
                     lastBought = QueryUtils.getWhenShoppingListUserItemLastBought(shoppingListUserItemName);
-                    QueryUtils.addShoppingListItem(shoppingList,newItemEditText.getText().toString(), lastBought);
+                    QueryUtils.addShoppingListItem(shoppingList,newItemEditText.getText().toString().trim(), lastBought, getApplicationContext());
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (ParseException e) {
@@ -123,7 +123,7 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    QueryUtils.addShoppingListItem(shoppingList,newItemEditText.getText().toString(), lastBought);
+                    QueryUtils.addShoppingListItem(shoppingList,newItemEditText.getText().toString().trim(), lastBought, getApplicationContext());
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }

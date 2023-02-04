@@ -25,7 +25,7 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
         StoreUserItem storeUserItem = getItem(position);
         String additionalWeightUnitPriceDetail = storeUserItem.getAdditionalWeightUnitPriceDetail();
         if(newItemView == null) {
-            System.out.println("ADDITIONAL WEIGHT DETAIL " + storeUserItem.getItemName() + " : " + additionalWeightUnitPriceDetail);
+            System.out.println("ADDITIONAL WEIGHT DETAIL " +   storeUserItem.getDateOfPurchase() + storeUserItem.getStore() + storeUserItem.getItemName() + " : " + additionalWeightUnitPriceDetail);
             if(additionalWeightUnitPriceDetail != null){
               newItemView = LayoutInflater.from(getContext()).inflate(R.layout.user_item_with_extra_weight_detail, parent, false);
             }
@@ -61,6 +61,7 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
         TextView extraWeighBasedUnitPrice = (TextView) newItemView.findViewById(R.id.extra_weight_based_unit_price);
 
         if(extraWeighBasedUnitPrice != null){
+            System.out.println("ADDITIONAL WEIGHT DETAIL REACHED: " + additionalWeightUnitPriceDetail);
             extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail);
         }
         return newItemView;

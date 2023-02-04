@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -34,7 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-//    TextView resultsForStoresViews;
+    //    TextView resultsForStoresViews;
 //    TextView resultsForShoppingListsViews;
     ShoppingListAdapter shoppingListAdapter;
     StoreListAdapter storeListAdapter;
@@ -66,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
             enterButton.setText(R.string.yes);
             icon.setImageResource(R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
             TextView delete_text =  (TextView) view.findViewById(R.id.delete_text);
-        delete_text.setVisibility(View.VISIBLE);
-        delete_text.setText(String.format("Are you sure you want to delete %s, this action is permanent and cannot be undone", originalName));
+            delete_text.setVisibility(View.VISIBLE);
+            delete_text.setText(String.format("Are you sure you want to delete %s, this action is permanent and cannot be undone", originalName));
         }
         else if(finalJsonEditCode == JSONEditCodes.ADD_NEW_STORE || finalJsonEditCode == JSONEditCodes.ADD_NEW_SHOPPING_LIST){
             icon.setMinimumHeight(25);
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 if(finalJsonEditCode == JSONEditCodes.EDIT_STORE_NAME){
                     try {
                         System.out.println("EDIT TEXT VAL SUBMIT MOMENT: "+ editText.getText());
-                        QueryUtils.editStoreName(originalName, String.valueOf(editText.getText()));
+                        QueryUtils.editStoreName(originalName, String.valueOf(editText.getText()), getApplicationContext());
                         stores =  QueryUtils.getStores();
                         storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                         storesListView.setAdapter(storeListAdapter);
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(finalJsonEditCode == JSONEditCodes.EDIT_SHOPPING_LIST_NAME){
                     try {
-                        QueryUtils.editShoppingListName(originalName, String.valueOf(editText.getText()));
+                        QueryUtils.editShoppingListName(originalName, String.valueOf(editText.getText()), getApplicationContext());
                         shoppingLists =  QueryUtils.getShoppingLists();
                         shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
                         shoppingListsView.setAdapter(shoppingListAdapter);
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         String editTextVal =String.valueOf(editText.getText());
                         if(!QueryUtils.ifStoreAlreadyExists(editTextVal)) {
-                            QueryUtils.addNewStore(editTextVal);
+                            QueryUtils.addNewStore(editTextVal, getApplicationContext());
                             stores = QueryUtils.getStores();
                             storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                             storesListView.setAdapter(storeListAdapter);
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                         String editTextVal =String.valueOf(editText.getText());
                         System.out.println("IM BEING ACCESSED @addNewShoppingList finalJsonEditCode in showDialog");
                         if(!QueryUtils.ifShoppingListAlreadyExists(editTextVal)) {
-                            QueryUtils.addShoppingList(String.valueOf(editText.getText()));
+                            QueryUtils.addShoppingList(String.valueOf(editText.getText()), getApplicationContext());
                             shoppingLists = QueryUtils.getShoppingLists();
                             shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
                             shoppingListsView.setAdapter(shoppingListAdapter);
@@ -160,7 +161,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(finalJsonEditCode == JSONEditCodes.DELETE_STORE){ // should only be triggered by add fab button for shopping lists
                     try {
-                        QueryUtils.deleteStore(originalName);
+                        QueryUtils.deleteStore(originalName, getApplicationContext());
+
                         stores =  QueryUtils.getStores();
                         storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                         storesListView.setAdapter(storeListAdapter);
@@ -172,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(finalJsonEditCode == JSONEditCodes.DELETE_SHOPPING_LIST){ // should only be triggered by add fab button for shopping lists
                     try {
-                        QueryUtils.deleteShoppingList(originalName);
+                        QueryUtils.deleteShoppingList(originalName, getApplicationContext());
                         shoppingLists =  QueryUtils.getShoppingLists();
                         shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
                         shoppingListsView.setAdapter(shoppingListAdapter);
@@ -208,6 +210,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Constants.json_data_str = PreferenceManager.
+                getDefaultSharedPreferences(this).getString("jsonData","{\n" +
+                "  \"stores\": [],\n" +
+                "  \"shopping_lists\":[]\n" +
+                "}");
         shoppingListsView = (ListView) findViewById(R.id.shopping_list_items_list_view);
         storesListView = (ListView) findViewById(R.id.stores_list_view);
         SearchView shoppingListSearchView = findViewById(R.id.shopping_list_search_bar);
@@ -236,148 +243,148 @@ public class MainActivity extends AppCompatActivity {
         storesSearchView.setIconified(false);
         // all functions for searching through the stores list view
         storesSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    Integer searchQueryLength = query.length();
-                    ArrayList<Store> newStoreList = new ArrayList<>();
-                    StoreListAdapter storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
-                    try {
-                        stores = QueryUtils.getStores();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    for(int i = 0; i < stores.size(); i++){
-                        Store store =  stores.get(i);
-                        try{
-                            if(store.getStoreName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
-                                newStoreList.add(store);
-                            }
-                        }
-                        catch (StringIndexOutOfBoundsException exception){
+                                                    @Override
+                                                    public boolean onQueryTextSubmit(String query) {
+                                                        Integer searchQueryLength = query.length();
+                                                        ArrayList<Store> newStoreList = new ArrayList<>();
+                                                        StoreListAdapter storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
+                                                        try {
+                                                            stores = QueryUtils.getStores();
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+                                                        } catch (ParseException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                        for(int i = 0; i < stores.size(); i++){
+                                                            Store store =  stores.get(i);
+                                                            try{
+                                                                if(store.getStoreName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                                                                    newStoreList.add(store);
+                                                                }
+                                                            }
+                                                            catch (StringIndexOutOfBoundsException exception){
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
-                        }
+                                                            }
 
-                    }
-                    storesListView.setAdapter(storeListAdapter);
-                    return false;
+                                                        }
+                                                        storesListView.setAdapter(storeListAdapter);
+                                                        return false;
 
-                }
+                                                    }
 
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    Integer searchQueryLength = newText.length();
-                    ArrayList<Store> newStoreList = new ArrayList<Store>();
-                    StoreListAdapter storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
-                    try {
-                        stores = QueryUtils.getStores();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    for(int i = 0; i < stores.size(); i++){
-                        Store store = (Store) stores.get(i);
-                        try{
-                            if(store.getStoreName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
-                                newStoreList.add(store);
-                            }
-                        }
-                        catch(StringIndexOutOfBoundsException exception){
+                                                    @Override
+                                                    public boolean onQueryTextChange(String newText) {
+                                                        Integer searchQueryLength = newText.length();
+                                                        ArrayList<Store> newStoreList = new ArrayList<Store>();
+                                                        StoreListAdapter storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
+                                                        try {
+                                                            stores = QueryUtils.getStores();
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+                                                        } catch (ParseException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                        for(int i = 0; i < stores.size(); i++){
+                                                            Store store = (Store) stores.get(i);
+                                                            try{
+                                                                if(store.getStoreName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                                                    newStoreList.add(store);
+                                                                }
+                                                            }
+                                                            catch(StringIndexOutOfBoundsException exception){
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
-                        }
-                    }
-                    storesListView.setAdapter(storeListAdapter);
-                    return false;
-                }
+                                                            }
+                                                        }
+                                                        storesListView.setAdapter(storeListAdapter);
+                                                        return false;
+                                                    }
 
 
-            }
+                                                }
 
         );
         // filter through user_items list with user items list adapter
         storesSearchView.setOnCloseListener( new SearchView.OnCloseListener() {
-               @Override
-               public boolean onClose() {
-                   return false;
-                }
-            }
+                                                 @Override
+                                                 public boolean onClose() {
+                                                     return false;
+                                                 }
+                                             }
         );
 
 
         // all functions for searching through the shoppingLists list view
         shoppingListSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                Integer searchQueryLength = query.length();
-                ArrayList<ShoppingList> newShoppingListList = new ArrayList<>();
-                ShoppingListAdapter ShoppingListListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
-                // updating shopping list
-                try {
-                    shoppingLists = QueryUtils.getShoppingLists();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                for(int i = 0; i < shoppingLists.size(); i++){
-                    ShoppingList shoppingList =  shoppingLists.get(i);
-                    try{
-                        if(shoppingList.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
-                            newShoppingListList.add(shoppingList);
-                        }
-                    }
-                    catch (StringIndexOutOfBoundsException exception){
+                                                          @Override
+                                                          public boolean onQueryTextSubmit(String query) {
+                                                              Integer searchQueryLength = query.length();
+                                                              ArrayList<ShoppingList> newShoppingListList = new ArrayList<>();
+                                                              ShoppingListAdapter ShoppingListListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
+                                                              // updating shopping list
+                                                              try {
+                                                                  shoppingLists = QueryUtils.getShoppingLists();
+                                                              } catch (IOException e) {
+                                                                  e.printStackTrace();
+                                                              } catch (ParseException e) {
+                                                                  e.printStackTrace();
+                                                              }
+                                                              for(int i = 0; i < shoppingLists.size(); i++){
+                                                                  ShoppingList shoppingList =  shoppingLists.get(i);
+                                                                  try{
+                                                                      if(shoppingList.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                                                                          newShoppingListList.add(shoppingList);
+                                                                      }
+                                                                  }
+                                                                  catch (StringIndexOutOfBoundsException exception){
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
-                    }
+                                                                  }
 
-                }
-                shoppingListsView.setAdapter(ShoppingListListAdapter);
-                return false;
+                                                              }
+                                                              shoppingListsView.setAdapter(ShoppingListListAdapter);
+                                                              return false;
 
-            }
+                                                          }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                Integer searchQueryLength = newText.length();
-                ArrayList<ShoppingList> newShoppingListList = new ArrayList<ShoppingList>();
-                ShoppingListAdapter ShoppingListListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
-                // updating shopping list
-                try {
-                    shoppingLists = QueryUtils.getShoppingLists();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                for(int i = 0; i < shoppingLists.size(); i++){
-                    ShoppingList shoppingList = (ShoppingList) shoppingLists.get(i);
-                    try{
-                        if(shoppingList.getName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
-                            newShoppingListList.add(shoppingList);
-                        }
-                    }
-                    catch(StringIndexOutOfBoundsException exception){
+                                                          @Override
+                                                          public boolean onQueryTextChange(String newText) {
+                                                              Integer searchQueryLength = newText.length();
+                                                              ArrayList<ShoppingList> newShoppingListList = new ArrayList<ShoppingList>();
+                                                              ShoppingListAdapter ShoppingListListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
+                                                              // updating shopping list
+                                                              try {
+                                                                  shoppingLists = QueryUtils.getShoppingLists();
+                                                              } catch (IOException e) {
+                                                                  e.printStackTrace();
+                                                              } catch (ParseException e) {
+                                                                  e.printStackTrace();
+                                                              }
+                                                              for(int i = 0; i < shoppingLists.size(); i++){
+                                                                  ShoppingList shoppingList = (ShoppingList) shoppingLists.get(i);
+                                                                  try{
+                                                                      if(shoppingList.getName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                                                          newShoppingListList.add(shoppingList);
+                                                                      }
+                                                                  }
+                                                                  catch(StringIndexOutOfBoundsException exception){
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
-                    }
-                }
-                shoppingListsView.setAdapter(ShoppingListListAdapter);
-                return false;
-            }
+                                                                  }
+                                                              }
+                                                              shoppingListsView.setAdapter(ShoppingListListAdapter);
+                                                              return false;
+                                                          }
 
 
-        }
+                                                      }
 
         );
         // filter through user_items list with user items list adapter
         shoppingListSearchView.setOnCloseListener( new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                return false;
-            }
-        }
+                                                       @Override
+                                                       public boolean onClose() {
+                                                           return false;
+                                                       }
+                                                   }
         );
         // listener for editing a specific store name
         storesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -411,9 +418,9 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(MainActivity.this, StoreUserItemsActivity.class);
                         intent.putExtra("storeName", store.getStoreName());
                         intent.putExtra("title", store.getStoreName());
-                startActivity(intent);
-            }
-        });
+                        startActivity(intent);
+                    }
+                });
                 shoppingCartButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

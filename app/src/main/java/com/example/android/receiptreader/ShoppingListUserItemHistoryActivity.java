@@ -81,8 +81,20 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
                                                   for(int i = 0; i < storeUserItems.size(); i++){
                                                       StoreUserItem storeUserItem =  storeUserItems.get(i);
                                                       try{
-                                                          if(storeUserItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                                                          if(storeUserItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(query)
+                                                          || storeUserItem.getDateOfPurchase().substring(0,searchQueryLength).equalsIgnoreCase(query)
+                                                          || storeUserItem.getStore().substring(0,searchQueryLength).equalsIgnoreCase(query)
+                                                                  || storeUserItem.getUnitPrice().substring(0,searchQueryLength).equalsIgnoreCase(query)
+                                                                  || storeUserItem.getQuantity().substring(0,searchQueryLength).equalsIgnoreCase(query)
+                                                                  || storeUserItem.getTotalAmountPaid().substring(0,searchQueryLength).equalsIgnoreCase(query)
+                                                          ){
                                                               newStoreUserItemList.add(storeUserItem);
+                                                          }
+
+                                                          if(storeUserItem.getAdditionalWeightUnitPriceDetail() != null){
+                                                              if(storeUserItem.getAdditionalWeightUnitPriceDetail().substring(0, searchQueryLength).equalsIgnoreCase(query)){
+                                                                  newStoreUserItemList.add(storeUserItem);
+                                                              }
                                                           }
                                                       }
                                                       catch (StringIndexOutOfBoundsException exception){
@@ -103,8 +115,19 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
                                                   for(int i = 0; i < storeUserItems.size(); i++){
                                                       StoreUserItem storeUserItem = (StoreUserItem) storeUserItems.get(i);
                                                       try{
-                                                          if(storeUserItem.getItemName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                                          if(storeUserItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(newText)
+                                                                  || storeUserItem.getDateOfPurchase().substring(0,searchQueryLength).equalsIgnoreCase(newText)
+                                                                  || storeUserItem.getStore().substring(0,searchQueryLength).equalsIgnoreCase(newText)
+                                                                  || storeUserItem.getUnitPrice().substring(0,searchQueryLength).equalsIgnoreCase(newText)
+                                                                  || storeUserItem.getQuantity().substring(0,searchQueryLength).equalsIgnoreCase(newText)
+                                                                  || storeUserItem.getTotalAmountPaid().substring(0,searchQueryLength).equalsIgnoreCase(newText)
+                                                          ){
                                                               newMainGodList.add(storeUserItem);
+                                                          }
+                                                          if(storeUserItem.getAdditionalWeightUnitPriceDetail() != null){
+                                                              if(storeUserItem.getAdditionalWeightUnitPriceDetail().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                                                  newMainGodList.add(storeUserItem);
+                                                              }
                                                           }
                                                       }
                                                       catch(StringIndexOutOfBoundsException exception){

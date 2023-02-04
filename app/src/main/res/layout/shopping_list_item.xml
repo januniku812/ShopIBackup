@@ -14,9 +14,9 @@
         android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
         style="@style/user_item_details_text_style"
-        android:layout_height="40dp">
+        android:layout_height="wrap_content">
         <androidx.constraintlayout.widget.ConstraintLayout
-
+            android:padding="3dp"
             android:id="@+id/shopping_list_user_item_card_view_cl"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -53,6 +53,9 @@
                 style="@style/user_item_details_text_style"
                 android:id="@+id/shopping_list_item_name"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="60dp"
+                android:maxWidth="60dp"
+                app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="@id/check_circle"
                 app:layout_constraintStart_toEndOf="@id/check_circle"
                 android:layout_width="wrap_content"

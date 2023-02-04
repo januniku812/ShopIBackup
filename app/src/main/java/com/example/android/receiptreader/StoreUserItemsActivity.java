@@ -73,7 +73,7 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         }
 
         storeUserItemAdapter = new StoreUserItemAdapter(this, storeUserItems);
-        storeUserItemsListView.setAdapter(new StoreUserItemAdapter(this, storeUserItems));
+        storeUserItemsListView.setAdapter(storeUserItemAdapter);
 
         hideSoftKeyboard(this);
         searchView.setIconified(false);
@@ -89,7 +89,8 @@ public class StoreUserItemsActivity extends AppCompatActivity {
                                                   for(int i = 0; i < finalStoreUserItems.size(); i++){
                                                       StoreUserItem storeUserItem =  finalStoreUserItems.get(i);
                                                       try{
-                                                          if(storeUserItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                                                          if(storeUserItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(query)
+                                                          || storeUserItem.getDateOfPurchase().substring(0,searchQueryLength).equalsIgnoreCase(query)){
                                                               newStoreUserItemList.add(storeUserItem);
                                                           }
                                                       }
@@ -111,7 +112,8 @@ public class StoreUserItemsActivity extends AppCompatActivity {
                                                   for(int i = 0; i < finalStoreUserItems.size(); i++){
                                                       StoreUserItem storeUserItem = (StoreUserItem) finalStoreUserItems.get(i);
                                                       try{
-                                                          if(storeUserItem.getItemName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                                          if(storeUserItem.getItemName().substring(0, searchQueryLength).equalsIgnoreCase(newText)
+                                                          || storeUserItem.getDateOfPurchase().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
                                                               newMainGodList.add(storeUserItem);
                                                           }
                                                       }

@@ -10,6 +10,7 @@ import android.icu.text.DateTimePatternGenerator;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -38,6 +39,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -113,7 +115,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     try {
-                        QueryUtils.deleteShoppingListUserItem(originalName, shoppingListName);
+                        QueryUtils.deleteShoppingListUserItem(originalName, shoppingListName, getApplicationContext());
                         shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
                         shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
                         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
@@ -129,6 +131,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         else if(jsonEditCode == JSONEditCodes.REORDER_SHOPPING_LIST_ITEM){
             editText.setVisibility(View.INVISIBLE);
             enterButton.setVisibility(View.GONE);
+            ConstraintLayout constraintLayout = view.findViewById(R.id.layoutDialogContainer);
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.connect(R.id.cancel_button, ConstraintSet.START, R.id.layoutDialog, ConstraintSet.START, 65);
+            constraintSet.connect(R.id.cancel_button, ConstraintSet.END, R.id.layoutDialog, ConstraintSet.END, 65);
+            constraintLayout.setConstraintSet(constraintSet);
             icon.setMinimumHeight(50);
             icon.setMinimumWidth(50);
             icon.setImageResource(R.drawable.ic_baseline_arrow_circle_right_24);
@@ -143,7 +151,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     ShoppingList shoppingList = (ShoppingList) reorderShoppingListAdapter.getItem(i);
                     String shoppingListToMoveTo = shoppingList.getName();
                     try {
-                        QueryUtils.reorderShoppingListItem(shoppingListName, shoppingListToMoveTo, originalName);
+                        QueryUtils.reorderShoppingListItem(shoppingListName, shoppingListToMoveTo, originalName, getApplicationContext());
+                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+                                .putString("jsonData",Constants.json_data_str.toString()).apply();
                         shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
                         shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
                         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
@@ -947,7 +957,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS INDIVIDUAL + FINAL WEIGHT: " + finalAdditionalWeightToPass);
                                         QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, selectedStore.getStoreName(), dateStr,
                                                 quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                                unitPriceEditText.getText().toString(), "ea", finalAdditionalWeightToPass); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                                unitPriceEditText.getText().toString(), "ea", finalAdditionalWeightToPass, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+                                                .putString("jsonData",Constants.json_data_str.toString()).apply();
                                         alertDialog.dismiss();
                                     }
                                     shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
@@ -971,7 +983,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 System.out.println("CALLED LIST VIEW QUANTITY IS INDIVIDUAL");
                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
                                         quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                        unitPriceEditText.getText().toString(), "/ea", finalAdditionalWeightToPass); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                        unitPriceEditText.getText().toString(), "/ea", finalAdditionalWeightToPass, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
 
                                 alertDialog.dismiss();
                             }
@@ -1033,7 +1045,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS NOT IND");
                                         QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, selectedStore.getStoreName(), dateStr,
                                                 quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                                unitPriceEditText.getText().toString(), numberRelatedRemoved, null); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                                unitPriceEditText.getText().toString(), numberRelatedRemoved, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         alertDialog.dismiss();
                                     }
                                     shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
@@ -1055,7 +1067,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 System.out.println("CALLED NOT STORE VIEW QUANTITY IS NOT IND");
                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
                                         quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                        unitPriceEditText.getText().toString(), numberRelatedRemoved, null); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                        unitPriceEditText.getText().toString(), numberRelatedRemoved, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                     alertDialog.dismiss();
                             }
                             shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
@@ -1368,7 +1380,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         try {
-                            QueryUtils.increaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName);
+                            System.out.println("IVE BEEN CLICKED");
+                            QueryUtils.increaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName, getApplicationContext());
                             shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
                             shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
                             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
@@ -1383,7 +1396,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         try {
-                            QueryUtils.decreaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName);
+                            QueryUtils.decreaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName, getApplicationContext());
                             shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
                             shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
                             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);

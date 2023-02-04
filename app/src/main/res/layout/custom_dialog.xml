@@ -70,7 +70,7 @@
             style="@style/user_item_details_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="18sp"
+            android:layout_margin="10dp"
             android:gravity="center_horizontal"
             android:hint="@string/walmart"
             android:text="are you sure you want to delete walmart this action cannot be undone"
@@ -80,7 +80,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textTitle"
+            app:layout_constraintTop_toBottomOf=
+                "@id/textTitle"
             app:layout_constraintVertical_bias="0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
     <Button
@@ -91,6 +92,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginEnd="10dp"
         android:elevation="10dp"
+        android:textAllCaps="false"
         android:backgroundTint="@color/darker_light_blue"
         android:textColor="@color/white"
         android:textSize="14sp"

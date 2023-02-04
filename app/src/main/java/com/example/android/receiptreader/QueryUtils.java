@@ -4,15 +4,19 @@ import com.example.android.receiptreader.MainActivity;
 
 import android.content.Intent;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import android.content.Context;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.junit.runner.manipulation.Ordering;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,11 +28,11 @@ import java.util.Date;
 
 public class QueryUtils  {
     public static String strip(String string){
-        return string.replaceAll(" ","");
+        return string.replaceAll("\\s+", " ");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice, String measurementUnit, String additionalWeight) throws ParseException {
+    public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice, String measurementUnit, String additionalWeight, android.content.Context context) throws ParseException {
         System.out.println("IVE BEEN ACCESSED - saveDetailsOfShoppingListUserItem func");
         System.out.println("ORIGINAL NAME PARAMETER saveDetailsOfShoppingListUserItem func @QueryUtils: " + storeName);
         String jsonData = Constants.json_data_str;
@@ -77,6 +81,8 @@ public class QueryUtils  {
                 }
             }
             Constants.json_data_str = jsonObject.toJSONString();
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",Constants.json_data_str.toString()).apply();
             System.out.println("JSON DATA STR @saveDetailsOfShoppingListUserItem: " + Constants.json_data_str);
 
         }catch(Exception e){
@@ -138,7 +144,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void reorderShoppingListItem(String originalShoppingList, String shoppingListToMoveTo, String shoppingListItemName) throws ParseException {
+    public static void reorderShoppingListItem(String originalShoppingList, String shoppingListToMoveTo, String shoppingListItemName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
         );
@@ -163,8 +169,10 @@ public class QueryUtils  {
                     }
                 }
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             // finding shopping list to move it and placing it there
-            QueryUtils.addShoppingListItemWithQuantity(shoppingListToMoveTo, shoppingListItemName, shoppingListItemObj.get("shopping_list_item_last_bought").toString(), shoppingListItemObj.get("shopping_list_item_quantity").toString());
+            QueryUtils.addShoppingListItemWithQuantity(shoppingListToMoveTo, shoppingListItemName, shoppingListItemObj.get("shopping_list_item_last_bought").toString(), shoppingListItemObj.get("shopping_list_item_quantity").toString(), context);
             // update json data string value
             System.out.println("I REACHED @addNewStore : " + jsonObject);
             System.out.println("I REACHED @addNewStore  2: " + Constants.json_data_str);
@@ -175,7 +183,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void increaseShoppingListItemQuantity(String shoppingListName, String shoppingListItemName) throws ParseException {
+    public static void increaseShoppingListItemQuantity(String shoppingListName, String shoppingListItemName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
         );
@@ -185,24 +193,46 @@ public class QueryUtils  {
             JSONObject jsonObject = (JSONObject) object;
             JSONArray shoppingLists = (JSONArray) jsonObject.get("shopping_lists");
             for(int i = 0; i < shoppingLists.size(); i++){
-                System.out.println("MADE IT @addShoppingListItem : " + shoppingListItemName);
+                System.out.println("MADE IT @increaseShoppingListItemQuantity : " + shoppingListItemName);
                 JSONObject shoppingList = (JSONObject) shoppingLists.get(i);
                 if(shoppingList.get("shopping_list_name").toString().equalsIgnoreCase(shoppingListName)){
-                    System.out.println("MADE IT @addShoppingListItem : " + shoppingListItemName);
+                    System.out.println("MADE IT @increaseShoppingListItemQuantity : " + shoppingListItemName);
                     JSONArray shopping_list_user_items = (JSONArray) shoppingList.get("shopping_list_user_items");
+
                     for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                        JSONArray jsonArray = (JSONArray) shoppingList.get("shopping_list_user_items");
+                        JSONObject item2 = (JSONObject) jsonArray.get(i2);
                         JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
-                        if(strip(shopping_list_user_item.get("shopping_list_item_name").toString()).equalsIgnoreCase(shoppingListItemName)){
-                            Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + 1;
-                            System.out.println("BEFORE: " + shopping_list_user_item);
-                            shopping_list_user_item.replace("shopping_list_item_quantity", quantityToPut.toString());
-                            System.out.println("AFTER: " + shopping_list_user_item);
-                            System.out.println("I REACHED @addNewStore 3: " + jsonObject);
-                            Constants.json_data_str = jsonObject.toJSONString();
+                        try {
+                            if (strip(item2.get("shopping_list_user_item_name").toString().toLowerCase()).equals(strip(shoppingListItemName.toLowerCase()))) {
+                                System.out.println("RUNNING FOR 2 DUP:" + shoppingListItemName);
+                                Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + 1;
+                                System.out.println("BEFORE: " + shopping_list_user_item);
+                                shopping_list_user_item.replace("shopping_list_item_quantity", quantityToPut.toString());
+                                PreferenceManager.getDefaultSharedPreferences(context).edit()
+                                        .putString("jsonData",jsonObject.toJSONString()).apply();
+                                System.out.println("AFTER: " + shopping_list_user_item);
+                                System.out.println("I REACHED @addNewStore 3: " + jsonObject);
+                                Constants.json_data_str = jsonObject.toJSONString();
+                            }
+                        } catch(Exception e){
+                            if(strip(shopping_list_user_item.get("shopping_list_item_name").toString().toLowerCase()).equals(shoppingListItemName.toLowerCase())){
+                                System.out.println("RUNNING FOR 2 DUP:" + shoppingListItemName);
+                                Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + 1;
+                                System.out.println("BEFORE: " + shopping_list_user_item);
+                                shopping_list_user_item.replace("shopping_list_item_quantity", quantityToPut.toString());
+                                PreferenceManager.getDefaultSharedPreferences(context).edit()
+                                        .putString("jsonData",jsonObject.toJSONString()).apply();
+                                System.out.println("AFTER: " + shopping_list_user_item);
+                                System.out.println("I REACHED @addNewStore 3: " + jsonObject);
+                                Constants.json_data_str = jsonObject.toJSONString();
+                            }
                         }
                     }
                 }
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             // update json data string value
             System.out.println("I REACHED @addNewStore : " + jsonObject);
             Constants.json_data_str = jsonObject.toJSONString();
@@ -214,7 +244,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void decreaseShoppingListItemQuantity(String shoppingListName, String shoppingListItemName) throws ParseException {
+    public static void decreaseShoppingListItemQuantity(String shoppingListName, String shoppingListItemName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
         );
@@ -242,6 +272,8 @@ public class QueryUtils  {
                     }
                 }
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             // update json data string value
             System.out.println("I REACHED @addNewStore : " + jsonObject);
             Constants.json_data_str = jsonObject.toJSONString();
@@ -253,7 +285,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static boolean addShoppingListItem(String shoppingListName, String shoppingListItemName, String lastBoughtDate) throws ParseException {
+    public static boolean addShoppingListItem(String shoppingListName, String shoppingListItemName, String lastBoughtDate, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         JSONParser jsonParser = new JSONParser();
         Object object = jsonParser.parse(jsonData
@@ -271,25 +303,48 @@ public class QueryUtils  {
                     JSONArray shopping_list_user_items_og = null;
                     try {
                          shopping_list_user_items_og = (JSONArray) shoppingList.get("shopping_list_user_items");
-                    } catch(Exception e){
+                    }
+                    catch(Exception e){
+                        System.out.println("EXCEPTION occured!!");
                         shopping_list_user_items_og = (JSONArray) jsonParser.parse(shoppingList.get("shopping_list_user_items").toString());
 
                     }
                     JSONArray shopping_list_user_items = (JSONArray) jsonParser.parse(shoppingList.get("shopping_list_user_items").toString());
                     for(int i2 = 0; i2 < shopping_list_user_items_og.size(); i2++){
                         JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items_og.get(i2);
-                        if(strip(shopping_list_user_item.get("shopping_list_item_name").toString()).equalsIgnoreCase(shoppingListItemName)){
-                            System.out.println("RUNNING FOR 2: " + shoppingListItemName);
-                            Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + 1;
-                            System.out.println("BEFORE: " + shopping_list_user_item);
-                            shopping_list_user_item.replace("shopping_list_item_quantity", quantityToPut.toString());
-                            System.out.println("AFTER: " + shopping_list_user_item);
-                            System.out.println("I REACHED @addNewStore 3: " + jsonObject);
-                            Constants.json_data_str = jsonObject.toJSONString();
-                            return false;
+                        System.out.println("LOGGINGS");
+                        System.out.println(strip(shopping_list_user_item.get("shopping_list_item_name").toString().toLowerCase()) + ": " + (shoppingListItemName.toLowerCase()));
+                        JSONArray jsonArray = (JSONArray) shoppingList.get("shopping_list_user_items");
+                        JSONObject item2 = (JSONObject) jsonArray.get(i2);
+                        try {
+                            if (strip(item2.get("shopping_list_user_item_name").toString().toLowerCase()).equals(strip(shoppingListItemName.toLowerCase()))) {
+                                System.out.println("RUNNING FOR 2 DUP:" + shoppingListItemName);
+                                Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + 1;
+                                System.out.println("BEFORE: " + shopping_list_user_item);
+                                shopping_list_user_item.replace("shopping_list_item_quantity", quantityToPut.toString());
+                                PreferenceManager.getDefaultSharedPreferences(context).edit()
+                                        .putString("jsonData",jsonObject.toJSONString()).apply();
+                                System.out.println("AFTER: " + shopping_list_user_item);
+                                System.out.println("I REACHED @addNewStore 3: " + jsonObject);
+                                Constants.json_data_str = jsonObject.toJSONString();
+                                return false;
+                            }
+                        } catch(Exception e){
+                            if(strip(shopping_list_user_item.get("shopping_list_item_name").toString().toLowerCase()).equals(shoppingListItemName.toLowerCase())){
+                                System.out.println("RUNNING FOR 2 DUP:" + shoppingListItemName);
+                                Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + 1;
+                                System.out.println("BEFORE: " + shopping_list_user_item);
+                                shopping_list_user_item.replace("shopping_list_item_quantity", quantityToPut.toString());
+                                PreferenceManager.getDefaultSharedPreferences(context).edit()
+                                        .putString("jsonData",jsonObject.toJSONString()).apply();
+                                System.out.println("AFTER: " + shopping_list_user_item);
+                                System.out.println("I REACHED @addNewStore 3: " + jsonObject);
+                                Constants.json_data_str = jsonObject.toJSONString();
+                                return false;
+                            }
                         }
                     }
-                    System.out.println("RUNNING FOR 2: " + shoppingListItemName);
+                    System.out.println("RUNNING FOR 2 NOT DUP: " + shoppingListItemName);
                     JSONObject shoppingListUserItemToAdd = new JSONObject();
                     shoppingListUserItemToAdd.put("shopping_list_item_name", shoppingListItemName);
                     if(lastBoughtDate != null){
@@ -303,6 +358,12 @@ public class QueryUtils  {
                     shoppingList.replace("shopping_list_user_items",shopping_list_user_items);
                 }
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toJSONString()).apply();
+            Constants.json_data_str =PreferenceManager.
+                    getDefaultSharedPreferences(context).getString("jsonData", "");
+            System.out.println("JSON DATA PRINTLN: " + PreferenceManager.
+                    getDefaultSharedPreferences(context).getString("jsonData", ""));
             // update json data string value
             System.out.println("I REACHED @addNewStore : " + jsonObject);
             Constants.json_data_str = jsonObject.toJSONString();
@@ -315,7 +376,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static boolean addShoppingListItemWithQuantity(String shoppingListName, String shoppingListItemName, String lastBoughtDate, String quantity) throws ParseException {
+    public static boolean addShoppingListItemWithQuantity(String shoppingListName, String shoppingListItemName, String lastBoughtDate, String quantity, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
         );
@@ -341,6 +402,8 @@ public class QueryUtils  {
                             return false;
                         }
                     }
+                    PreferenceManager.getDefaultSharedPreferences(context).edit()
+                            .putString("jsonData",jsonObject.toString()).apply();
                     System.out.println("RUNNING FOR 2: " + shoppingListItemName);
                     JSONObject shoppingListUserItemToAdd = new JSONObject();
                     shoppingListUserItemToAdd.put("shopping_list_item_name", shoppingListItemName);
@@ -406,7 +469,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi
-    public static void deleteShoppingListUserItem(String shoppingListUserItemName, String shoppingListName) throws ParseException {
+    public static void deleteShoppingListUserItem(String shoppingListUserItemName, String shoppingListName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         JSONParser jsonParser = new JSONParser();
         Object object = jsonParser.parse(jsonData
@@ -428,6 +491,8 @@ public class QueryUtils  {
                     }
                 }
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             System.out.println("JSON OBJ: "+ jsonObject.toJSONString());
             // update json data string value
             Constants.json_data_str = jsonObject.toJSONString();
@@ -759,7 +824,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static void editStoreName(String originalName, String replacementName) throws IOException, ParseException {
+    public static void editStoreName(String originalName, String replacementName, android.content.Context context) throws IOException, ParseException {
         System.out.println("IVE BEEN ACCESSED - editStoreName func");
         System.out.println("ORIGINAL NAME PARAMETER editStoreName func @QueryUtils: " + originalName);
         String jsonData = Constants.json_data_str;
@@ -791,6 +856,8 @@ public class QueryUtils  {
 //                store_user_items = store_user_items_to_be_replaced;
                 storeObject.replace("store_user_items", store_user_items);
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             System.out.println("STORE OBJECT: " + stores);
             // update json data string value
             System.out.println("IVE BEEN ACCESSED - editStoreName func updation");
@@ -803,7 +870,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static ArrayList<ShoppingList> editShoppingListName(String originalName, String replacementName) throws IOException, ParseException {
+    public static ArrayList<ShoppingList> editShoppingListName(String originalName, String replacementName, android.content.Context context) throws IOException, ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
         );
@@ -820,6 +887,8 @@ public class QueryUtils  {
                     storeObject.replace("shopping_list_name", replacementName);
                 }
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             // update json data string value
             Constants.json_data_str = jsonObject.toJSONString();
 
@@ -830,7 +899,7 @@ public class QueryUtils  {
 
     }
 
-    public static void addNewStore(String storeName) throws ParseException {
+    public static void addNewStore(String storeName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
         );
@@ -844,6 +913,8 @@ public class QueryUtils  {
             storeJsonObjectToAdd.put("store_user_items", "[]");
             stores.add(storeJsonObjectToAdd);
             // update json data string value
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             System.out.println("I REACHED @addNewStore : " + jsonObject);
             Constants.json_data_str = jsonObject.toJSONString();
             System.out.println("I REACHED @addNewStore  2: " + Constants.json_data_str);
@@ -853,7 +924,7 @@ public class QueryUtils  {
         }
     }
 
-    public static void addShoppingList(String shoppingListName) throws ParseException {
+    public static void addShoppingList(String shoppingListName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
         );
@@ -864,6 +935,8 @@ public class QueryUtils  {
             shoppingListJsonObjectToAdd.put("shopping_list_name", shoppingListName);
             shoppingListJsonObjectToAdd.put("shopping_list_user_items", "[]");
             shopping_lists.add(shoppingListJsonObjectToAdd);
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             // update json data string value
             System.out.println("IM BEING ACCESSED @addNewShoppingList Query Utils finalJSONObject: " + jsonObject);
             Constants.json_data_str = jsonObject.toJSONString();
@@ -873,7 +946,7 @@ public class QueryUtils  {
         }
     }
 
-    public static void deleteStore(String storeName) throws ParseException {
+    public static void deleteStore(String storeName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData);
         try{
@@ -886,6 +959,8 @@ public class QueryUtils  {
                     stores.remove(store);
                 }
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             System.out.println("TO UPDATE JSON OBJECT @deleteStore: " + jsonObject);
             // update json data string value
             Constants.json_data_str = jsonObject.toJSONString();
@@ -895,7 +970,7 @@ public class QueryUtils  {
         }
     }
 
-    public static void deleteShoppingList(String shoppingListName) throws ParseException {
+    public static void deleteShoppingList(String shoppingListName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
         );
@@ -908,6 +983,8 @@ public class QueryUtils  {
                     shopping_lists.remove(shoppingList);
                 }
             }
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
             // update json data string value
             Constants.json_data_str = jsonObject.toJSONString();
 

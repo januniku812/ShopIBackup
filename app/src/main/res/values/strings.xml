@@ -39,7 +39,7 @@
     <string name="last_bought">10/27/22</string>
     <string name="quantity_sl_item_placeholder">1</string>
     <string name="enter">ENTER</string>
-    <string name="cancel">CANCEL</string>
+    <string name="cancel">cancel </string>
     <string name="edit_store_name">EDIT STORE NAME</string>
     <string name="edit_shopping_list">EDIT SHOPPING LIST</string>
     <string name="walmart">WALMART</string>
