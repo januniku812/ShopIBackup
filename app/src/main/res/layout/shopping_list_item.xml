@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:clickable="false"
+    android:descendantFocusability="blocksDescendants"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -22,6 +26,9 @@
             android:layout_height="match_parent">
 
             <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:id="@+id/check_circle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -50,6 +57,9 @@
             <!--                android:text="@string/placeholder_store_name"-->
             <!--                android:layout_height="wrap_content"/>-->
             <TextView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 style="@style/user_item_details_text_style"
                 android:id="@+id/shopping_list_item_name"
                 app:layout_constraintTop_toTopOf="parent"
@@ -65,6 +75,9 @@
                 android:layout_height="wrap_content"/>
 
             <TextView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:id="@+id/last_bought_date"
                 style="@style/user_item_details_text_style"
                 android:layout_width="wrap_content"
@@ -74,6 +87,9 @@
                 app:layout_constraintStart_toEndOf="@id/check_circle"
                 app:layout_constraintTop_toBottomOf="@id/shopping_list_item_name"/>
             <TextView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 style="@style/user_item_details_text_style"
                 android:id="@+id/quantity_sl_item"
                 android:textSize="18sp"
@@ -85,25 +101,34 @@
                 android:text="@string/quantity_sl_item_placeholder"
                 android:layout_height="wrap_content"/>
             <ImageView
-                android:id="@+id/quantity_add_button"
-                app:layout_constraintTop_toTopOf="@id/quantity_sl_item"
                 app:layout_constraintEnd_toStartOf="@id/quantity_sl_item"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:id="@+id/quantity_add_button"
                 android:layout_marginEnd="10dp"
-                app:layout_constraintBottom_toBottomOf="@id/quantity_sl_item"
-                android:layout_width="18dp"
+                android:layout_width="21dp"
                 android:src="@drawable/ic_baseline_add_circle_outline_24"
-                android:layout_height="18dp"/>
-            <ImageView
-                android:id="@+id/quantity_minus_button"
-                app:layout_constraintTop_toTopOf="@id/quantity_sl_item"
-                app:layout_constraintStart_toEndOf="@id/quantity_sl_item"
-                android:layout_marginStart="10dp"
-                app:layout_constraintBottom_toBottomOf="@id/quantity_sl_item"
-                android:layout_width="18dp"
-                android:src="@drawable/ic_baseline_remove_circle_outline_24"
-                android:layout_height="18dp"/>
+                android:layout_height="21dp"/>
 
             <ImageView
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/quantity_sl_item"
+                android:clickable="true"
+                android:focusable="true"
+                android:id="@+id/quantity_minus_button"
+                android:layout_marginStart="10dp"
+                android:layout_width="21dp"
+                android:src="@drawable/ic_baseline_remove_circle_outline_24"
+                android:layout_height="21dp"/>
+
+            <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:id="@+id/history_button_sl_item"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/duplicate_indicator"
@@ -113,6 +138,9 @@
                 android:layout_height="wrap_content"/>
 
             <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:id="@+id/duplicate_indicator"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/record_details_button"
@@ -122,6 +150,9 @@
                 android:layout_height="wrap_content"/>
 
             <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:id="@+id/record_details_button"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/reorder_item_button"
@@ -131,6 +162,9 @@
                 android:layout_height="wrap_content"/>
 
             <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:id="@+id/reorder_item_button"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/delete_item_button"
@@ -140,6 +174,9 @@
                 android:layout_height="wrap_content"/>
 
             <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:id="@+id/delete_item_button"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

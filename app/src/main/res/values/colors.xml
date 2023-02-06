@@ -18,4 +18,5 @@
     <color name="green">#8BC34A</color>
     <color name="darker_light_blue">#94CAF4</color>
     <color name="extra_weight_detail_color">#FA56B5FF</color>
+    <color name="transparent">#00FFFFFF</color>
 </resources>

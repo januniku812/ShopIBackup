@@ -193,10 +193,10 @@ public class QueryUtils  {
             JSONObject jsonObject = (JSONObject) object;
             JSONArray shoppingLists = (JSONArray) jsonObject.get("shopping_lists");
             for(int i = 0; i < shoppingLists.size(); i++){
-                System.out.println("MADE IT @increaseShoppingListItemQuantity : " + shoppingListItemName);
+                System.out.println("MADE IT @increaseShoppingListItemQuantity : " + shoppingListName);
                 JSONObject shoppingList = (JSONObject) shoppingLists.get(i);
                 if(shoppingList.get("shopping_list_name").toString().equalsIgnoreCase(shoppingListName)){
-                    System.out.println("MADE IT @increaseShoppingListItemQuantity : " + shoppingListItemName);
+                    System.out.println("MADE IT @increaseShoppingListItemQuantity 2 : " + shoppingListItemName);
                     JSONArray shopping_list_user_items = (JSONArray) shoppingList.get("shopping_list_user_items");
 
                     for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
@@ -378,7 +378,8 @@ public class QueryUtils  {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static boolean addShoppingListItemWithQuantity(String shoppingListName, String shoppingListItemName, String lastBoughtDate, String quantity, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
-        Object object = new JSONParser().parse(jsonData
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
         );
         try{
             JSONObject jsonObject = (JSONObject) object;
@@ -388,7 +389,12 @@ public class QueryUtils  {
                 JSONObject shoppingList = (JSONObject) shoppingLists.get(i);
                 if(shoppingList.get("shopping_list_name").toString().equals(shoppingListName)){
                     System.out.println("MADE IT @addShoppingListItemWithQuantity : " + shoppingListName);
-                    JSONArray shopping_list_user_items = (JSONArray) shoppingList.get("shopping_list_user_items");
+                    JSONArray shopping_list_user_items = null;
+                    try {
+                         shopping_list_user_items = (JSONArray) shoppingList.get("shopping_list_user_items");
+                    } catch (Exception e){
+                        shopping_list_user_items = (JSONArray) jsonParser.parse(shoppingList.get("shopping_list_user_items").toString());
+                    }
                     for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
                         JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
                         if(strip(shopping_list_user_item.get("shopping_list_item_name").toString()).equalsIgnoreCase(shoppingListItemName)){
@@ -402,8 +408,6 @@ public class QueryUtils  {
                             return false;
                         }
                     }
-                    PreferenceManager.getDefaultSharedPreferences(context).edit()
-                            .putString("jsonData",jsonObject.toString()).apply();
                     System.out.println("RUNNING FOR 2: " + shoppingListItemName);
                     JSONObject shoppingListUserItemToAdd = new JSONObject();
                     shoppingListUserItemToAdd.put("shopping_list_item_name", shoppingListItemName);
@@ -414,12 +418,16 @@ public class QueryUtils  {
                     }
                     shoppingListUserItemToAdd.put("shopping_list_item_quantity", quantity);
                     shopping_list_user_items.add(shoppingListUserItemToAdd);
+                    System.out.println("SHOPPING LIST USER ITEMS AFTEER ADDING " + shoppingListItemName + " TO " + shoppingListName + ": " + shopping_list_user_items.toJSONString());
+                    shoppingList.replace("shopping_list_user_items", shopping_list_user_items);
                 }
             }
             // update json data string value
-            System.out.println("I REACHED @addNewStore : " + jsonObject);
+            System.out.println("I REACHED END @addShoppingListItemWithQuantity : " + jsonObject);
             Constants.json_data_str = jsonObject.toJSONString();
-            System.out.println("I REACHED @addNewStore  2: " + Constants.json_data_str);
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
+            System.out.println("I REACHED END @addShoppingListItemWithQuantity  2: " + Constants.json_data_str);
 
         }catch(Exception e){
             e.printStackTrace();
@@ -568,7 +576,12 @@ public class QueryUtils  {
             JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
             for(int i = 0; i < shopping_lists.size(); i++){
                 JSONObject shopping_list = (JSONObject) shopping_lists.get(i);
-                JSONArray shopping_list_user_items = (JSONArray) shopping_list.get("shopping_list_user_items");
+                JSONArray shopping_list_user_items = null;
+                try {
+                     shopping_list_user_items = (JSONArray) shopping_list.get("shopping_list_user_items");
+                } catch(Exception e){
+                    shopping_list_user_items = (JSONArray) jsonParser.parse(shopping_list.get("shopping_list_user_items").toString());
+                }
                 for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
                     System.out.println("SIZE: " + shopping_list_user_items.size());
                     JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);

@@ -7,12 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.ListAdapter;
@@ -24,11 +27,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserItem> {
-
-    public ShoppingListUserItemAdapter(@NonNull Context context, ArrayList<ShoppingListUserItem> shoppingListUserItemArrayList) {
+    ListView shoppingListUserItemsListView;
+    String shoppingListNameStr;
+    public ShoppingListUserItemAdapter(@NonNull Context context, ArrayList<ShoppingListUserItem> shoppingListUserItemArrayList, String shoppingListName, ListView shoppingListUserItemsListView) {
         super(context, 0, shoppingListUserItemArrayList);
-    }
+        this.shoppingListNameStr = shoppingListName;
+        this.shoppingListUserItemsListView = shoppingListUserItemsListView;
 
+    }
     @RequiresApi(api = Build.VERSION_CODES.O)
     @NonNull
     @Override
@@ -78,23 +84,23 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             lastBoughtDate.setText(shoppingListUserItem.getLastBought());
         }
         try {
-                ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
+            ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
 
-                if(otherShoppingListsSlExistsIn.size() > 1){
-                    duplicateIndicator.setImageResource(R.drawable.ic_round_content_copy_24);
-                }
-                else{
+            if(otherShoppingListsSlExistsIn.size() > 1){
+                duplicateIndicator.setImageResource(R.drawable.ic_round_content_copy_24);
+            }
+            else{
 
-                    System.out.println("OTHER SHOPPING LISTS: " + otherShoppingListsSlExistsIn.size());
-                    duplicateIndicator.setImageResource(R.drawable.ic_baseline_grey_content_copy_24);
-                }
-                shoppingListUserItem.setOtherShoppingListsExistingIn(otherShoppingListsSlExistsIn);
+                System.out.println("OTHER SHOPPING LISTS: " + otherShoppingListsSlExistsIn.size());
+                duplicateIndicator.setImageResource(R.drawable.ic_baseline_grey_content_copy_24);
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            shoppingListUserItem.setOtherShoppingListsExistingIn(otherShoppingListsSlExistsIn);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         try {
             ArrayList<StoreUserItem> storeUserItemsHistory = QueryUtils.getHistoryOfShoppingListItem(shoppingListUserItemName);
             if(storeUserItemsHistory == null){
@@ -112,6 +118,32 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
         TextView quantity = (TextView) newItemView.findViewById(R.id.quantity_sl_item);
         quantity.setText(shoppingListUserItem.getUserQuantity());
 
-            return newItemView;
+        ImageView increaseQuantityAppCompatImageButton =  newItemView.findViewById(R.id.quantity_add_button);
+        ImageView decreaseQuantityAppCompatImageButton = newItemView.findViewById(R.id.quantity_minus_button);
+        increaseQuantityAppCompatImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    System.out.println("IVE BEEN CLICKED STORE ITEM ADAPTER");
+                    QueryUtils.increaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
+                    ShoppingListUserItemsActivity.update(shoppingListNameStr, getContext());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        decreaseQuantityAppCompatImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    System.out.println("IVE BEEN CLICKED ITEM ADAPTER");
+                    QueryUtils.decreaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
+                    ShoppingListUserItemsActivity.update(shoppingListNameStr, getContext());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return newItemView;
     }
 }

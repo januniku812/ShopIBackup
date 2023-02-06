@@ -64,7 +64,7 @@
 
 
         <ListView
-
+            android:divider="@color/transparent"
             android:id="@+id/shopping_list_user_items_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

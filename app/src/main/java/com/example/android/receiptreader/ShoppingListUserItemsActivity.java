@@ -56,15 +56,29 @@ import static android.os.Build.VERSION_CODES.O;
 import static android.os.Build.VERSION_CODES.S;
 
 public class ShoppingListUserItemsActivity extends AppCompatActivity {
-    ShoppingListUserItemAdapter shoppingListUserItemAdapter;
+    static ShoppingListUserItemAdapter shoppingListUserItemAdapter;
     TextView resultsForshoppingListUserItemsView;
-    ListView shoppingListUserItemsListView;
+    static ListView shoppingListUserItemsListView;
     String shoppingListName;
+    public static boolean actuallyNeedsToBeUpdated = false;
     int quantityMicrophoneState = 0;
     int unitPriceMicrophoneState = 0;
     int additionalWeightMicrophoneState = 0;
-    ArrayList<ShoppingListUserItem> shoppingListUserItems;
-
+    static ArrayList<ShoppingListUserItem> shoppingListUserItems;
+    @RequiresApi(api = O)
+    public static void update(String shoppingListName, android.content.Context context){
+        // ArrayList<ShoppingListUserItem> tempShoppingListUserItems = new ArrayList<>();
+        try {
+//            String tempShoppingListName = shoppingListName;
+            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(context, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
+        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+    }
 
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -117,7 +131,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     try {
                         QueryUtils.deleteShoppingListUserItem(originalName, shoppingListName, getApplicationContext());
                         shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
                         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -155,7 +169,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                                 .putString("jsonData",Constants.json_data_str.toString()).apply();
                         shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
                         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                     } catch (ParseException | IOException e) {
                         e.printStackTrace();
@@ -678,7 +692,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                     }
                 }
-               catch (Exception e){
+                catch (Exception e){
                 }
             }
         };
@@ -963,7 +977,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         alertDialog.dismiss();
                                     }
                                     shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
                                     shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);;
 
                                 } catch (Exception e) {
@@ -989,7 +1003,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             }
 
                             shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
                             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1049,7 +1063,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         alertDialog.dismiss();
                                     }
                                     shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
                                     shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
 
                                 } catch (Exception e) {
@@ -1068,10 +1082,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
                                         quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         unitPriceEditText.getText().toString(), numberRelatedRemoved, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                    alertDialog.dismiss();
+                                alertDialog.dismiss();
                             }
                             shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
+                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
                             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1122,14 +1136,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         String[] resultSplitUp = result.toString().split(" ");
         for(int i = 0; i < resultSplitUp.length; i++){
             System.out.println("RESULT SPLIT UP i : " + resultSplitUp[i]);
-                try{
-                    Double.parseDouble(resultSplitUp[i]);
-                } catch (Exception e){
-                    String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(resultSplitUp[i].replaceAll(" ", ""));
-                    if(replaceNumbers.equals("0")) { // if even the replaceNumbers() func can't convert for strings like 'three' which are number related, then it is definitely not number related and we append it
-                        returnStr.append(resultSplitUp[i]);
-                    }
+            try{
+                Double.parseDouble(resultSplitUp[i]);
+            } catch (Exception e){
+                String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(resultSplitUp[i].replaceAll(" ", ""));
+                if(replaceNumbers.equals("0")) { // if even the replaceNumbers() func can't convert for strings like 'three' which are number related, then it is definitely not number related and we append it
+                    returnStr.append(resultSplitUp[i]);
                 }
+            }
 
         }
         System.out.println("RETURN: " + returnStr.toString());
@@ -1166,6 +1180,23 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         Toolbar toolBar = findViewById(R.id.my_toolbar);
         TextView titleTextView = findViewById(R.id.title);
         titleTextView.setText(shoppingListName);
+//        new Thread(new Runnable() {
+//            public void run() {
+//                System.out.println("ACTUALLYNEEDS TO BE UPDATED RUNNIn");
+//                if(actuallyNeedsToBeUpdated) {
+//                    try {
+//                        shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(ShoppingListUserItemsActivity.this, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
+//                }
+//
+//            }
+//        }).start();
         toolBar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -1212,7 +1243,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(this, shoppingListUserItems);
+        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(this, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
 
         hideSoftKeyboard(this);
@@ -1225,7 +1256,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                               public boolean onQueryTextSubmit(String query) {
                                                   Integer searchQueryLength = query.length();
                                                   ArrayList<ShoppingListUserItem> newshoppingListUserItemList = new ArrayList<>();
-                                                  ShoppingListUserItemAdapter shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), newshoppingListUserItemList);
+                                                  ShoppingListUserItemAdapter shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), newshoppingListUserItemList, shoppingListName, shoppingListUserItemsListView);
                                                   for(int i = 0; i < finalshoppingListUserItems.size(); i++){
                                                       ShoppingListUserItem shoppingListUserItem =  finalshoppingListUserItems.get(i);
                                                       try{
@@ -1247,7 +1278,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                               public boolean onQueryTextChange(String newText) {
                                                   Integer searchQueryLength = newText.length();
                                                   ArrayList<ShoppingListUserItem> newMainGodList = new ArrayList<ShoppingListUserItem>();
-                                                  ShoppingListUserItemAdapter shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(),newMainGodList);
+                                                  ShoppingListUserItemAdapter shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(),newMainGodList, shoppingListName, shoppingListUserItemsListView);
                                                   for(int i = 0; i < finalshoppingListUserItems.size(); i++){
                                                       ShoppingListUserItem shoppingListUserItem = (ShoppingListUserItem) finalshoppingListUserItems.get(i);
                                                       try{
@@ -1374,37 +1405,37 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                     }
                 });
-
-                increaseQuantityButton.setOnClickListener(new View.OnClickListener() {
-                    // increment quantity and update the adapter
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            System.out.println("IVE BEEN CLICKED");
-                            QueryUtils.increaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName, getApplicationContext());
-                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
-                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
-                        } catch (ParseException | IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                decreasedQuantityButton.setOnClickListener(new View.OnClickListener() {
-                    // increment quantity and update the adapter
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            QueryUtils.decreaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName, getApplicationContext());
-                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems);
-                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
-                        } catch (ParseException | IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+//
+//                increaseQuantityButton.setOnClickListener(new View.OnClickListener() {
+//                    // increment quantity and update the adapter
+//                    @Override
+//                    public void onClick(View view) {
+//                        try {
+//                            System.out.println("IVE BEEN CLICKED");
+//                            QueryUtils.increaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName, getApplicationContext());
+//                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+//                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
+//                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+//                        } catch (ParseException | IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
+//
+//                decreasedQuantityButton.setOnClickListener(new View.OnClickListener() {
+//                    // increment quantity and update the adapter
+//                    @Override
+//                    public void onClick(View view) {
+//                        try {
+//                            QueryUtils.decreaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName, getApplicationContext());
+//                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+//                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
+//                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+//                        } catch (ParseException | IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
 
                 microphoneButton.setOnClickListener(new View.OnClickListener() {
                     @Override
