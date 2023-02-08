@@ -41,6 +41,8 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
         newItemEditText = (TextInputEditText) findViewById(R.id.new_item_edit_text);
         shoppingList = getIntent().getStringExtra("shoppingListName");
         Toolbar toolbar = findViewById(R.id.my_toolbar);
+        TextView title = findViewById(R.id.title_shopping_list_name);
+        title.setText(String.format(getString(R.string.add_item), shoppingList));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

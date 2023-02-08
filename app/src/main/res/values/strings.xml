@@ -35,7 +35,7 @@
     <string name="store_history">Store History</string>
     <string name="thanksgiving_dinner_to_buy">THANKSGIVING DINNER TO BUY</string>
     <string name="store">Stores</string>
-    <string name="new_item_name">NEW ITEM NAME</string>
+    <string name="new_item_name">new item name</string>
     <string name="last_bought">10/27/22</string>
     <string name="quantity_sl_item_placeholder">1</string>
     <string name="enter">ENTER</string>
@@ -63,6 +63,7 @@
     <string name="add_an_item">Add An Item</string>
     <string name="tbs">TURKEYBS</string>
     <string name="add_an_item_to_to_buy">Add An Item - To Buy</string>
+    <string name="add_item">%s - Add Item</string>
     <string name="reorder_shopping_list">Reorder Shopping List</string>
     <string name="purchase_history">Purchase History - %s</string>
     <string name="quantity">Quantity</string>
