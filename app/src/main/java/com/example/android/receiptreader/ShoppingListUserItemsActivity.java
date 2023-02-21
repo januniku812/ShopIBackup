@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.DataSetObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.icu.text.DateTimePatternGenerator;
 import android.os.Build;
@@ -42,6 +43,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import org.json.simple.parser.ParseException;
 
@@ -51,33 +55,42 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static android.os.Build.VERSION_CODES.O;
 import static android.os.Build.VERSION_CODES.S;
 
 public class ShoppingListUserItemsActivity extends AppCompatActivity {
-    static ShoppingListUserItemAdapter shoppingListUserItemAdapter;
+    ShoppingListUserItemAdapter shoppingListUserItemAdapter;
     TextView resultsForshoppingListUserItemsView;
-    static ListView shoppingListUserItemsListView;
-    String shoppingListName;
-    public static boolean actuallyNeedsToBeUpdated = false;
+    Observer<Boolean> updateObserver;
+    ListView shoppingListUserItemsListView;
+     String shoppingListName;
+    public static MutableLiveData<Boolean> actuallyNeedsToBeUpdated = new MutableLiveData<>();
     int quantityMicrophoneState = 0;
     int unitPriceMicrophoneState = 0;
     int additionalWeightMicrophoneState = 0;
-    static ArrayList<ShoppingListUserItem> shoppingListUserItems;
+    ArrayList<ShoppingListUserItem> shoppingListUserItems;
+    //    static Thread updateRunnable =  new Thread(
+//            new Runnable() {
+//                @RequiresApi(api = O)
+//                public void run() {
+//                    System.out.println("ACTUALLYNEEDS TO BE UPDATED RUNNIn");
+//                            try {
+//                                shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getClass().getCOnt, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
+//                        }
+//
+//            });
     @RequiresApi(api = O)
-    public static void update(String shoppingListName, android.content.Context context){
-        // ArrayList<ShoppingListUserItem> tempShoppingListUserItems = new ArrayList<>();
-        try {
-//            String tempShoppingListName = shoppingListName;
-            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(context, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
-        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+    public static void update(){
+        actuallyNeedsToBeUpdated.postValue(true);
     }
 
     public void hideSoftKeyboard(Activity activity) {
@@ -91,6 +104,235 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         System.out.println("made it hideSoftKeyboard");
     }
+
+    @RequiresApi(api = O)
+    private void actionsDialog(String title, String originalName, String shoppingListName, Integer jsonEditCode) throws IOException, ParseException {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder
+                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+        View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
+                R.layout.custom_dialog,
+                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+        );
+        builder.setView(view);
+        ((TextView) view.findViewById(R.id.textTitle))
+                .setText(title);
+        ImageView icon = (ImageView) view.findViewById(R.id.imageIcon);
+        TextView editText = view.findViewById(R.id.custom_dialog_edit_text);
+        Button enterButton = (Button) view.findViewById(R.id.enterButton);
+        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        if(jsonEditCode == JSONEditCodes.DELETE_SHOPPING_LIST_ITEM) {
+            editText.setVisibility(View.INVISIBLE);
+            icon.setMinimumHeight(50);
+            icon.setMinimumWidth(50);
+            enterButton.setText(R.string.yes);
+            icon.setImageResource(R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
+            TextView delete_text = (TextView) view.findViewById(R.id.delete_text);
+            delete_text.setVisibility(View.VISIBLE);
+            delete_text.setText(String.format("Are you sure you want to delete %s, this action is permanent and cannot be undone", originalName));
+
+            view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    alertDialog.dismiss();
+                }
+            });
+            enterButton.setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = O)
+                @Override
+                public void onClick(View view) {
+                    try {
+                        QueryUtils.deleteShoppingListUserItem(originalName, shoppingListName, getApplicationContext());
+                        shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
+                        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    alertDialog.dismiss();
+                }
+            });
+        }
+        else if(jsonEditCode == JSONEditCodes.REORDER_SHOPPING_LIST_ITEM){
+            editText.setVisibility(View.INVISIBLE);
+            enterButton.setVisibility(View.GONE);
+            ConstraintLayout constraintLayout = view.findViewById(R.id.layoutDialogContainer);
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.connect(R.id.cancel_button, ConstraintSet.START, R.id.layoutDialog, ConstraintSet.START, 65);
+            constraintSet.connect(R.id.cancel_button, ConstraintSet.END, R.id.layoutDialog, ConstraintSet.END, 65);
+            constraintLayout.setConstraintSet(constraintSet);
+            icon.setMinimumHeight(50);
+            icon.setMinimumWidth(50);
+            icon.setImageResource(R.drawable.ic_baseline_arrow_circle_right_24);
+            ListView shopping_list_reorder_lv = (ListView) view.findViewById(R.id.reorder_shopping_list_view);
+            ArrayList<ShoppingList> shoppingListsForMoving = QueryUtils.getShoppingLists();
+            shopping_list_reorder_lv.setVisibility(View.VISIBLE);
+            ReorderShoppingListAdapter reorderShoppingListAdapter = new ReorderShoppingListAdapter(this, shoppingListsForMoving);
+            shopping_list_reorder_lv.setAdapter(reorderShoppingListAdapter);
+            shopping_list_reorder_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    ShoppingList shoppingList = (ShoppingList) reorderShoppingListAdapter.getItem(i);
+                    String shoppingListToMoveTo = shoppingList.getName();
+                    try {
+                        QueryUtils.reorderShoppingListItem(shoppingListName, shoppingListToMoveTo, originalName, getApplicationContext());
+                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+                                .putString("jsonData",Constants.json_data_str.toString()).apply();
+                        shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
+                        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    alertDialog.dismiss();
+
+                }
+            });
+            view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    alertDialog.dismiss();
+                }
+            });
+
+
+        }
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+        alertDialog.show();
+    }
+
+    @RequiresApi(api = O)
+    private void eyeShowDialog(ShoppingListUserItem shoppingListUserItem) throws IOException, ParseException {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder
+                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+        View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
+                R.layout.eye_custom_dialog,
+                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+        );
+        builder.setView(view);
+        String itemName = shoppingListUserItem.getName();
+        ((TextView) view.findViewById(R.id.textTitle))
+                .setText(String.format(getString(R.string.actions_shopping_list_user_item), itemName));
+        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        ImageView historyButton = (ImageView) view.findViewById(R.id.history_button_image_view);
+        ImageView duplicateIndicator = (ImageView) view.findViewById(R.id.duplicate_indicator_image_view);
+        ImageView microphoneButton = (ImageView) view.findViewById(R.id.record_item_details_image_view);
+        ImageView reorderButton = (ImageView) view.findViewById(R.id.reorder_item_image_view);
+        ImageView deleteButton = (ImageView) view.findViewById(R.id.delete_item_image_view);
+        ArrayList<ShoppingList> shoppingListsContainingSl = shoppingListUserItem.getOtherShoppingListsExistingIn();
+        if(shoppingListsContainingSl != null) {
+            duplicateIndicator.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(ShoppingListUserItemsActivity.this, ShoppingListsHistoryActivity.class);
+                    Bundle args = new Bundle();
+                    args.putString("shoppingListUserItemName", itemName);
+                    args.putString("shoppingListName", shoppingListName);
+                    if(getIntent().getStringExtra("originalNavPathSLUTIShoppingList") != null){
+                        System.out.println("ORIGINALNAVPATH NAME: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
+                        intent.putExtra("originalNavPathSLUTIShoppingList", getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
+                    }else {
+                        System.out.println("ORIGINALNAVPATH NAME REAL START: " + shoppingListName);
+                        intent.putExtra("originalNavPathSLUTIShoppingList", shoppingListName);
+
+                    }args.putSerializable("shoppingListsContainingSlItem", shoppingListsContainingSl);
+                    intent.putExtra("BUNDLE", args);
+                    startActivity(intent);
+                    actuallyNeedsToBeUpdated.removeObserver(updateObserver);
+                    finish();
+                }
+            });
+        }
+
+        ArrayList<StoreUserItem> storeUserItemsHistory = shoppingListUserItem.getStoreUserItemsHistory();
+
+        if(storeUserItemsHistory != null){
+            System.out.println(itemName + " HAS  HISTORY");
+            historyButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ArrayList<StoreUserItem> storeUserItemsHistory = shoppingListUserItem.getStoreUserItemsHistory();
+                    Intent intent = new Intent(ShoppingListUserItemsActivity.this, ShoppingListUserItemHistoryActivity.class);
+                    Bundle args = new Bundle();
+                    args.putString("classComingFrom", "ShoppingListUserItemsActivity");
+                    args.putString("title", itemName);
+                    if(getIntent().getStringExtra("originalNavPathSLUTIShoppingList") != null){
+                        System.out.println("ORIGINALNAVPATH NAME: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
+                        intent.putExtra("originalNavPathSLUTIShoppingList", getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
+                    }else {
+                        System.out.println("ORIGINALNAVPATH NAME REAL START: " + shoppingListName);
+                        intent.putExtra("originalNavPathSLUTIShoppingList", shoppingListName);
+
+                    }
+                    args.putString("shoppingListName", shoppingListName);
+                    args.putSerializable("storeUserItemsHistory", storeUserItemsHistory);
+                    intent.putExtra("BUNDLE", args);
+                    startActivity(intent);
+                    actuallyNeedsToBeUpdated.removeObserver(updateObserver);
+                    finish();
+                }
+            });
+        }
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    showDialog(getString(R.string.delete_shopping_list_item), itemName, shoppingListName, JSONEditCodes.DELETE_SHOPPING_LIST_ITEM);
+                    alertDialog.dismiss();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+        reorderButton.setOnClickListener( new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                try {
+                    showDialog(getString(R.string.reorder_shopping_list), itemName, shoppingListName, JSONEditCodes.REORDER_SHOPPING_LIST_ITEM);
+                    alertDialog.dismiss();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+        microphoneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    speakWithVoiceDialog(itemName, !Constants.storeBeingShoppedIn.isEmpty());
+                    alertDialog.dismiss();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+        alertDialog.show();
+    }
+
+
 
     @RequiresApi(api = O)
     private void showDialog(String title, String originalName, String shoppingListName, Integer jsonEditCode) throws IOException, ParseException {
@@ -130,11 +372,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     try {
                         QueryUtils.deleteShoppingListUserItem(originalName, shoppingListName, getApplicationContext());
-                        shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
+                        shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
                         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -168,10 +408,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         QueryUtils.reorderShoppingListItem(shoppingListName, shoppingListToMoveTo, originalName, getApplicationContext());
                         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                                 .putString("jsonData",Constants.json_data_str.toString()).apply();
-                        shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
+                        shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
                         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
-                    } catch (ParseException | IOException e) {
+                    } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     alertDialog.dismiss();
@@ -976,8 +1217,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                 .putString("jsonData",Constants.json_data_str.toString()).apply();
                                         alertDialog.dismiss();
                                     }
-                                    shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
+                                    shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
                                     shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);;
 
                                 } catch (Exception e) {
@@ -1002,8 +1243,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 alertDialog.dismiss();
                             }
 
-                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
+                            shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+
+                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
                             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1062,8 +1304,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                 unitPriceEditText.getText().toString(), numberRelatedRemoved, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         alertDialog.dismiss();
                                     }
-                                    shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
+                                    shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+
+                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
                                     shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
 
                                 } catch (Exception e) {
@@ -1084,8 +1327,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         unitPriceEditText.getText().toString(), numberRelatedRemoved, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                 alertDialog.dismiss();
                             }
-                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
+                            shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+
+                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
                             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1149,7 +1393,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         System.out.println("RETURN: " + returnStr.toString());
         return returnStr.toString();
     }
-
+    public void resetAdapter(){
+        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+    }
 
     private boolean isOrContainsMeasurementUnit(String string) {
         return string.toLowerCase().replaceAll(" ", "").equals("lb") || string.toLowerCase().replaceAll(" ", "").equals("kg") || string.toLowerCase().replaceAll(" ", "").equals("g");
@@ -1168,6 +1414,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
     }
 
+
     @RequiresApi(api = O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1180,22 +1427,54 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         Toolbar toolBar = findViewById(R.id.my_toolbar);
         TextView titleTextView = findViewById(R.id.title);
         titleTextView.setText(shoppingListName);
-//        new Thread(new Runnable() {
-//            public void run() {
-//                System.out.println("ACTUALLYNEEDS TO BE UPDATED RUNNIn");
-//                if(actuallyNeedsToBeUpdated) {
-//                    try {
-//                        shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    } catch (ParseException e) {
-//                        e.printStackTrace();
+        updateObserver = new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS BEFORE: " + shoppingListUserItems.size());
+                    for (ShoppingListUserItem item: shoppingListUserItems
+                    ) {
+                        System.out.println(item.getName() + item.getUserQuantity() + item.getLastBought());
+                    }
+                    try {
+                        shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+                    } catch (ParseException  e) {
+                        System.out.println("RUNNING ONCHANGED  EXCEPTION");
+                        e.printStackTrace();
+                    }
+                    System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS AFTER: " + shoppingListUserItems.size());
+                    for (ShoppingListUserItem item: shoppingListUserItems
+                    ) {
+                        System.out.println(item.getName() + item.getUserQuantity() + item.getLastBought());
+                    }
+                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
+                    resetAdapter();
+                    System.out.println("SET ADAPTER: " + shoppingListUserItemAdapter.getCount());
+                    actuallyNeedsToBeUpdated.setValue(false);
+                }
+            }
+        };
+        actuallyNeedsToBeUpdated.observeForever(updateObserver);
+//        new Thread(
+//            new Runnable() {
+//                public void run() {
+//                    System.out.println("ACTUALLYNEEDS TO BE UPDATED RUNNIn");
+//                    if(actuallyNeedsToBeUpdated.getValue() != null) {
+//                        if (actuallyNeedsToBeUpdated.getValue()) {
+//                            System.out.println("ACTUALLYNEEDS TO BE UPDATED RUNNIn 2");
+//                            try {
+//                                shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(ShoppingListUserItemsActivity.this, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
+//                        }
 //                    }
 //
-//                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(ShoppingListUserItemsActivity.this, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
 //                }
-//
-//            }
 //        }).start();
         toolBar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
@@ -1223,6 +1502,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                 }
                 startActivity(intent);
+                actuallyNeedsToBeUpdated.removeObserver(updateObserver);
+                finish();
             }
         });
         ImageButton add_item_button = findViewById(R.id.add_image_button);
@@ -1232,72 +1513,132 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 Intent intent = new Intent(ShoppingListUserItemsActivity.this, AddShoppingListUserItemActivity.class);
                 intent.putExtra("shoppingListName", shoppingListName);
                 startActivity(intent);
+                actuallyNeedsToBeUpdated.removeObserver(updateObserver);
+                finish();
             }
         });
         shoppingListUserItems = null;
         try {
-            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+            shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingListName);
+            System.out.println("ITEMSSSS @onCreate");
+            for (ShoppingListUserItem item: shoppingListUserItems
+            ) {
+                System.out.println(item.getName() + item.getUserQuantity() + item.getLastBought());
+            }
+        } catch (ParseException | IOException e) {
             e.printStackTrace();
         }
 
-        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(this, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
+        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+
+        shoppingListUserItemAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                System.out.println("data register observer @onChanged");
+            }
+
+            @Override
+            public void onInvalidated() {
+                super.onInvalidated();
+                System.out.println("data register observer @onInvalidated");
+            }
+        });
 
         hideSoftKeyboard(this);
         searchView.setIconified(false);
 
-        ArrayList<ShoppingListUserItem> finalshoppingListUserItems = shoppingListUserItems;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
                                               @Override
                                               public boolean onQueryTextSubmit(String query) {
                                                   Integer searchQueryLength = query.length();
-                                                  ArrayList<ShoppingListUserItem> newshoppingListUserItemList = new ArrayList<>();
-                                                  ShoppingListUserItemAdapter shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), newshoppingListUserItemList, shoppingListName, shoppingListUserItemsListView);
-                                                  for(int i = 0; i < finalshoppingListUserItems.size(); i++){
-                                                      ShoppingListUserItem shoppingListUserItem =  finalshoppingListUserItems.get(i);
-                                                      try{
-                                                          if(shoppingListUserItem.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
-                                                              newshoppingListUserItemList.add(shoppingListUserItem);
+                                                  try {
+                                                      shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingListName);
+                                                  } catch (IOException e) {
+                                                      e.printStackTrace();
+                                                  } catch (ParseException e) {
+                                                      e.printStackTrace();
+                                                  }
+                                                  ArrayList<ShoppingListUserItem> newItems = new ArrayList<>();
+                                                  for(ShoppingListUserItem item: shoppingListUserItems){
+                                                      if(!(query.length() > item.getName().length())){
+                                                          if(item.getName().substring(0, searchQueryLength).equalsIgnoreCase(query)){
+                                                              newItems.add(item);
                                                           }
                                                       }
-                                                      catch (StringIndexOutOfBoundsException exception){
-//                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
-                                                      }
-
                                                   }
+                                                  shoppingListUserItems = newItems;
+                                                  //                                                  ArrayList<ShoppingListUserItem> newshoppingListUserItemList = new ArrayList<>();
+//                                                  for(int i = 0; i < shoppingListUserItems.size(); i++){
+//                                                      ShoppingListUserItem shoppingListUserItem =  shoppingListUserItems.get(i);
+//                                                      try{
+//                                                          if(!shoppingListUserItem.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+//                                                              System.out.println("REMOVING " + shoppingListUserItem.getName() + " FOR " + query);
+//                                                              shoppingListUserItems.remove(i);
+//                                                          }
+//                                                          else{
+//
+//                                                          }
+//                                                      }
+//                                                      catch (StringIndexOutOfBoundsException exception){
+////                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
+//                                                      }
+//
+//                                                  }
+                                                   shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
                                                   shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                                                   return false;
 
                                               }
 
                                               @Override
-                                              public boolean onQueryTextChange(String newText) {
-                                                  Integer searchQueryLength = newText.length();
-                                                  ArrayList<ShoppingListUserItem> newMainGodList = new ArrayList<ShoppingListUserItem>();
-                                                  ShoppingListUserItemAdapter shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(),newMainGodList, shoppingListName, shoppingListUserItemsListView);
-                                                  for(int i = 0; i < finalshoppingListUserItems.size(); i++){
-                                                      ShoppingListUserItem shoppingListUserItem = (ShoppingListUserItem) finalshoppingListUserItems.get(i);
-                                                      try{
-                                                          if(shoppingListUserItem.getName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
-                                                              newMainGodList.add(shoppingListUserItem);
+                                              public boolean onQueryTextChange(String query) {
+
+                                                  Integer searchQueryLength = query.length();
+                                                  try {
+                                                      shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingListName);
+                                                  } catch (IOException e) {
+                                                      e.printStackTrace();
+                                                  } catch (ParseException e) {
+                                                      e.printStackTrace();
+                                                  }
+                                                  ArrayList<ShoppingListUserItem> newItems = new ArrayList<>();
+                                                  for(ShoppingListUserItem item: shoppingListUserItems){
+                                                      if(!(query.length() > item.getName().length())){
+                                                          if(item.getName().substring(0, searchQueryLength).equalsIgnoreCase(query)){
+                                                              newItems.add(item);
                                                           }
                                                       }
-                                                      catch(StringIndexOutOfBoundsException exception){
-//                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
-                                                      }
                                                   }
+                                                  shoppingListUserItems = newItems;
+                                                  System.out.println("NEW SHOPPING LIST USER ITEMS @onQuereyTExtChange: " + shoppingListUserItems);
+                                                  //
+//                                                  for(int i = 0; i < shoppingListUserItems.size(); i++){
+//                                                      ShoppingListUserItem shoppingListUserItem =  shoppingListUserItems.get(i);
+//                                                      try{
+//                                                          if(!shoppingListUserItem.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+//                                                              System.out.println("REMOVING " + shoppingListUserItem.getName() + " FOR " + query);
+//
+//                                                              shoppingListUserItems.remove(i);
+//                                                          }
+//                                                      }
+//                                                      catch (StringIndexOutOfBoundsException exception){
+////                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
+//                                                      }
+//
+//                                                  }
                                                   // if user has deleted all their text
-                                                  if (newText.isEmpty()) {
+                                                  if (query.isEmpty()) {
                                                       resultsForshoppingListUserItemsView.setVisibility(View.GONE);
                                                   }
                                                   else {
-                                                      resultsForshoppingListUserItemsView.setText("Results for " + newText);
+                                                      resultsForshoppingListUserItemsView.setText("Results for " + query);
                                                       resultsForshoppingListUserItemsView.setVisibility(View.VISIBLE);
                                                   }
+
+                                                  shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
                                                   shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                                                   return false;
                                               }
@@ -1310,6 +1651,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         searchView.setOnCloseListener( new SearchView.OnCloseListener() {
                                            @Override
                                            public boolean onClose() {
+
+                                               try {
+                                                   shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingListName);
+                                               } catch (IOException e) {
+                                                   e.printStackTrace();
+                                               } catch (ParseException e) {
+                                                   e.printStackTrace();
+                                               }
                                                return false;
                                            }
                                        }
@@ -1320,133 +1669,27 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ShoppingListUserItem shoppingListUserItem = (ShoppingListUserItem) shoppingListUserItemAdapter.getItem(i);
                 String shoppingListUserItemName = shoppingListUserItem.getName();
                 View selectedStoreView = shoppingListUserItemAdapter.getView(i, view, adapterView);
-                ImageView historyButton = (ImageView) selectedStoreView.findViewById(R.id.history_button_sl_item);
-                ImageView duplicateIndicator = (ImageView) selectedStoreView.findViewById(R.id.duplicate_indicator);
-                ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
-                ImageView reorderButton = (ImageView) selectedStoreView.findViewById(R.id.reorder_item_button);
-                ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
-                ImageView increaseQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_add_button);
-                ImageView decreasedQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_minus_button);
-                ArrayList<ShoppingList> shoppingListsContainingSl = shoppingListUserItem.getOtherShoppingListsExistingIn();
-                if(shoppingListsContainingSl.size() > 1) {
-                    duplicateIndicator.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(ShoppingListUserItemsActivity.this, ShoppingListsHistoryActivity.class);
-                            Bundle args = new Bundle();
-                            args.putString("shoppingListUserItemName", shoppingListUserItemName);
-                            args.putString("shoppingListName", shoppingListName);
-                            if(getIntent().getStringExtra("originalNavPathSLUTIShoppingList") != null){
-                                System.out.println("ORIGINALNAVPATH NAME: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
-                                intent.putExtra("originalNavPathSLUTIShoppingList", getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
-                            }else {
-                                System.out.println("ORIGINALNAVPATH NAME REAL START: " + shoppingListName);
-                                intent.putExtra("originalNavPathSLUTIShoppingList", shoppingListName);
+//                ImageView historyButton = (ImageView) selectedStoreView.findViewById(R.id.history_button_sl_item);
+//                ImageView duplicateIndicator = (ImageView) selectedStoreView.findViewById(R.id.duplicate_indicator);
+//                ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
+//                ImageView reorderButton = (ImageView) selectedStoreView.findViewById(R.id.reorder_item_button);
+//                ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
+//                ImageView increaseQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_add_button);
+//                ImageView decreasedQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_minus_button);
+                ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(R.id.eye_actions_item_button);
+               eyeImageView.setOnClickListener(new View.OnClickListener() {
+                   @Override
+                   public void onClick(View v) {
+                       try {
+                           eyeShowDialog(shoppingListUserItem);
+                       } catch (IOException e) {
+                           e.printStackTrace();
+                       } catch (ParseException e) {
+                           e.printStackTrace();
+                       }
+                   }
+               });
 
-                            }args.putSerializable("shoppingListsContainingSlItem", shoppingListsContainingSl);
-                            intent.putExtra("BUNDLE", args);
-                            startActivity(intent);
-                        }
-                    });
-                }
-
-                ArrayList<StoreUserItem> storeUserItemsHistory = shoppingListUserItem.getStoreUserItemsHistory();
-
-                if(storeUserItemsHistory != null){
-                    System.out.println(shoppingListUserItemName + " HAS  HISTORY");
-                    historyButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ArrayList<StoreUserItem> storeUserItemsHistory = shoppingListUserItem.getStoreUserItemsHistory();
-                            Intent intent = new Intent(ShoppingListUserItemsActivity.this, ShoppingListUserItemHistoryActivity.class);
-                            Bundle args = new Bundle();
-                            args.putString("classComingFrom", "ShoppingListUserItemsActivity");
-                            args.putString("title", shoppingListUserItemName);
-                            if(getIntent().getStringExtra("originalNavPathSLUTIShoppingList") != null){
-                                System.out.println("ORIGINALNAVPATH NAME: " + getIntent().getStringExtra("originalNavPathSLUTIShoppingList") );
-                                intent.putExtra("originalNavPathSLUTIShoppingList", getIntent().getStringExtra("originalNavPathSLUTIShoppingList"));
-                            }else {
-                                System.out.println("ORIGINALNAVPATH NAME REAL START: " + shoppingListName);
-                                intent.putExtra("originalNavPathSLUTIShoppingList", shoppingListName);
-
-                            }
-                            args.putString("shoppingListName", shoppingListName);
-                            args.putSerializable("storeUserItemsHistory", storeUserItemsHistory);
-                            intent.putExtra("BUNDLE", args);
-                            startActivity(intent);
-                        }
-                    });
-                }
-
-                deleteButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            showDialog(getString(R.string.delete_shopping_list_item), shoppingListUserItemName, shoppingListName, JSONEditCodes.DELETE_SHOPPING_LIST_ITEM);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                });
-
-                reorderButton.setOnClickListener( new View.OnClickListener(){
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            showDialog(getString(R.string.reorder_shopping_list), shoppingListUserItemName, shoppingListName, JSONEditCodes.REORDER_SHOPPING_LIST_ITEM);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                });
-//
-//                increaseQuantityButton.setOnClickListener(new View.OnClickListener() {
-//                    // increment quantity and update the adapter
-//                    @Override
-//                    public void onClick(View view) {
-//                        try {
-//                            System.out.println("IVE BEEN CLICKED");
-//                            QueryUtils.increaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName, getApplicationContext());
-//                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-//                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
-//                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
-//                        } catch (ParseException | IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-//
-//                decreasedQuantityButton.setOnClickListener(new View.OnClickListener() {
-//                    // increment quantity and update the adapter
-//                    @Override
-//                    public void onClick(View view) {
-//                        try {
-//                            QueryUtils.decreaseShoppingListItemQuantity(shoppingListName, shoppingListUserItemName, getApplicationContext());
-//                            shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-//                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName, shoppingListUserItemsListView);
-//                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
-//                        } catch (ParseException | IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-
-                microphoneButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            speakWithVoiceDialog(shoppingListUserItemName, !Constants.storeBeingShoppedIn.isEmpty());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
             }
 
 
@@ -1459,6 +1702,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -1474,4 +1718,5 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }

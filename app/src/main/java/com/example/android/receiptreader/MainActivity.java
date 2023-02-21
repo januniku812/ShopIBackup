@@ -433,7 +433,8 @@ public class MainActivity extends AppCompatActivity {
                                 stores = setAllStoresToNotBeingShoppedInExcept(stores, Constants.storeBeingShoppedIn);
                             }
                             else {
-                                stores = setAllStoresToNotBeingShoppedInExcept(stores, store.getStoreName());
+                                Constants.storeBeingShoppedIn = originalStoreName;
+                                stores = setAllStoresToNotBeingShoppedInExcept(stores, originalStoreName);
                             }
                         }
                         // update list view

@@ -1,4 +1,5 @@
 {
   "stores": [],
-  "shopping_lists":[]
+  "shopping_lists":[],
+  "general_items_master": []
 }

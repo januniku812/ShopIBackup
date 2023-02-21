@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutDialogContainer"
+    android:layout_margin="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="30dp"
+        android:elevation="2dp"
+        android:background="@drawable/nuetral_dialog_background"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            style="@style/user_item_details_text_style"
+            android:layout_marginStart="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textTitle"
+            android:background="@drawable/dialog_background"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:text="@string/actions_shopping_list_user_item"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <!--        <ImageView-->
+        <!--            android:id="@+id/imageIcon"-->
+        <!--            android:layout_width="25dp"-->
+        <!--            android:layout_height="25dp"-->
+        <!--            android:layout_marginEnd="10dp"-->
+        <!--            android:contentDescription="@string/app_name"-->
+        <!--            app:layout_constraintBottom_toBottomOf="@id/textTitle"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="@id/textTitle"-->
+        <!--            android:src="@drawable/ic_baseline_remove_red_eye_24"-->
+        <!--            app:tint="@color/white" />-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            app:layout_constraintTop_toBottomOf="@id/textTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:id="@+id/view_history_cl"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp">
+            <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:id="@+id/history_button_image_view"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_width="30dp"
+                android:src="@drawable/ic_baseline_history_24"
+                android:layout_height="30dp"/>
+
+            <TextView
+                android:textStyle="bold"
+                style="@style/user_item_details_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                app:layout_constraintTop_toTopOf="@id/history_button_image_view"
+                app:layout_constraintBottom_toBottomOf="@id/history_button_image_view"
+                android:text="View Purchase History"
+                app:layout_constraintStart_toEndOf="@id/history_button_image_view"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            app:layout_constraintTop_toBottomOf="@id/view_history_cl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/duplicate_indicator_cl"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp">
+            <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:id="@+id/duplicate_indicator_image_view"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_width="30dp"
+                android:src="@drawable/ic_baseline_grey_content_copy_24"
+                android:layout_height="30dp"/>
+
+            <TextView
+                android:textStyle="bold"
+                style="@style/user_item_details_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                app:layout_constraintTop_toTopOf="@id/duplicate_indicator_image_view"
+                app:layout_constraintBottom_toBottomOf="@id/duplicate_indicator_image_view"
+                android:text="View Other Shopping Lists With ____"
+                app:layout_constraintStart_toEndOf="@id/duplicate_indicator_image_view"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>    <androidx.constraintlayout.widget.ConstraintLayout
+            app:layout_constraintTop_toBottomOf="@id/duplicate_indicator_cl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/reorder_item_cl"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp">
+            <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:id="@+id/reorder_item_image_view"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_width="30dp"
+                android:src="@drawable/ic_baseline_arrow_circle_right_24"
+                android:layout_height="30dp"/>
+
+            <TextView
+                android:textStyle="bold"
+                style="@style/user_item_details_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                app:layout_constraintTop_toTopOf="@id/reorder_item_image_view"
+                app:layout_constraintBottom_toBottomOf="@id/reorder_item_image_view"
+                android:text="Reorder ______"
+                app:layout_constraintStart_toEndOf="@id/reorder_item_image_view"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            app:layout_constraintTop_toBottomOf="@id/reorder_item_cl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/delete_item_cl"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp">
+            <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:id="@+id/delete_item_image_view"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_width="30dp"
+                android:src="@drawable/delete_foreground"
+                android:layout_height="30dp"/>
+
+            <TextView
+                android:textStyle="bold"
+                style="@style/user_item_details_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                app:layout_constraintTop_toTopOf="@id/delete_item_image_view"
+                app:layout_constraintBottom_toBottomOf="@id/delete_item_image_view"
+                android:text="Delete ______"
+                app:layout_constraintStart_toEndOf="@id/delete_item_image_view"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            app:layout_constraintTop_toBottomOf="@id/delete_item_cl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/record_item_details_cl"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp">
+            <ImageView
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:id="@+id/record_item_details_image_view"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_width="30dp"
+                android:src="@drawable/microphone_foreground"
+                android:layout_height="30dp"/>
+
+            <TextView
+                android:textStyle="bold"
+                style="@style/user_item_details_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                app:layout_constraintTop_toTopOf="@id/record_item_details_image_view"
+                app:layout_constraintBottom_toBottomOf="@id/record_item_details_image_view"
+                android:text="Record Purchase For ______"
+                app:layout_constraintStart_toEndOf="@id/record_item_details_image_view"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <Button
+        style="@style/user_item_details_text_style"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:id="@+id/cancel_button"
+        android:elevation="10dp"
+        android:textAllCaps="false"
+        android:backgroundTint="@color/darker_light_blue"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:theme="@style/Button.White"
+        android:layout_marginTop="15dp"
+        android:text="@string/cancel"
+        app:layout_constraintBottom_toBottomOf="@id/layoutDialog"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutDialog"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

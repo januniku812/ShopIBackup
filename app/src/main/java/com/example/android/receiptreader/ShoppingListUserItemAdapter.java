@@ -25,14 +25,30 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserItem> {
     ListView shoppingListUserItemsListView;
     String shoppingListNameStr;
-    public ShoppingListUserItemAdapter(@NonNull Context context, ArrayList<ShoppingListUserItem> shoppingListUserItemArrayList, String shoppingListName, ListView shoppingListUserItemsListView) {
+    ArrayList<ShoppingListUserItem> shoppingListUserItems;
+
+    public ArrayList<ShoppingListUserItem> getShoppingListUserItems() {
+        return shoppingListUserItems;
+    }
+
+    public void setShoppingListUserItems(ArrayList<ShoppingListUserItem> shoppingListUserItems) {
+        this.shoppingListUserItems = shoppingListUserItems;
+    }
+
+    public ShoppingListUserItemAdapter(@NonNull Context context, ArrayList<ShoppingListUserItem> shoppingListUserItemArrayList, String shoppingListName) {
         super(context, 0, shoppingListUserItemArrayList);
+        System.out.println("ITEMSSSS @ShoppingListUserItemAdapter");
+        for (ShoppingListUserItem item: shoppingListUserItemArrayList
+        ) {
+            System.out.println(item.getName() + item.getUserQuantity() + " LAST BOUGHT: "  + item.getLastBought());
+        }
+        shoppingListUserItems = shoppingListUserItemArrayList;
         this.shoppingListNameStr = shoppingListName;
-        this.shoppingListUserItemsListView = shoppingListUserItemsListView;
 
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -43,13 +59,13 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
         if (newItemView == null) {
             newItemView = LayoutInflater.from(getContext()).inflate(R.layout.shopping_list_item, parent, false);
         }
-
         //get the{@link Deity} object located at this position in the list
         ShoppingListUserItem shoppingListUserItem = getItem(position);
         String shoppingListUserItemName = shoppingListUserItem.getName();
         ConstraintLayout constraintLayout = newItemView.findViewById(R.id.shopping_list_user_item_card_view_cl);
         //find the text view in the user item individual view and setting it with object name data
         TextView shoppingListName = (TextView) newItemView.findViewById(R.id.shopping_list_item_name);
+        System.out.println("RUNNING @getView in @ShoppingListUserItemAdapter for : "+ shoppingListUserItemName + shoppingListUserItem.getUserQuantity());
         shoppingListName.setText(shoppingListUserItem.getName());
         ImageView duplicateIndicator = (ImageView) newItemView.findViewById(R.id.duplicate_indicator);
         TextView lastBoughtDate = (TextView) newItemView.findViewById(R.id.last_bought_date);
@@ -60,11 +76,11 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                 String whenShoppingListUserItemLastBought = QueryUtils.getWhenShoppingListUserItemLastBought(shoppingListUserItemName);
                 if (!whenShoppingListUserItemLastBought.equals("not previously bought")) {
                     blue_check_mark.setVisibility(View.VISIBLE);
-                    System.out.println("MADE IT grstrstrststrstrstrstrstr :" + position + shoppingListUserItemName + " SET TEXT " + whenShoppingListUserItemLastBought);
+                    System.out.println("MADE IT DOES HAVE LAST BOUGHT :" + position + shoppingListUserItemName + " SET TEXT " + whenShoppingListUserItemLastBought);
                     lastBoughtDate.setText(whenShoppingListUserItemLastBought);
                     shoppingListUserItem.setLastBought(whenShoppingListUserItemLastBought); // will help when running search view updated adapters
                 } else {
-                    System.out.println("MADE IT 2:" + shoppingListUserItemName);
+                    System.out.println("MADE IT DOESNT HAVE LAST BOUGHT:" + shoppingListUserItemName);
                     lastBoughtDate.setText(R.string.last_bought);
                     lastBoughtDate.setVisibility(View.INVISIBLE);
                     blue_check_mark.setVisibility(View.INVISIBLE);
@@ -74,24 +90,26 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                     constraintSet.connect(R.id.shopping_list_item_name, ConstraintSet.BOTTOM, R.id.shopping_list_user_item_card_view_cl, ConstraintSet.BOTTOM, 0);
                     constraintLayout.setConstraintSet(constraintSet);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
+            } catch (IOException | ParseException e) {
                 e.printStackTrace();
             }
         }
         else{ // sometimes the item will be previously bought or the item's last bought will be updated in line 55 as above for search view adapter efficiency
+            System.out.println("OTHER HAS BOUGHT: " + shoppingListUserItem.getName() + " " + shoppingListUserItem.getLastBought());
+
+            System.out.println("SET BLUE CHEK MARK FOR " + shoppingListUserItemName);
             lastBoughtDate.setText(shoppingListUserItem.getLastBought());
+            lastBoughtDate.setVisibility(View.VISIBLE);
+            blue_check_mark.setVisibility(View.VISIBLE);
         }
         try {
             ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
 
-            if(otherShoppingListsSlExistsIn.size() > 1){
+            if(otherShoppingListsSlExistsIn != null){
                 duplicateIndicator.setImageResource(R.drawable.ic_round_content_copy_24);
             }
             else{
 
-                System.out.println("OTHER SHOPPING LISTS: " + otherShoppingListsSlExistsIn.size());
                 duplicateIndicator.setImageResource(R.drawable.ic_baseline_grey_content_copy_24);
             }
             shoppingListUserItem.setOtherShoppingListsExistingIn(otherShoppingListsSlExistsIn);
@@ -126,7 +144,7 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                 try {
                     System.out.println("IVE BEEN CLICKED STORE ITEM ADAPTER");
                     QueryUtils.increaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
-                    ShoppingListUserItemsActivity.update(shoppingListNameStr, getContext());
+                    ShoppingListUserItemsActivity.update();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -138,12 +156,37 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                 try {
                     System.out.println("IVE BEEN CLICKED ITEM ADAPTER");
                     QueryUtils.decreaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
-                    ShoppingListUserItemsActivity.update(shoppingListNameStr, getContext());
+                    ShoppingListUserItemsActivity.update();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
         return newItemView;
+    }
+
+    @Override
+    public void notifyDataSetInvalidated() {
+        super.notifyDataSetInvalidated();
+    }
+
+    @Override
+    public int getCount() {
+        // TODO Auto-generated method stub
+        System.out.println("@getCount CALLED: " + super.getCount());
+        return super.getCount();
+    }
+
+    @Nullable
+    @Override
+    public ShoppingListUserItem getItem(int position) {
+        System.out.println("@getItem CALLED: " + position);
+        return shoppingListUserItems.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        System.out.println("@getItemId CALLED: " + position);
+        return super.getItemId(position);
     }
 }

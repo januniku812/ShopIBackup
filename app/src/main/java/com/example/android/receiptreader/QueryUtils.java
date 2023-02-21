@@ -30,6 +30,55 @@ public class QueryUtils  {
     public static String strip(String string){
         return string.replaceAll("\\s+", " ");
     }
+    @RequiresApi
+    public static ArrayList<ShoppingListUserItem>  updateShoppingListUserItems(ArrayList<ShoppingListUserItem> shoppingListUserItems, String shoppingListName) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        System.out.println("CALLED AT @updateShoppingListUserItems");
+        ArrayList<ShoppingListUserItem> shoppingListUserItemsToReturn = new ArrayList<>(); // initializing array list to return
+
+        // finding the shopping list data we are dealing with
+        JSONObject jsonObject = (JSONObject) object;
+        JSONArray shopping_list_user_items = null;
+        JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+        for(int i = 0; i < shopping_lists.size(); i++){
+            JSONObject shopping_list = (JSONObject) shopping_lists.get(i);
+            System.out.println("SHOPPING LIST NAME i: " + shopping_list.get("shopping_list_name") + " OUR SHOPPINF LIST NAME : " + shoppingListName);
+            if(shopping_list.get("shopping_list_name").toString().equalsIgnoreCase(shoppingListName)){
+                System.out.println("REACHED");
+                shopping_list_user_items = (JSONArray) shopping_list.get("shopping_list_user_items");
+            }
+        }
+        System.out.println("SHOPING LIST USER ITEMS ASFJASKJSHAKAJHAKJHA: " + shopping_list_user_items);
+        for(ShoppingListUserItem shoppingListUserItem: shoppingListUserItems){
+            try{
+                // parse through its data in the shopping list json array
+                for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                    JSONObject userItemObject = (JSONObject) shopping_list_user_items.get(i2);
+                    System.out.println("USer ITEM OBJ: " + userItemObject);
+                    ShoppingListUserItem userItemToAdd = new ShoppingListUserItem();
+                    if(strip(userItemObject.get("shopping_list_item_name").toString()).equalsIgnoreCase(strip(shoppingListUserItem.getName()))) { // getting data only for
+                        String userItemName = (String) userItemObject.get("shopping_list_item_name");
+                        String userItemDate = (String) userItemObject.get("shopping_list_item_last_bought");
+                        String userItemQuantity = (String) userItemObject.get("shopping_list_item_quantity");
+                        if(userItemObject.get("shopping_list_item_quantity") == null){
+                            userItemQuantity = "";
+                        }
+                        userItemToAdd = new ShoppingListUserItem(userItemName, userItemDate, userItemQuantity);
+                        System.out.println("USER ITEM TO ADD: " + userItemName + userItemDate + userItemQuantity);
+                        shoppingListUserItemsToReturn.add(userItemToAdd);
+                    }
+                }
+
+            }catch(Exception e){
+                System.out.println("EXCEPTION OCCURED IN @updateShoppingListUserITems");
+                e.printStackTrace();
+            }
+        }
+        return shoppingListUserItemsToReturn;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice, String measurementUnit, String additionalWeight, android.content.Context context) throws ParseException {
@@ -204,7 +253,7 @@ public class QueryUtils  {
                         JSONObject item2 = (JSONObject) jsonArray.get(i2);
                         JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
                         try {
-                            if (strip(item2.get("shopping_list_user_item_name").toString().toLowerCase()).equals(strip(shoppingListItemName.toLowerCase()))) {
+                            if (strip(item2.get("shopping_list_item_name").toString().toLowerCase()).equals(strip(shoppingListItemName.toLowerCase()))) {
                                 System.out.println("RUNNING FOR 2 DUP:" + shoppingListItemName);
                                 Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + 1;
                                 System.out.println("BEFORE: " + shopping_list_user_item);
@@ -317,7 +366,7 @@ public class QueryUtils  {
                         JSONArray jsonArray = (JSONArray) shoppingList.get("shopping_list_user_items");
                         JSONObject item2 = (JSONObject) jsonArray.get(i2);
                         try {
-                            if (strip(item2.get("shopping_list_user_item_name").toString().toLowerCase()).equals(strip(shoppingListItemName.toLowerCase()))) {
+                            if (strip(item2.get("shopping_list_item_name").toString().toLowerCase()).equals(strip(shoppingListItemName.toLowerCase()))) {
                                 System.out.println("RUNNING FOR 2 DUP:" + shoppingListItemName);
                                 Integer quantityToPut = Integer.parseInt(shopping_list_user_item.get("shopping_list_item_quantity").toString()) + 1;
                                 System.out.println("BEFORE: " + shopping_list_user_item);
@@ -599,7 +648,7 @@ public class QueryUtils  {
         }catch(Exception e){
             e.printStackTrace();
         }
-        if(shoppingLists.size() == 0) {
+        if(shoppingLists.size() - 1 == 0) {
             System.out.println("RETURNING 2: " + shoppingLists.size() + " FOR " + shoppingListUserItemName);
             return null;
         } else{
@@ -710,14 +759,14 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static ArrayList<ShoppingListUserItem> getShoppingListUsersItems(String shoppingListName) throws IOException, ParseException {
+    public static ArrayList<ShoppingListUserItem> getShoppingListUserItems(String shoppingListName) throws IOException, ParseException {
         String jsonData = Constants.json_data_str;
         JSONParser jsonParser = new JSONParser();
         Object object = new JSONParser().parse(jsonData
         );
 
         ArrayList<ShoppingListUserItem> ShoppingListUserItemArraylist = new ArrayList<>();
-
+        System.out.println("CALLED AT @getShoppingListUserItems");
         try{
             JSONObject jsonObject = (JSONObject) object;
             JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
@@ -730,6 +779,7 @@ public class QueryUtils  {
                         String shopping_list_item_name = (String) ShoppingListUserItemObject.get("shopping_list_item_name");
                         String shopping_list_item_last_bought = (String) ShoppingListUserItemObject.get("shopping_list_item_last_bought");
                         String shopping_list_item_quantity = (String) ShoppingListUserItemObject.get("shopping_list_item_quantity");
+                        System.out.println("ADDING @getShoppingListUserItems: " + shopping_list_item_name + " " + shopping_list_item_last_bought + " " + shopping_list_item_quantity);
                         ShoppingListUserItem shoppingListUserItemToAdd = new ShoppingListUserItem(shopping_list_item_name, shopping_list_item_last_bought, shopping_list_item_quantity);
                         ShoppingListUserItemArraylist.add(shoppingListUserItemToAdd);
                     }
