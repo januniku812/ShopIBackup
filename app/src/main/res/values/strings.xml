@@ -84,7 +84,12 @@
 
     <string name="add_weight_ms">If you wish to record an addition weight despite the details of your item being an individually priced one, please properly record it with details such as \'1.5 pounds\'(lbs) with the voice function or manually, otherwise just leave it blank</string>
     <string name="please_only_stand_alone_values_for_individuals">Please only enter stand alone numeric values like \'three(3)\' as you have your pricing details set as individually priced</string>
-    <string name="actions_shopping_list_user_item">Actions On Shopping List User Item %s</string>
+    <string name="actions_shopping_list_user_item">Actions On %s Item</string>
     <string name="actions_shopping_list_user_item_formatted">Actions On %s</string>
+    <string name="item_has_no_history">%s has no purchase history</string>
+    <string name="view_other_sl_with">View Other Shopping Lists With %s</string>
+    <string name="reorder_item">Reorder %s</string>
+    <string name="delete_item">Delete %s</string>
+    <string name="record_details_for_item">Record Purchase For %s</string>
 
 </resources>

@@ -65,6 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
+                android:id="@+id/view_history_text_view"
                 app:layout_constraintTop_toTopOf="@id/history_button_image_view"
                 app:layout_constraintBottom_toBottomOf="@id/history_button_image_view"
                 android:text="View Purchase History"
@@ -93,6 +94,7 @@
 
             <TextView
                 android:textStyle="bold"
+                android:id="@+id/view_other_sl_with_text_view"
                 style="@style/user_item_details_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -127,6 +129,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
+                android:id="@+id/reorder_item_text_view"
                 app:layout_constraintTop_toTopOf="@id/reorder_item_image_view"
                 app:layout_constraintBottom_toBottomOf="@id/reorder_item_image_view"
                 android:text="Reorder ______"
@@ -160,6 +163,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
+                android:id="@+id/delete_item_text_view"
                 app:layout_constraintTop_toTopOf="@id/delete_item_image_view"
                 app:layout_constraintBottom_toBottomOf="@id/delete_item_image_view"
                 android:text="Delete ______"
@@ -190,6 +194,7 @@
 
             <TextView
                 android:textStyle="bold"
+                android:id="@+id/record_item_text_view"
                 style="@style/user_item_details_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -67,9 +67,9 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
         TextView shoppingListName = (TextView) newItemView.findViewById(R.id.shopping_list_item_name);
         System.out.println("RUNNING @getView in @ShoppingListUserItemAdapter for : "+ shoppingListUserItemName + shoppingListUserItem.getUserQuantity());
         shoppingListName.setText(shoppingListUserItem.getName());
-        ImageView duplicateIndicator = (ImageView) newItemView.findViewById(R.id.duplicate_indicator);
+//        ImageView duplicateIndicator = (ImageView) newItemView.findViewById(R.id.duplicate_indicator_image_view);
         TextView lastBoughtDate = (TextView) newItemView.findViewById(R.id.last_bought_date);
-        ImageView historyButton = (ImageView) newItemView.findViewById(R.id.history_button_sl_item);
+//        ImageView historyButton = (ImageView) newItemView.findViewById(R.id.history_button_image_view);
         ImageView blue_check_mark = (ImageView) newItemView.findViewById(R.id.check_circle);
         if (shoppingListUserItem.getLastBought().equals("")) { // sometimes the user might manually type a name of an item already bought and it will not have last bought saved in it
             try {
@@ -102,37 +102,37 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             lastBoughtDate.setVisibility(View.VISIBLE);
             blue_check_mark.setVisibility(View.VISIBLE);
         }
-        try {
-            ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
-
-            if(otherShoppingListsSlExistsIn != null){
-                duplicateIndicator.setImageResource(R.drawable.ic_round_content_copy_24);
-            }
-            else{
-
-                duplicateIndicator.setImageResource(R.drawable.ic_baseline_grey_content_copy_24);
-            }
-            shoppingListUserItem.setOtherShoppingListsExistingIn(otherShoppingListsSlExistsIn);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        try {
-            ArrayList<StoreUserItem> storeUserItemsHistory = QueryUtils.getHistoryOfShoppingListItem(shoppingListUserItemName);
-            if(storeUserItemsHistory == null){
-                historyButton.setImageResource(R.drawable.ic_baseline_grey_history_24);
-            }
-            else{
-                historyButton.setImageResource(R.drawable.ic_baseline_history_24);
-            }
-            shoppingListUserItem.setStoreUserItemsHistory(storeUserItemsHistory);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
+//
+//            if(otherShoppingListsSlExistsIn != null){
+//                duplicateIndicator.setImageResource(R.drawable.ic_round_content_copy_24);
+//            }
+//            else{
+//
+//                duplicateIndicator.setImageResource(R.drawable.ic_baseline_grey_content_copy_24);
+//            }
+//            shoppingListUserItem.setOtherShoppingListsExistingIn(otherShoppingListsSlExistsIn);
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            ArrayList<StoreUserItem> storeUserItemsHistory = QueryUtils.getHistoryOfShoppingListItem(shoppingListUserItemName);
+//            if(storeUserItemsHistory == null){
+//                historyButton.setImageResource(R.drawable.ic_baseline_grey_history_24);
+//            }
+//            else{
+//                historyButton.setImageResource(R.drawable.ic_baseline_history_24);
+//            }
+//            shoppingListUserItem.setStoreUserItemsHistory(storeUserItemsHistory);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
         TextView quantity = (TextView) newItemView.findViewById(R.id.quantity_sl_item);
         quantity.setText(shoppingListUserItem.getUserQuantity());
 

@@ -117,6 +117,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         builder.setView(view);
         ((TextView) view.findViewById(R.id.textTitle))
                 .setText(title);
+
         ImageView icon = (ImageView) view.findViewById(R.id.imageIcon);
         TextView editText = view.findViewById(R.id.custom_dialog_edit_text);
         Button enterButton = (Button) view.findViewById(R.id.enterButton);
@@ -219,14 +220,28 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ((TextView) view.findViewById(R.id.textTitle))
                 .setText(String.format(getString(R.string.actions_shopping_list_user_item), itemName));
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        // extracting all the views and setting their text based on item we are running the actions for
+        view.setMinimumWidth(500);
         ImageView historyButton = (ImageView) view.findViewById(R.id.history_button_image_view);
-        ImageView duplicateIndicator = (ImageView) view.findViewById(R.id.duplicate_indicator_image_view);
-        ImageView microphoneButton = (ImageView) view.findViewById(R.id.record_item_details_image_view);
-        ImageView reorderButton = (ImageView) view.findViewById(R.id.reorder_item_image_view);
-        ImageView deleteButton = (ImageView) view.findViewById(R.id.delete_item_image_view);
-        ArrayList<ShoppingList> shoppingListsContainingSl = shoppingListUserItem.getOtherShoppingListsExistingIn();
+        ConstraintLayout view_history_cl = (ConstraintLayout) view.findViewById(R.id.view_history_cl);
+        TextView view_history_tv = (TextView) view.findViewById(R.id.view_history_text_view);
+        ConstraintLayout duplicate_indicator_cl = (ConstraintLayout) view.findViewById(R.id.duplicate_indicator_cl);
+        ConstraintLayout microphoneCl = (ConstraintLayout) view.findViewById(R.id.record_item_details_cl);
+        TextView recordDetailsTextView = (TextView) view.findViewById(R.id.record_item_text_view);
+        recordDetailsTextView.setText(String.format(getString(R.string.record_details_for_item), itemName));
+        ConstraintLayout reorderCl = (ConstraintLayout) view.findViewById(R.id.reorder_item_cl);
+        TextView reorderItemTextView = (TextView) view.findViewById(R.id.reorder_item_text_view);
+        reorderItemTextView.setText(String.format(getString(R.string.reorder_item), itemName));
+        ConstraintLayout deleteCl = (ConstraintLayout) view.findViewById(R.id.delete_item_cl);
+        TextView deleteItemTextView = (TextView) view.findViewById(R.id.delete_item_text_view);
+        deleteItemTextView.setText(String.format(getString(R.string.delete_item), itemName));
+
+        ArrayList<ShoppingList> shoppingListsContainingSl = QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
         if(shoppingListsContainingSl != null) {
-            duplicateIndicator.setOnClickListener(new View.OnClickListener() {
+            duplicate_indicator_cl.setVisibility(View.VISIBLE);
+            TextView duplicateIndicatorTextView = duplicate_indicator_cl.findViewById(R.id.view_other_sl_with_text_view);
+            duplicateIndicatorTextView.setText(String.format(getString(R.string.view_other_sl_with), itemName));
+            duplicate_indicator_cl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(ShoppingListUserItemsActivity.this, ShoppingListsHistoryActivity.class);
@@ -248,12 +263,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 }
             });
         }
+        else{
+            duplicate_indicator_cl.setVisibility(View.GONE);
+        }
 
-        ArrayList<StoreUserItem> storeUserItemsHistory = shoppingListUserItem.getStoreUserItemsHistory();
-
+        ArrayList<StoreUserItem> storeUserItemsHistory = QueryUtils.getHistoryOfShoppingListItem(itemName);
         if(storeUserItemsHistory != null){
             System.out.println(itemName + " HAS  HISTORY");
-            historyButton.setOnClickListener(new View.OnClickListener() {
+            view_history_cl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ArrayList<StoreUserItem> storeUserItemsHistory = shoppingListUserItem.getStoreUserItemsHistory();
@@ -277,9 +294,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     finish();
                 }
             });
+        } else{
+            historyButton.setVisibility(View.GONE);
+            view_history_tv.setText(String.format(getString(R.string.item_has_no_history), itemName));
+
         }
 
-        deleteButton.setOnClickListener(new View.OnClickListener() {
+        // functions that will always be given
+        deleteCl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -294,7 +316,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         });
 
-        reorderButton.setOnClickListener( new View.OnClickListener(){
+        reorderCl.setOnClickListener( new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 try {
@@ -309,7 +331,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         });
 
-        microphoneButton.setOnClickListener(new View.OnClickListener() {
+        microphoneCl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -320,6 +342,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 }
             }
         });
+
         view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
