@@ -73,14 +73,14 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
                 newItemEditText.setText(shoppingListUserItemName);
                 try {
                     lastBought = QueryUtils.getWhenShoppingListUserItemLastBought(shoppingListUserItemName);
+                    if(lastBought.equals("not previously bought")){
+                        lastBought = null;
+                    }
                     QueryUtils.addShoppingListItem(shoppingList,newItemEditText.getText().toString().trim(), lastBought, getApplicationContext());
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (ParseException e) {
                     e.printStackTrace();
-                }
-                if(lastBought.equals("not previously bought")){
-                    lastBought = null;
                 }
                 Intent intent = new Intent(AddShoppingListUserItemActivity.this, ShoppingListUserItemsActivity.class);
                 intent.putExtra("shoppingListName", shoppingList);
@@ -125,8 +125,12 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
+                    lastBought = QueryUtils.getWhenShoppingListUserItemLastBought(String.valueOf(newItemEditText.getText()));
+                    if(lastBought.equals("not previously bought")){
+                        lastBought = null;
+                    }
                     QueryUtils.addShoppingListItem(shoppingList,newItemEditText.getText().toString().trim(), lastBought, getApplicationContext());
-                } catch (ParseException e) {
+                } catch (ParseException | IOException e) {
                     e.printStackTrace();
                 }
                 Intent intent = new Intent(AddShoppingListUserItemActivity.this, ShoppingListUserItemsActivity.class);

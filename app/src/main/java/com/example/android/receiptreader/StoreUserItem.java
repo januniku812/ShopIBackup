@@ -38,6 +38,10 @@ public class StoreUserItem implements Serializable {
         this.additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail;
     }
 
+    public StoreUserItem(String itemName){
+        this.itemName = itemName;
+    }
+
     public StoreUserItem() {
 
     }

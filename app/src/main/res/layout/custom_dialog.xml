@@ -70,7 +70,7 @@
             style="@style/user_item_details_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:padding="10dp"
             android:gravity="center_horizontal"
             android:hint="@string/walmart"
             android:text="are you sure you want to delete walmart this action cannot be undone"

@@ -213,8 +213,10 @@ public class MainActivity extends AppCompatActivity {
         Constants.json_data_str = PreferenceManager.
                 getDefaultSharedPreferences(this).getString("jsonData","{\n" +
                 "  \"stores\": [],\n" +
-                "  \"shopping_lists\":[]\n" +
+                "  \"shopping_lists\":[],\n" +
+                "  \"general_items_master\": []\n" +
                 "}");
+        System.out.print("JSON DATA: " + Constants.json_data_str);
         shoppingListsView = (ListView) findViewById(R.id.shopping_list_items_list_view);
         storesListView = (ListView) findViewById(R.id.stores_list_view);
         SearchView shoppingListSearchView = findViewById(R.id.shopping_list_search_bar);

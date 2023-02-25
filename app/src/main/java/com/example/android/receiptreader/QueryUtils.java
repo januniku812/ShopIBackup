@@ -343,6 +343,7 @@ public class QueryUtils  {
         StoreUserItem userItem = new StoreUserItem();
         try{
             JSONObject jsonObject = (JSONObject) object;
+            System.out.println("jsonObject @addshoppingListUserItem: " + jsonObject);
             JSONArray shoppingLists = (JSONArray) jsonObject.get("shopping_lists");
             for(int i = 0; i < shoppingLists.size(); i++){
                 System.out.println("MADE IT @addShoppingListItem : " + shoppingListItemName);
@@ -407,6 +408,24 @@ public class QueryUtils  {
                     shoppingList.replace("shopping_list_user_items",shopping_list_user_items);
                 }
             }
+            // adding item to general item master
+            JSONArray generalItemMaster = (JSONArray) jsonObject.get("general_items_master");
+            JSONObject generalItemMasterToAdd = new JSONObject();
+
+            boolean ifItemAlreadyExists = false;
+            for(int i = 0; i < generalItemMaster.size(); i++){
+                JSONObject generalItemMasterItem = (JSONObject) generalItemMaster.get(i);
+                if(generalItemMasterItem.get("general_item_name").toString().equalsIgnoreCase(shoppingListItemName)){ // going through to check if the item we want to add to general item master is already there
+                    ifItemAlreadyExists = true;
+                    break;
+                }
+            }
+            if(!ifItemAlreadyExists){
+                generalItemMasterToAdd.put("general_item_name", shoppingListItemName);
+                generalItemMaster.add(generalItemMasterToAdd);
+            }
+            System.out.println("GENERAL ITEM MASTER: " + generalItemMaster.toJSONString());
+            jsonObject.replace("general_item_master", generalItemMaster);
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                     .putString("jsonData",jsonObject.toJSONString()).apply();
             Constants.json_data_str =PreferenceManager.
@@ -495,27 +514,23 @@ public class QueryUtils  {
 
         try{
             JSONObject jsonObject = (JSONObject) object;
-            JSONArray stores = (JSONArray) jsonObject.get("stores");
-            for(int i = 0; i < stores.size(); i++){
-                JSONObject store = (JSONObject) stores.get(i);
-                JSONArray store_user_items = (JSONArray) jsonParser.parse(store.get("store_user_items").toString());
-                for(int i2 = 0; i2 < store_user_items.size(); i2++){
-                    JSONObject userItemObject = (JSONObject) store_user_items.get(i2);
-                    String userItemStoreName = (String) userItemObject.get("user_item_store");
-                    String userItemDate = (String) userItemObject.get("user_item_date");
-                    String userItemName = (String) userItemObject.get("user_item_name");
-                    String userItemQuantity = (String) userItemObject.get("user_item_quantity");
-                    String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
-                    String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
-                    String userItemAdditionWeightPricingDetail = (String) userItemObject.get("user_item_additional_weight_pricing_detail");
+            JSONArray general_item_master = (JSONArray) jsonParser.parse(jsonObject.get("general_items_master").toString());
+            for(int i = 0; i < general_item_master.size(); i++){
+                    JSONObject userItemObject = (JSONObject) general_item_master.get(i);
+                    String generalItemName = (String) userItemObject.get("general_item_name");
+//                    String userItemDate = (String) userItemObject.get("user_item_date");
+//                    String userItemName = (String) userItemObject.get("user_item_name");
+//                    String userItemQuantity = (String) userItemObject.get("user_item_quantity");
+//                    String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
+//                    String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
+//                    String userItemAdditionWeightPricingDetail = (String) userItemObject.get("user_item_additional_weight_pricing_detail");
                     StoreUserItem userItemToAdd = new StoreUserItem();
-                    if(userItemAdditionWeightPricingDetail != null){ // if the store user item json object has an additional weight pricing detail then use different constructor and save the detail
-                        userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, userItemAdditionWeightPricingDetail);
-                    }else{
-                        userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
-                    }
+//                    if(userItemAdditionWeightPricingDetail != null){ // if the store user item json object has an additional weight pricing detail then use different constructor and save the detail
+//                        userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, userItemAdditionWeightPricingDetail);
+//                    }else{
+                        userItemToAdd = new StoreUserItem(generalItemName);
+//                    }
                     storeUserItemArrayList.add(userItemToAdd);
-                }
             }
 
         }catch(Exception e){

@@ -220,8 +220,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ((TextView) view.findViewById(R.id.textTitle))
                 .setText(String.format(getString(R.string.actions_shopping_list_user_item), itemName));
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
-        // extracting all the views and setting their text based on item we are running the actions for
-        view.setMinimumWidth(500);
+    // extracting all the views and setting their text based on item we are running the actions for
         ImageView historyButton = (ImageView) view.findViewById(R.id.history_button_image_view);
         ConstraintLayout view_history_cl = (ConstraintLayout) view.findViewById(R.id.view_history_cl);
         TextView view_history_tv = (TextView) view.findViewById(R.id.view_history_text_view);
@@ -273,7 +272,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             view_history_cl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ArrayList<StoreUserItem> storeUserItemsHistory = shoppingListUserItem.getStoreUserItemsHistory();
                     Intent intent = new Intent(ShoppingListUserItemsActivity.this, ShoppingListUserItemHistoryActivity.class);
                     Bundle args = new Bundle();
                     args.putString("classComingFrom", "ShoppingListUserItemsActivity");
@@ -1454,6 +1452,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if(aBoolean){
+                    int index = shoppingListUserItemsListView.getFirstVisiblePosition();
+                    View v = shoppingListUserItemsListView.getChildAt(0);
+                    int top = (v == null) ? 0 : v.getTop();
                     System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS BEFORE: " + shoppingListUserItems.size());
                     for (ShoppingListUserItem item: shoppingListUserItems
                     ) {
@@ -1472,6 +1473,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                     shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
                     resetAdapter();
+                    shoppingListUserItemsListView.setSelectionFromTop(index, top);
                     System.out.println("SET ADAPTER: " + shoppingListUserItemAdapter.getCount());
                     actuallyNeedsToBeUpdated.setValue(false);
                 }
@@ -1740,6 +1742,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
     }
 
 }
