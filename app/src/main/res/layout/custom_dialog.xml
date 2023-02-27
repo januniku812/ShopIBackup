@@ -9,6 +9,7 @@
     android:layout_height="match_parent">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutDialog"
+        android:foregroundGravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="2dp"
@@ -55,6 +56,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18sp"
             android:layout_marginBottom="40dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
             android:textColor="@color/black"
             android:digits="qwertzuiopasdfghjklyxcvbnmABCDEFGHIJKLMONPQRSTUVWXYZ1234567890 -"
             android:inputType="text"
@@ -76,6 +79,7 @@
             android:text="are you sure you want to delete walmart this action cannot be undone"
             android:textColor="@color/grey_two"
             android:textSize="18sp"
+            android:layout_marginBottom="10dp"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

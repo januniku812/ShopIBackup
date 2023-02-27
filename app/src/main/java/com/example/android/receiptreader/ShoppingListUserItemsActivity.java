@@ -2,12 +2,11 @@ package com.example.android.receiptreader;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.DataSetObserver;
 import android.graphics.drawable.ColorDrawable;
-import android.icu.text.DateTimePatternGenerator;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,12 +52,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static android.os.Build.VERSION_CODES.O;
-import static android.os.Build.VERSION_CODES.S;
 
 public class ShoppingListUserItemsActivity extends AppCompatActivity {
     ShoppingListUserItemAdapter shoppingListUserItemAdapter;
@@ -207,12 +202,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = O)
-    private void eyeShowDialog(ShoppingListUserItem shoppingListUserItem) throws IOException, ParseException {
+    private void moreVertActionsDialog(ShoppingListUserItem shoppingListUserItem) throws IOException, ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
-                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom2);
         View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                R.layout.eye_custom_dialog,
+                R.layout.more_vert_actions_custom_dialog,
                 (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
         );
         builder.setView(view);
@@ -224,10 +219,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ImageView historyButton = (ImageView) view.findViewById(R.id.history_button_image_view);
         ConstraintLayout view_history_cl = (ConstraintLayout) view.findViewById(R.id.view_history_cl);
         TextView view_history_tv = (TextView) view.findViewById(R.id.view_history_text_view);
+        ImageView view_history_image = (ImageView) view_history_cl.getViewById(R.id.history_button_image_view);
         ConstraintLayout duplicate_indicator_cl = (ConstraintLayout) view.findViewById(R.id.duplicate_indicator_cl);
-        ConstraintLayout microphoneCl = (ConstraintLayout) view.findViewById(R.id.record_item_details_cl);
-        TextView recordDetailsTextView = (TextView) view.findViewById(R.id.record_item_text_view);
-        recordDetailsTextView.setText(String.format(getString(R.string.record_details_for_item), itemName));
         ConstraintLayout reorderCl = (ConstraintLayout) view.findViewById(R.id.reorder_item_cl);
         TextView reorderItemTextView = (TextView) view.findViewById(R.id.reorder_item_text_view);
         reorderItemTextView.setText(String.format(getString(R.string.reorder_item), itemName));
@@ -269,6 +262,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ArrayList<StoreUserItem> storeUserItemsHistory = QueryUtils.getHistoryOfShoppingListItem(itemName);
         if(storeUserItemsHistory != null){
             System.out.println(itemName + " HAS  HISTORY");
+            view_history_tv.setTextColor(getResources().getColor(R.color.grey));
+            ImageViewCompat.setImageTintList(view_history_image,
+                    ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey)));
             view_history_cl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -293,8 +289,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 }
             });
         } else{
-            historyButton.setVisibility(View.GONE);
-            view_history_tv.setText(String.format(getString(R.string.item_has_no_history), itemName));
+            view_history_tv.setTextColor(getResources().getColor(R.color.grey_four));
+            ImageViewCompat.setImageTintList(view_history_image,
+                    ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey_four)));
 
         }
 
@@ -329,17 +326,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         });
 
-        microphoneCl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    speakWithVoiceDialog(itemName, !Constants.storeBeingShoppedIn.isEmpty());
-                    alertDialog.dismiss();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -475,6 +461,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ConstraintLayout additional_weight_cl = view.findViewById(R.id.additional_weight_cl);
         TextView choseStoreTextView = view.findViewById(R.id.chose_a_store_text_view);
         ListView choseStoreListView = view.findViewById(R.id.chose_stores_list_view);
+        TextView recordDetailsTextView = (TextView) view.findViewById(R.id.textTitle);
+        recordDetailsTextView.setText(String.format(getString(R.string.record_details_for_item), shoppingListUserItemName));
+
         Display display = getWindowManager().getDefaultDisplay();
         ToggleButton toggleButton = view.findViewById(R.id.eachWeightToggleButton);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -1691,22 +1680,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         shoppingListUserItemsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                ShoppingListUserItem shoppingListUserItem = (ShoppingListUserItem) shoppingListUserItemAdapter.getItem(i);
-                String shoppingListUserItemName = shoppingListUserItem.getName();
-                View selectedStoreView = shoppingListUserItemAdapter.getView(i, view, adapterView);
+               ShoppingListUserItem shoppingListUserItem = (ShoppingListUserItem) shoppingListUserItemAdapter.getItem(i);
+               String shoppingListUserItemName = shoppingListUserItem.getName();
+               View selectedStoreView = shoppingListUserItemAdapter.getView(i, view, adapterView);
 //                ImageView historyButton = (ImageView) selectedStoreView.findViewById(R.id.history_button_sl_item);
 //                ImageView duplicateIndicator = (ImageView) selectedStoreView.findViewById(R.id.duplicate_indicator);
-//                ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
+               ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
 //                ImageView reorderButton = (ImageView) selectedStoreView.findViewById(R.id.reorder_item_button);
 //                ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
 //                ImageView increaseQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_add_button);
 //                ImageView decreasedQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_minus_button);
-                ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(R.id.eye_actions_item_button);
+               ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(R.id.more_vert_actions_item_button);
                eyeImageView.setOnClickListener(new View.OnClickListener() {
                    @Override
                    public void onClick(View v) {
                        try {
-                           eyeShowDialog(shoppingListUserItem);
+                           moreVertActionsDialog(shoppingListUserItem);
                        } catch (IOException e) {
                            e.printStackTrace();
                        } catch (ParseException e) {
@@ -1714,6 +1703,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                        }
                    }
                });
+                microphoneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            speakWithVoiceDialog(shoppingListUserItemName, !Constants.storeBeingShoppedIn.isEmpty());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
 
             }
 

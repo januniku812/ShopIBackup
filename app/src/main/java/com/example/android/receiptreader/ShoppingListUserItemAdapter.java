@@ -82,7 +82,7 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                 } else {
                     System.out.println("MADE IT DOESNT HAVE LAST BOUGHT:" + shoppingListUserItemName);
                     lastBoughtDate.setText(R.string.last_bought);
-                    lastBoughtDate.setVisibility(View.INVISIBLE);
+                    lastBoughtDate.setVisibility(View.GONE);
                     blue_check_mark.setVisibility(View.INVISIBLE);
                     ConstraintSet constraintSet = new ConstraintSet();
                     constraintSet.clone(constraintLayout);
@@ -155,8 +155,10 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             public void onClick(View v) {
                 try {
                     System.out.println("IVE BEEN CLICKED ITEM ADAPTER");
-                    QueryUtils.decreaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
-                    ShoppingListUserItemsActivity.update();
+                    if(Integer.parseInt(shoppingListUserItem.getUserQuantity()) > 0) {
+                        QueryUtils.decreaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
+                        ShoppingListUserItemsActivity.update();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -181,12 +183,22 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
     @Override
     public ShoppingListUserItem getItem(int position) {
         System.out.println("@getItem CALLED: " + position);
-        return shoppingListUserItems.get(position);
+        return super.getItem(position);
     }
 
     @Override
     public long getItemId(int position) {
         System.out.println("@getItemId CALLED: " + position);
         return super.getItemId(position);
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return getCount();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 }

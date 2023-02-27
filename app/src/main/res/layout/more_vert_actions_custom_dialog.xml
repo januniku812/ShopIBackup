@@ -56,6 +56,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_width="30dp"
+                android:tint="@color/grey_four"
                 android:src="@drawable/ic_baseline_history_24"
                 android:layout_height="30dp"/>
 
@@ -172,39 +173,39 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            app:layout_constraintTop_toBottomOf="@id/delete_item_cl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/record_item_details_cl"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="15dp">
-            <ImageView
-                android:clickable="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:id="@+id/record_item_details_image_view"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_width="30dp"
-                android:src="@drawable/microphone_foreground"
-                android:layout_height="30dp"/>
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            app:layout_constraintTop_toBottomOf="@id/delete_item_cl"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:id="@+id/record_item_details_cl"-->
+<!--            android:layout_marginStart="15dp"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:layout_marginEnd="15dp">-->
+<!--            <ImageView-->
+<!--                android:clickable="false"-->
+<!--                android:focusable="false"-->
+<!--                android:focusableInTouchMode="false"-->
+<!--                android:id="@+id/record_item_details_image_view"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                android:layout_width="30dp"-->
+<!--                android:src="@drawable/microphone_foreground"-->
+<!--                android:layout_height="30dp"/>-->
 
-            <TextView
-                android:textStyle="bold"
-                android:id="@+id/record_item_text_view"
-                style="@style/user_item_details_text_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                app:layout_constraintTop_toTopOf="@id/record_item_details_image_view"
-                app:layout_constraintBottom_toBottomOf="@id/record_item_details_image_view"
-                android:text="Record Purchase For ______"
-                app:layout_constraintStart_toEndOf="@id/record_item_details_image_view"/>
+<!--            <TextView-->
+<!--                android:textStyle="bold"-->
+<!--                android:id="@+id/record_item_text_view"-->
+<!--                style="@style/user_item_details_text_style"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textSize="14sp"-->
+<!--                app:layout_constraintTop_toTopOf="@id/record_item_details_image_view"-->
+<!--                app:layout_constraintBottom_toBottomOf="@id/record_item_details_image_view"-->
+<!--                android:text="Record Purchase For ______"-->
+<!--                app:layout_constraintStart_toEndOf="@id/record_item_details_image_view"/>-->
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
 
 
