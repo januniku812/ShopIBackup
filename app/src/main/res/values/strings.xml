@@ -91,5 +91,8 @@
     <string name="reorder_item">Move %s</string>
     <string name="delete_item">Delete %s</string>
     <string name="record_details_for_item">Record Purchase For %s</string>
+    <string name="view_insights_for_item">View Insights For %s</string>
+    <string name="exit">Exit</string>
+    <string name="insights_for_itemI">Date-Price Insights for %s</string>
 
 </resources>

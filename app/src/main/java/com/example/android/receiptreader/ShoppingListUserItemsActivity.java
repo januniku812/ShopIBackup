@@ -46,11 +46,16 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 import static android.os.Build.VERSION_CODES.O;
@@ -227,6 +232,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ConstraintLayout deleteCl = (ConstraintLayout) view.findViewById(R.id.delete_item_cl);
         TextView deleteItemTextView = (TextView) view.findViewById(R.id.delete_item_text_view);
         deleteItemTextView.setText(String.format(getString(R.string.delete_item), itemName));
+        ConstraintLayout viewInsightsCl = (ConstraintLayout) view.findViewById(R.id.view_insights_of_item_cl);
+        TextView viewInsightsTextView = (TextView) view.findViewById(R.id.view_history_text_view);
 
         ArrayList<ShoppingList> shoppingListsContainingSl = QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
         if(shoppingListsContainingSl != null) {
@@ -288,7 +295,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     finish();
                 }
             });
-        } else{
+            if(storeUserItemsHistory.size() >= 2){
+                viewInsightsCl.setVisibility(View.VISIBLE);
+                viewInsightsTextView.setText(String.format(getString(R.string.view_insights_for_item), itemName));
+                viewInsightsCl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            insightsDialog(itemName, storeUserItemsHistory);
+                        } catch (java.text.ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }  else{
+                viewInsightsCl.setVisibility(View.GONE);
+            }
             view_history_tv.setTextColor(getResources().getColor(R.color.grey_four));
             ImageViewCompat.setImageTintList(view_history_image,
                     ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey_four)));
@@ -338,7 +360,50 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
         alertDialog.show();
     }
+//
+    private void insightsDialog(String itemName, ArrayList<StoreUserItem> storeUserItemHistory) throws java.text.ParseException {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder
+                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom2);
+        View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
+                R.layout.insight_graph_dialog,
+                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+        );
+        builder.setView(view);
+        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        // on below line we are initializing our graph view.
+        GraphView graphView = findViewById(R.id.item_insights_graph);
 
+        // on below line we are adding data to our graph view.
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{});
+        for(StoreUserItem storeUserItem: storeUserItemHistory){
+            Date date=new SimpleDateFormat("MM/dd/yyyy").parse(storeUserItem.getDateOfPurchase());
+            double doubleUnitPrice = Double.parseDouble(storeUserItem.getUnitPrice());
+            series.appendData(new DataPoint(date,doubleUnitPrice ), true, storeUserItemHistory.size(), true);
+        }
+
+        // after adding data to our line graph series.
+        // on below line we are setting
+        // title for our graph view.
+        graphView.setTitle(String.format(getString(R.string.insights_for_itemI), itemName));
+
+        // on below line we are setting
+        // text color to our graph view.
+        graphView.setTitleColor(R.color.purple_200);
+
+        // on below line we are setting
+        // our title text size.
+        graphView.setTitleTextSize(18);
+
+        // on below line we are adding
+        // data series to our graph view.
+        graphView.addSeries(series);
+
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+        alertDialog.show();
+    }
 
 
     @RequiresApi(api = O)
@@ -1544,7 +1609,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
 
         shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
-        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+        if(!(shoppingListUserItemAdapter.getCount() < 1)) {
+            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+        }
 
         shoppingListUserItemAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -1602,7 +1669,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //
 //                                                  }
                                                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
-                                                  shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                                                  try{
+                                                      shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                                                  } catch(Exception e){
+                                                      shoppingListUserItemsListView.removeAllViewsInLayout();
+                                                  }
                                                   return false;
 
                                               }
@@ -1653,7 +1724,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                   }
 
                                                   shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
-                                                  shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                                                  try{
+                                                      shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                                                  } catch(Exception e){
+                                                      shoppingListUserItemsListView.removeAllViewsInLayout();
+                                                  }
                                                   return false;
                                               }
 
