@@ -3,9 +3,12 @@ package com.example.android.receiptreader;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.DataSetObserver;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,17 +50,40 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.LabelFormatter;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.OnDataPointTapListener;
+import com.jjoe64.graphview.series.PointsGraphSeries;
+import com.jjoe64.graphview.series.Series;
 
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.text.DateFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import static android.os.Build.VERSION_CODES.O;
 
@@ -65,7 +92,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     TextView resultsForshoppingListUserItemsView;
     Observer<Boolean> updateObserver;
     ListView shoppingListUserItemsListView;
-     String shoppingListName;
+    String shoppingListName;
     public static MutableLiveData<Boolean> actuallyNeedsToBeUpdated = new MutableLiveData<>();
     int quantityMicrophoneState = 0;
     int unitPriceMicrophoneState = 0;
@@ -77,7 +104,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //                public void run() {
 //                    System.out.println("ACTUALLYNEEDS TO BE UPDATED RUNNIn");
 //                            try {
-//                                shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
+//                                shop                bb  bbb  bn bnnb  pingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
 //                            } catch (IOException e) {
 //                                e.printStackTrace();
 //                            } catch (ParseException e) {
@@ -220,7 +247,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ((TextView) view.findViewById(R.id.textTitle))
                 .setText(String.format(getString(R.string.actions_shopping_list_user_item), itemName));
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
-    // extracting all the views and setting their text based on item we are running the actions for
+        // extracting all the views and setting their text based on item we are running the actions for
         ImageView historyButton = (ImageView) view.findViewById(R.id.history_button_image_view);
         ConstraintLayout view_history_cl = (ConstraintLayout) view.findViewById(R.id.view_history_cl);
         TextView view_history_tv = (TextView) view.findViewById(R.id.view_history_text_view);
@@ -233,7 +260,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         TextView deleteItemTextView = (TextView) view.findViewById(R.id.delete_item_text_view);
         deleteItemTextView.setText(String.format(getString(R.string.delete_item), itemName));
         ConstraintLayout viewInsightsCl = (ConstraintLayout) view.findViewById(R.id.view_insights_of_item_cl);
-        TextView viewInsightsTextView = (TextView) view.findViewById(R.id.view_history_text_view);
+        TextView viewInsightsTextView = (TextView) view.findViewById(R.id.view_insights_of_item_text_view);
 
         ArrayList<ShoppingList> shoppingListsContainingSl = QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
         if(shoppingListsContainingSl != null) {
@@ -295,26 +322,29 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     finish();
                 }
             });
-            if(storeUserItemsHistory.size() >= 2){
-                viewInsightsCl.setVisibility(View.VISIBLE);
-                viewInsightsTextView.setText(String.format(getString(R.string.view_insights_for_item), itemName));
-                viewInsightsCl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try {
-                            insightsDialog(itemName, storeUserItemsHistory);
-                        } catch (java.text.ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }  else{
-                viewInsightsCl.setVisibility(View.GONE);
-            }
+
+        } else{
             view_history_tv.setTextColor(getResources().getColor(R.color.grey_four));
             ImageViewCompat.setImageTintList(view_history_image,
                     ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey_four)));
 
+        }
+        if((storeUserItemsHistory != null) && storeUserItemsHistory.size() >= 2){
+            viewInsightsCl.setVisibility(View.VISIBLE);
+            viewInsightsTextView.setText(String.format(getString(R.string.view_insights_for_item), itemName));
+            viewInsightsCl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        insightsDialog(itemName, storeUserItemsHistory);
+                    } catch (java.text.ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }  else{
+            viewInsightsCl.setVisibility(View.GONE);
+            viewInsightsTextView.setVisibility(View.GONE);
         }
 
         // functions that will always be given
@@ -360,7 +390,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
         alertDialog.show();
     }
-//
+    //
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void insightsDialog(String itemName, ArrayList<StoreUserItem> storeUserItemHistory) throws java.text.ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
@@ -372,19 +403,203 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         builder.setView(view);
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
         // on below line we are initializing our graph view.
-        GraphView graphView = findViewById(R.id.item_insights_graph);
+        GraphView graphView = view.findViewById(R.id.item_insights_graph);
+        ListView storeKeyListView = view.findViewById(R.id.stores_key_list_view);
+        ArrayList<String> storeKeyStringArrayList = new ArrayList<>();
+        Button exitButton = view.findViewById(R.id.exit_button);
+        TextView unitPriceTextView = view.findViewById(R.id.unit_price_date_tap_tv);
+        unitPriceTextView.setVisibility(View.GONE);
 
-        // on below line we are adding data to our graph view.
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{});
-        for(StoreUserItem storeUserItem: storeUserItemHistory){
-            Date date=new SimpleDateFormat("MM/dd/yyyy").parse(storeUserItem.getDateOfPurchase());
-            double doubleUnitPrice = Double.parseDouble(storeUserItem.getUnitPrice());
-            series.appendData(new DataPoint(date,doubleUnitPrice ), true, storeUserItemHistory.size(), true);
+
+
+        // seperating the items history into different stores
+        HashMap<String, ArrayList<StoreUserItem>> differentStoreHistories = new HashMap<>();
+
+        for (StoreUserItem storeUserItem : storeUserItemHistory) {
+            if (!differentStoreHistories.containsKey(storeUserItem.getStore())) {
+                ArrayList<StoreUserItem> emptyList = new ArrayList<>();
+                differentStoreHistories.put(storeUserItem.getStore(), emptyList);
+            }
+            differentStoreHistories.get(storeUserItem.getStore()).add(storeUserItem);
         }
+
+        HashMap<String, ArrayList<StoreUserItem>> differentStoreHistoriesCopy =differentStoreHistories;
+        for (String key: differentStoreHistories.keySet()) {
+            System.out.println("KEY: " + key);
+            ArrayList<StoreUserItem> history = differentStoreHistoriesCopy.get(key);
+            ArrayList<StoreUserItem> newHistory = new ArrayList<>(); // history where if there are multiple purchases under one date they all get averaged and create a one-time history for that day
+            HashMap<String, ArrayList<StoreUserItem>> datesOfPurchase = new HashMap<>();
+            for (StoreUserItem storeUserItem : history) {
+                System.out.println("history item: " + storeUserItem.getItemName());
+                String dateOfPurchase = storeUserItem.getDateOfPurchase();
+                if (!datesOfPurchase.keySet().contains(dateOfPurchase)) {
+                    ArrayList<StoreUserItem> emptyList = new ArrayList<>();
+                    datesOfPurchase.put(storeUserItem.getDateOfPurchase(), emptyList);
+                }
+                datesOfPurchase.get(dateOfPurchase).add(storeUserItem);
+            }
+            for (String dateOfPurchase : datesOfPurchase.keySet()) {
+                ArrayList<StoreUserItem> dateHistory = datesOfPurchase.get(dateOfPurchase);
+                Double total = 0.0;
+                for (StoreUserItem storeUserItem : dateHistory) {
+                    total += Double.parseDouble(storeUserItem.getUnitPrice().substring(0, storeUserItem.getUnitPrice().indexOf("/")));
+                }
+                Double finalAverage = total / dateHistory.size();
+                System.out.print("ADDING DATE OF PURCHASE: " + dateOfPurchase + " FINAL AVG: " + finalAverage + " KEY : "  + key);
+                newHistory.add(new StoreUserItem(dateOfPurchase, finalAverage.toString()));
+            }
+            differentStoreHistories.replace(key, newHistory);
+        }
+
+        ArrayList<Date> dates = new ArrayList<>();
+        StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graphView);
+        int totalValues = 0;
+        for(String key: differentStoreHistories.keySet()){
+            ArrayList<StoreUserItem> history = differentStoreHistories.get(key);
+            totalValues += history.size();
+
+        }
+        ArrayList<Double> datePointXValues = new ArrayList<>();
+        String[] horizontalLabels = new String[totalValues];
+        int horizontalLabelsIterator = 0;
+        Double biggestUnitPrice = 0.0;
+        System.out.print("DIFFERENT STORE HISTORIES: " + differentStoreHistories.toString());
+        for (String key : differentStoreHistories.keySet()) {
+            ArrayList<StoreUserItem> history = differentStoreHistories.get(key);
+            DataPoint[] dataPoints = new DataPoint[history.size()];
+            int i = 0;
+            PointsGraphSeries<DataPoint> pointPointsGraphSeries = new PointsGraphSeries<>(new DataPoint[]{});
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{});
+            System.out.print("HISTORY "  + history.size() + " FOR " + key +" : " + Arrays.toString(history.toArray()));
+            for (StoreUserItem storeUserItem : history) {
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                Date date = formatter.parse(storeUserItem.getDateOfPurchase());
+                String storeUserItemPrice = storeUserItem.getUnitPrice();
+                System.out.println("ADDING DATE: " + date + " FOR : " + storeUserItem.getUnitPrice());
+                double doubleUnitPrice = Double.parseDouble(storeUserItemPrice.replaceAll("\\D^.", ""));
+                System.out.println("PARSED DOUBLE: "+ doubleUnitPrice);
+                if (doubleUnitPrice > biggestUnitPrice) {
+                    biggestUnitPrice = doubleUnitPrice;
+                }
+                if(!dates.contains(date)){
+                    dates.add(date);
+                }
+                DataPoint datePoint = new DataPoint(date, doubleUnitPrice);
+                DataPoint[] dataPointCloneWithoutNullVals = new DataPoint[i+1];
+                dataPoints[i] = (datePoint);
+                datePointXValues.add(datePoint.getX());
+                for(int i2 = 0; i2 < dataPoints.length; i2++){
+                    if(dataPoints[i2] != null){
+                        dataPointCloneWithoutNullVals[i2] = dataPoints[i2];
+                    }
+                }
+
+                for(int i3 = 0; i3 < dataPointCloneWithoutNullVals.length-1; i3++){
+                    DataPoint dataPoint1 = (DataPoint) dataPointCloneWithoutNullVals[i3];
+                    double date1 = dataPoint1.getX();
+                    DataPoint dataPoint2 = (DataPoint) dataPointCloneWithoutNullVals[i3+1];
+                    double date2 = dataPoint2.getX();
+                    if(date1 > date2){
+                        dataPointCloneWithoutNullVals[i3+1] = dataPoint1;
+                        dataPointCloneWithoutNullVals[i3] = dataPoint2;
+                    }
+                }
+                SortedMap<Double, Double> sortedDataPointConeWithoutNullVals = new TreeMap<>();
+
+                for(int i3 = 0; i3 < dataPointCloneWithoutNullVals.length-1; i3++){
+                    DataPoint dataPoint1 = (DataPoint) dataPointCloneWithoutNullVals[i3];
+                    sortedDataPointConeWithoutNullVals.put(dataPoint1.getX(), dataPoint1.getY());
+                }
+                int i5 = 0;
+                for(Double sortedMapKey: sortedDataPointConeWithoutNullVals.keySet()){
+                    Double valueForKey = sortedDataPointConeWithoutNullVals.get(sortedMapKey);
+                    dataPointCloneWithoutNullVals[i5] = new DataPoint(sortedMapKey, valueForKey);
+                    i5++;
+
+                }
+//                horizontalLabels[horizontalLabelsIterator] = storeUserItem.getDateOfPurchase();
+                System.out.println("DATE POINT DATE: " + datePoint.getX());
+                if(dataPoints.length > 1) {
+                    pointPointsGraphSeries.resetData(dataPointCloneWithoutNullVals);
+                }
+                if(dataPoints.length > 1) {
+                    series.resetData(dataPointCloneWithoutNullVals);
+                }
+                i++;
+//                horizontalLabelsIterator++;
+            }
+            series.setDrawDataPoints(true);
+            pointPointsGraphSeries.setShape(PointsGraphSeries.Shape.POINT);
+            pointPointsGraphSeries.setSize(7);
+            series.setOnDataPointTapListener(new OnDataPointTapListener() {
+                @Override
+                public void onTap(Series series, DataPointInterface dataPoint) {
+                    System.out.println("TAPPED");
+                    SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+                    unitPriceTextView.setText( String.format(getString(R.string.data_point_tapped), itemName, key, format.format(new Date((long) dataPoint.getX())), dataPoint.getY()));
+                    unitPriceTextView.setVisibility(View.VISIBLE);
+                }
+            });
+            Random rnd = new Random();
+            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            series.setColor(color);
+            storeKeyStringArrayList.add(key + ";" + color);
+//            graphView.addSeries(pointPointsGraphSeries);
+            graphView.addSeries(series);
+        }
+        storeKeyListView.setAdapter(new StoreKeyItemListAdapter(getApplicationContext(), storeKeyStringArrayList));
+        for(double doubleVal: datePointXValues){
+            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+
+            System.out.println("DATE POINT X VALUES : " + format.format(new Date((long) doubleVal)));
+        }
+//        staticLabelsFormatter.setHorizontalLabels(horizontalLabels);
+//        staticLabelsFormatter.setViewport(graphView.getViewport());
+//
+//        staticLabelsFormatter.setVerticalLabels(dates.toArray().toString());
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+        graphView.getViewport().setMinY(0.0);
+        graphView.getViewport().setMaxY(biggestUnitPrice);
+        System.out.println("DATES SIZE: " + dates.size());
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(dates.size());
+        graphView.getViewport().setScrollableY(true);
+        graphView.getViewport().setScrollable(true);
+        graphView.getViewport().setScalable(true);
+        graphView.getViewport().setScalableY(false);
+//        graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this));
+//        graphView.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
+        System.out.println("DATE X VALUES: " + datePointXValues.get(0));
+//        graphView.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
+//            @Override
+//            public String formatLabel(double value, boolean isValueX) {
+//                if(isValueX){
+//                    SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+//                    System.out.println("DATE X VALUE: " + String.valueOf(value));
+//                    System.out.println("Date FORMATTED: "+format.format(new Date((long) value)));
+//                    System.out.println("RETURNING FORMATTED: "+format.format(new Date((long) value)));
+//                    return format.format(new Date((long) value));
+//
+//                } else{
+//                   return super.formatLabel(value, false) ;
+//                }
+//            }
+//
+//        });
+        graphView.getViewport().setYAxisBoundsManual(true);
+        graphView .getViewport().setXAxisBoundsManual(true);
+        graphView.getGridLabelRenderer().setHumanRounding(false, false);
+        graphView.setTitleColor(getResources().getColor(R.color.blue));
 
         // after adding data to our line graph series.
         // on below line we are setting
         // title for our graph view.
+        graphView.setTitleTextSize(18);
         graphView.setTitle(String.format(getString(R.string.insights_for_itemI), itemName));
 
         // on below line we are setting
@@ -393,11 +608,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         // on below line we are setting
         // our title text size.
-        graphView.setTitleTextSize(18);
+        graphView.setTitleTextSize(40);
 
-        // on below line we are adding
-        // data series to our graph view.
-        graphView.addSeries(series);
 
         if (alertDialog.getWindow() != null) {
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
@@ -1668,7 +1880,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //                                                      }
 //
 //                                                  }
-                                                   shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
+                                                  shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
                                                   try{
                                                       shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                                                   } catch(Exception e){
@@ -1755,29 +1967,29 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         shoppingListUserItemsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-               ShoppingListUserItem shoppingListUserItem = (ShoppingListUserItem) shoppingListUserItemAdapter.getItem(i);
-               String shoppingListUserItemName = shoppingListUserItem.getName();
-               View selectedStoreView = shoppingListUserItemAdapter.getView(i, view, adapterView);
+                ShoppingListUserItem shoppingListUserItem = (ShoppingListUserItem) shoppingListUserItemAdapter.getItem(i);
+                String shoppingListUserItemName = shoppingListUserItem.getName();
+                View selectedStoreView = shoppingListUserItemAdapter.getView(i, view, adapterView);
 //                ImageView historyButton = (ImageView) selectedStoreView.findViewById(R.id.history_button_sl_item);
 //                ImageView duplicateIndicator = (ImageView) selectedStoreView.findViewById(R.id.duplicate_indicator);
-               ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
+                ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
 //                ImageView reorderButton = (ImageView) selectedStoreView.findViewById(R.id.reorder_item_button);
 //                ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
 //                ImageView increaseQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_add_button);
 //                ImageView decreasedQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_minus_button);
-               ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(R.id.more_vert_actions_item_button);
-               eyeImageView.setOnClickListener(new View.OnClickListener() {
-                   @Override
-                   public void onClick(View v) {
-                       try {
-                           moreVertActionsDialog(shoppingListUserItem);
-                       } catch (IOException e) {
-                           e.printStackTrace();
-                       } catch (ParseException e) {
-                           e.printStackTrace();
-                       }
-                   }
-               });
+                ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(R.id.more_vert_actions_item_button);
+                eyeImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            moreVertActionsDialog(shoppingListUserItem);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
                 microphoneButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

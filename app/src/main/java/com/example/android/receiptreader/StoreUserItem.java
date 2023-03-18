@@ -38,6 +38,11 @@ public class StoreUserItem implements Serializable {
         this.additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail;
     }
 
+    public StoreUserItem(String dateOfPurchase, String unitPrice){
+        this.dateOfPurchase = dateOfPurchase;
+        this.unitPrice = unitPrice;
+    }
+
     public StoreUserItem(String itemName){
         this.itemName = itemName;
     }
