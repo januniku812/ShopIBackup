@@ -427,7 +427,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         if(Constants.storeBeingShoppedIn.isEmpty()) {
-                            Constants.storeBeingShoppedIn = store.getStoreName(); // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
+                            Constants.storeBeingShoppedIn = originalStoreName; // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
                             store.setIfHighlighted(true);
                         } else{
                             if(Constants.storeBeingShoppedIn.equals(originalStoreName)){

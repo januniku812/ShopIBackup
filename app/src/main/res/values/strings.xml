@@ -94,6 +94,6 @@
     <string name="view_insights_for_item">View Insights For %s</string>
     <string name="exit">Exit</string>
     <string name="insights_for_itemI">Date-Price Insights for %s</string>
-    <string name="data_point_tapped">%s purchased from %s on %s for unit price of %f</string>
+    <string name="data_point_tapped">%s purchased from %s on %s for unit price of %f(unit price is averaged if more than one purchase under same day)</string>
 
 </resources>

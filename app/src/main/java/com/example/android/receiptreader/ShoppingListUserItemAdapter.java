@@ -155,7 +155,7 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             public void onClick(View v) {
                 try {
                     System.out.println("IVE BEEN CLICKED ITEM ADAPTER");
-                    if(Integer.parseInt(shoppingListUserItem.getUserQuantity()) > 0) {
+                    if(Integer.parseInt(shoppingListUserItem.getUserQuantity()) > 1) {
                         QueryUtils.decreaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
                         ShoppingListUserItemsActivity.update();
                     }

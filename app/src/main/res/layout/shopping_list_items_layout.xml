@@ -50,7 +50,7 @@
                 android:layout_height="match_parent"
                 android:background="@color/white_two"
                 android:inputType="text"
-                android:queryHint="Search For a Item" />
+                android:queryHint="Search For Item in List" />
     </LinearLayout>
         <TextView
             android:id="@+id/results_for_user_item_text"
