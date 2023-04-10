@@ -154,13 +154,36 @@
                 <!--                    android:background="@color/white_two"-->
                 <!--                    android:inputType="text"-->
                 <!--                    android:queryHint="Search For a Shopping List" />-->
-
-                <ListView
-                    tools:listitem="@layout/store_item"
-                    android:id="@+id/stores_list_view"
-                    android:layout_marginTop="5dp"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="fill_parent"/>
+                    android:layout_height="fill_parent">
+                    <ListView
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:listitem="@layout/store_item"
+                        android:id="@+id/stores_list_view"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="match_parent"
+                        android:layout_marginBottom="60dp"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/stores_list_view"
+                        android:id="@+id/item_repository_label"
+                        style="@style/user_item_details_text_style"
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:layout_marginStart="10dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/item_rep"
+                        android:textSize="18sp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
             </LinearLayout>
 
         </ScrollView>

@@ -59,6 +59,13 @@
             android:label="@string/add_shopping_list_user_item_activity"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
+        <activity
+            android:windowSoftInputMode="stateHidden"
+            android:name=".RepItemsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/rep_item_activity_label"
+            android:theme="@style/Theme.ReceiptReader.ActionBar">
+        </activity>
     </application>
 
 </manifest>

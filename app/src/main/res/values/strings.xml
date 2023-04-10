@@ -59,6 +59,7 @@
     <string name="shopping_lists_history">Multiple Occurrences Details</string>
     <string name="shopping_lists_with">Shopping Lists With %s</string>
     <string name="orange_juice">ORANGE JUICE</string>
+    <string name="rep_item_placeholder">parsley</string>
     <string name="add_shopping_list_user_item_activity">Add Shopping List User Item Activity</string>
     <string name="add_an_item">Add An Item</string>
     <string name="tbs">TURKEYBS</string>
@@ -95,5 +96,11 @@
     <string name="exit">Exit</string>
     <string name="insights_for_itemI">Date-Price Insights for %s</string>
     <string name="data_point_tapped">%s purchased from %s on %s for unit price of %f(unit price is averaged if more than one purchase under same day)</string>
+    <string name="item_rep">Item Repository</string>
+    <string name="item_repository_labeled">Item Repository</string>
+    <string name="edit_rep_item">Edit \'%s\' Item</string>
+    <string name="delete_rep_item">Delete \'%s\' Item</string>
+    <string name="add_rep_item">Add Item to Item Repository</string>
+    <string name="rep_item_activity_label">Item Repository</string>
 
 </resources>

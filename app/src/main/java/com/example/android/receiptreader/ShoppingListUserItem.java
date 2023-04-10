@@ -30,10 +30,21 @@ public class ShoppingListUserItem {
     String toRecordUnitPrice;
     String toRecordStore;
 
-    public ShoppingListUserItem(String name, String lastBought, String userQuantity) {
+    public boolean isIfGreenMarked() {
+        return ifGreenMarked;
+    }
+
+    public void setIfGreenMarked(boolean ifGreenMarked) {
+        this.ifGreenMarked = ifGreenMarked;
+    }
+
+    boolean ifGreenMarked;
+
+    public ShoppingListUserItem(String name, String lastBought, String userQuantity, boolean ifGreenMarked) {
         this.name = name;
         this.lastBought = lastBought;
         this.userQuantity = userQuantity;
+        this.ifGreenMarked = ifGreenMarked;
     }
 
     public ShoppingListUserItem(String name, String lastBought, String userQuantity, String toRecordPrice, String toRecordQuantity, String toRecordUnitPrice, String toRecordStore) {
@@ -45,6 +56,18 @@ public class ShoppingListUserItem {
         this.toRecordUnitPrice = toRecordUnitPrice;
         this.toRecordStore = toRecordStore;
     }
+
+    public ShoppingListUserItem(String name, String lastBought, String userQuantity, String toRecordPrice, String toRecordQuantity, String toRecordUnitPrice, String toRecordStore, boolean ifGreenMarked) {
+        this.name = name;
+        this.lastBought = lastBought;
+        this.userQuantity = userQuantity;
+        this.toRecordPrice = toRecordPrice;
+        this.toRecordQuantity = toRecordQuantity;
+        this.toRecordUnitPrice = toRecordUnitPrice;
+        this.toRecordStore = toRecordStore;
+        this.ifGreenMarked = ifGreenMarked;
+    }
+
 
     public ShoppingListUserItem(){
 

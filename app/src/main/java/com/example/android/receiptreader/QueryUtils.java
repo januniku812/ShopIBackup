@@ -63,10 +63,16 @@ public class QueryUtils  {
                         String userItemName = (String) userItemObject.get("shopping_list_item_name");
                         String userItemDate = (String) userItemObject.get("shopping_list_item_last_bought");
                         String userItemQuantity = (String) userItemObject.get("shopping_list_item_quantity");
+                        boolean ifGreenTickMarked = false;
+                        try {
+                            ifGreenTickMarked = Boolean.parseBoolean(userItemObject.get("if_green_tick_marked").toString());
+                        } catch(Exception e){
+                            ifGreenTickMarked = false;
+                        }
                         if(userItemObject.get("shopping_list_item_quantity") == null){
                             userItemQuantity = "";
                         }
-                        userItemToAdd = new ShoppingListUserItem(userItemName, userItemDate, userItemQuantity);
+                        userItemToAdd = new ShoppingListUserItem(userItemName, userItemDate, userItemQuantity, ifGreenTickMarked);
                         System.out.println("USER ITEM TO ADD: " + userItemName + userItemDate + userItemQuantity);
                         shoppingListUserItemsToReturn.add(userItemToAdd);
                     }
@@ -139,6 +145,94 @@ public class QueryUtils  {
             e.printStackTrace();
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static void setItemGreenTickMarked(String shoppingListUserItemName, String shoppingList, Context context) throws ParseException {
+        System.out.println("IVE BEEN ACCESSED - setItemGreenTickMarked func");
+        System.out.println("ORIGINAL NAME PARAMETER setItemGreenTickMarked func @QueryUtils: " + shoppingList);
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shopping_lists.size(); i++){
+                JSONObject shoppingListObject = (JSONObject) shopping_lists.get(i);
+                String shopping_list_name = (String) shoppingListObject.get("shopping_list_name");
+                JSONArray store_user_items = (JSONArray) jsonParser.parse(String.valueOf(shoppingListObject.get("store_user_items")));
+                System.out.println("SHOPPING LIST NAME: " + shopping_list_name);
+                if(shopping_list_name.equalsIgnoreCase(shoppingList)){
+                    JSONArray shopping_list_user_items = null;
+                    try {
+                        shopping_list_user_items = (JSONArray) shoppingListObject.get("shopping_list_user_items");
+                    } catch (Exception e){
+                        shopping_list_user_items = (JSONArray) jsonParser.parse(shoppingListObject.get("shopping_list_user_items").toString());
+                    }
+                    for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                        JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
+                        if(strip(shopping_list_user_item.get("shopping_list_item_name").toString()).equalsIgnoreCase(shoppingListUserItemName)){
+                            shopping_list_user_item.put("if_green_tick_marked", "true");
+                            Constants.json_data_str = jsonObject.toJSONString();
+                        }
+                    }
+                }
+            }
+            Constants.json_data_str = jsonObject.toJSONString();
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",Constants.json_data_str.toString()).apply();
+            System.out.println("JSON DATA STR @saveDetailsOfShoppingListUserItem: " + Constants.json_data_str);
+
+        }catch(Exception e){
+            System.out.println("EXCEPTION @saveDetailsOfShoppingListUserItem:");
+            e.printStackTrace();
+        }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static void setItemNotGreenTickMarked(String shoppingListUserItemName, String shoppingList, Context context) throws ParseException {
+        System.out.println("IVE BEEN ACCESSED - setItemGreenTickMarked func");
+        System.out.println("ORIGINAL NAME PARAMETER setItemGreenTickMarked func @QueryUtils: " + shoppingList);
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray shopping_lists = (JSONArray) jsonObject.get("shopping_lists");
+            for(int i = 0; i < shopping_lists.size(); i++){
+                JSONObject shoppingListObject = (JSONObject) shopping_lists.get(i);
+                String shopping_list_name = (String) shoppingListObject.get("shopping_list_name");
+                JSONArray store_user_items = (JSONArray) jsonParser.parse(String.valueOf(shoppingListObject.get("store_user_items")));
+                System.out.println("SHOPPING LIST NAME: " + shopping_list_name);
+                if(shopping_list_name.equalsIgnoreCase(shoppingList)){
+                    JSONArray shopping_list_user_items = null;
+                    try {
+                        shopping_list_user_items = (JSONArray) shoppingListObject.get("shopping_list_user_items");
+                    } catch (Exception e){
+                        shopping_list_user_items = (JSONArray) jsonParser.parse(shoppingListObject.get("shopping_list_user_items").toString());
+                    }
+                    for(int i2 = 0; i2 < shopping_list_user_items.size(); i2++){
+                        JSONObject shopping_list_user_item = (JSONObject) shopping_list_user_items.get(i2);
+                        if(strip(shopping_list_user_item.get("shopping_list_item_name").toString()).equalsIgnoreCase(shoppingListUserItemName)){
+                            shopping_list_user_item.replace("if_green_tick_marked", "false");
+                            Constants.json_data_str = jsonObject.toJSONString();
+                        }
+                    }
+                }
+            }
+            Constants.json_data_str = jsonObject.toJSONString();
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",Constants.json_data_str.toString()).apply();
+            System.out.println("JSON DATA STR @saveDetailsOfShoppingListUserItem: " + Constants.json_data_str);
+
+        }catch(Exception e){
+            System.out.println("EXCEPTION @saveDetailsOfShoppingListUserItem:");
+            e.printStackTrace();
+        }
+    }
+
 
     public static boolean ifShoppingListAlreadyExists(String shoppingListName) throws ParseException {
         System.out.println("IVE BEEN ACCESSED - editStoreName func");
@@ -403,6 +497,7 @@ public class QueryUtils  {
                         shoppingListUserItemToAdd.put("shopping_list_item_last_bought", "");
                     }
                     shoppingListUserItemToAdd.put("shopping_list_item_quantity", "1");
+                    shoppingListUserItemToAdd.put("if_green_tick_marked", "false");
                     shopping_list_user_items.add(shoppingListUserItemToAdd);
                     System.out.println("I REACHED @addNewStore 2445 : " + shopping_list_user_items);
                     shoppingList.replace("shopping_list_user_items",shopping_list_user_items);
@@ -504,7 +599,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static ArrayList<StoreUserItem> getAllStoreUserItems() throws IOException, ParseException {
+    public static ArrayList<StoreUserItem> getAllItemMasterItemsAsStoreUserItems() throws IOException, ParseException {
         String jsonData = Constants.json_data_str;
         JSONParser jsonParser = new JSONParser();
         Object object = jsonParser.parse(jsonData
@@ -539,6 +634,142 @@ public class QueryUtils  {
         return storeUserItemArrayList;
 
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<RepItem> getRepItems() throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+
+        ArrayList<RepItem> repItemArrayList = new ArrayList<>();
+
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray general_item_master = (JSONArray) jsonParser.parse(jsonObject.get("general_items_master").toString());
+            for(int i = 0; i < general_item_master.size(); i++){
+                JSONObject userItemObject = (JSONObject) general_item_master.get(i);
+                String generalItemName = (String) userItemObject.get("general_item_name");
+                RepItem repItemToAdd = new RepItem(generalItemName);
+                repItemArrayList.add(repItemToAdd);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return repItemArrayList;
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<RepItem> editRepItem(String oldName, String newName, Context context) throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+
+        ArrayList<RepItem> storeUserItemArrayList = new ArrayList<>();
+
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray general_item_master = (JSONArray) jsonParser.parse(jsonObject.get("general_items_master").toString());
+            for(int i = 0; i < general_item_master.size(); i++){
+                JSONObject userItemObject = (JSONObject) general_item_master.get(i);
+                String generalItemName = (String) userItemObject.get("general_item_name");
+                if(generalItemName.equals(oldName)){
+                    System.out.println("REPLACING " + oldName + " WITH " + newName);
+                    JSONObject generalItemObjectToAdd = new JSONObject();
+                    generalItemObjectToAdd.put("general_item_name", newName);
+                    general_item_master.remove(userItemObject);
+                    general_item_master.add(i, generalItemObjectToAdd);
+                }
+            }
+            System.out.println("POST EDIT USER JSON OBJECT: " + general_item_master);
+            jsonObject.replace("general_items_master", general_item_master);
+            Constants.json_data_str = jsonObject.toJSONString();
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
+
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return storeUserItemArrayList;
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<RepItem> deleteRepItem(String repItemName, Context context) throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        System.out.println("RUNNING DELETE ITEM");
+
+        ArrayList<RepItem> storeUserItemArrayList = new ArrayList<>();
+
+        try{
+            JSONObject jsonObject = (JSONObject) object;
+            JSONArray general_item_master = (JSONArray) jsonParser.parse(jsonObject.get("general_items_master").toString());
+            for(int i = 0; i < general_item_master.size(); i++){
+                JSONObject userItemObject = (JSONObject) general_item_master.get(i);
+                String generalItemName = (String) userItemObject.get("general_item_name");
+                if(generalItemName.equals(repItemName)){
+                    System.out.println("REMOVING " + generalItemName + " FROM GENERAL ITEM MASTER");
+                    general_item_master.remove(userItemObject);
+                }
+            }
+            jsonObject.replace("general_items_master", general_item_master);
+            System.out.println("POST REMOVE GENERAL ITEM MASTER: " + general_item_master.toJSONString());
+            Constants.json_data_str = jsonObject.toJSONString();
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return storeUserItemArrayList;
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static void addRepItem(String repItemName, Context context) throws IOException, ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+
+        JSONObject jsonObject = (JSONObject) object;
+
+        try{
+            // adding item to general item master
+            JSONArray generalItemMaster = (JSONArray) jsonObject.get("general_items_master");
+            JSONObject generalItemMasterToAdd = new JSONObject();
+
+            boolean ifItemAlreadyExists = false;
+            for(int i = 0; i < generalItemMaster.size(); i++){
+                JSONObject generalItemMasterItem = (JSONObject) generalItemMaster.get(i);
+                if(generalItemMasterItem.get("general_item_name").toString().equalsIgnoreCase(repItemName)){ // going through to check if the item we want to add to general item master is already there
+                    ifItemAlreadyExists = true;
+                    break;
+                }
+            }
+            if(!ifItemAlreadyExists){
+                generalItemMasterToAdd.put("general_item_name", repItemName);
+                generalItemMaster.add(generalItemMasterToAdd);
+            }
+            jsonObject.replace("general_items_master", generalItemMaster);
+            Constants.json_data_str = jsonObject.toJSONString();
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString("jsonData",jsonObject.toString()).apply();
+
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
 
     @RequiresApi
     public static void deleteShoppingListUserItem(String shoppingListUserItemName, String shoppingListName, android.content.Context context) throws ParseException {
@@ -699,7 +930,12 @@ public class QueryUtils  {
                         String userItemName = (String) userItemObject.get("user_item_name");
                         String userItemDate = (String) userItemObject.get("user_item_date");
                         String userItemQuantity = (String) userItemObject.get("user_item_quantity");
-                        userItemToAdd = new ShoppingListUserItem(userItemName, userItemDate, userItemQuantity);
+                        boolean ifGreenTickMarked = false;
+                        try {
+                            ifGreenTickMarked = Boolean.parseBoolean(userItemObject.get("if_green_tick_marked").toString());
+                        } catch(Exception e){
+                            ifGreenTickMarked = false;
+                        }                         userItemToAdd = new ShoppingListUserItem(userItemName, userItemDate, userItemQuantity, ifGreenTickMarked);
                         System.out.println("ADDING " + userItemToAdd.getName() + " FOR " + shoppingListUserItemName);
                         toSortArrayList.add(userItemToAdd);
                     }
@@ -794,8 +1030,13 @@ public class QueryUtils  {
                         String shopping_list_item_name = (String) ShoppingListUserItemObject.get("shopping_list_item_name");
                         String shopping_list_item_last_bought = (String) ShoppingListUserItemObject.get("shopping_list_item_last_bought");
                         String shopping_list_item_quantity = (String) ShoppingListUserItemObject.get("shopping_list_item_quantity");
-                        System.out.println("ADDING @getShoppingListUserItems: " + shopping_list_item_name + " " + shopping_list_item_last_bought + " " + shopping_list_item_quantity);
-                        ShoppingListUserItem shoppingListUserItemToAdd = new ShoppingListUserItem(shopping_list_item_name, shopping_list_item_last_bought, shopping_list_item_quantity);
+                        boolean ifGreenTickMarked = false;
+                        try {
+                            ifGreenTickMarked = Boolean.parseBoolean(ShoppingListUserItemObject.get("if_green_tick_marked").toString());
+                        } catch(Exception e){
+                            ifGreenTickMarked = false;
+                        }                        System.out.println("ADDING @getShoppingListUserItems: " + shopping_list_item_name + " " + shopping_list_item_last_bought + " " + shopping_list_item_quantity);
+                        ShoppingListUserItem shoppingListUserItemToAdd = new ShoppingListUserItem(shopping_list_item_name, shopping_list_item_last_bought, shopping_list_item_quantity, ifGreenTickMarked);
                         ShoppingListUserItemArraylist.add(shoppingListUserItemToAdd);
                     }
                 }
@@ -886,7 +1127,13 @@ public class QueryUtils  {
                     String shopping_list_item_name = (String) userItemObject.get("shopping_list_item_name");
                     String shopping_list_item_last_bought = (String) userItemObject.get("shopping_list_item_last_bought");
                     String shopping_list_item_quantity = (String) userItemObject.get("shopping_list_item_quantity");
-                    ShoppingListUserItem ShoppingListUserItemToAdd = new ShoppingListUserItem(shopping_list_item_name, shopping_list_item_last_bought, shopping_list_item_quantity);
+                    boolean ifGreenTickMarked = false;
+                    try {
+                         ifGreenTickMarked = Boolean.parseBoolean(userItemObject.get("if_green_tick_marked").toString());
+                    } catch(Exception e){
+                        ifGreenTickMarked = false;
+                    }
+                    ShoppingListUserItem ShoppingListUserItemToAdd = new ShoppingListUserItem(shopping_list_item_name, shopping_list_item_last_bought, shopping_list_item_quantity, ifGreenTickMarked);
                     ShoppingListUserItemArraylist.add(ShoppingListUserItemToAdd);
                 }
                 ShoppingList shoppingListToAdd = new ShoppingList(shopping_list_name, ShoppingListUserItemArraylist);

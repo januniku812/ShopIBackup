@@ -1,9 +1,11 @@
 package com.example.android.receiptreader;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -11,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +21,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ListAdapter;
 
 import org.json.simple.parser.ParseException;
@@ -78,17 +82,26 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                     blue_check_mark.setVisibility(View.VISIBLE);
                     System.out.println("MADE IT DOES HAVE LAST BOUGHT :" + position + shoppingListUserItemName + " SET TEXT " + whenShoppingListUserItemLastBought);
                     lastBoughtDate.setText(whenShoppingListUserItemLastBought);
+                    lastBoughtDate.setVisibility(View.VISIBLE);
                     shoppingListUserItem.setLastBought(whenShoppingListUserItemLastBought); // will help when running search view updated adapters
                 } else {
                     System.out.println("MADE IT DOESNT HAVE LAST BOUGHT:" + shoppingListUserItemName);
-                    lastBoughtDate.setText(R.string.last_bought);
+                    if(shoppingListUserItem.isIfGreenMarked()){
+                        System.out.println("GREEN MARKED: " + shoppingListUserItemName);
+
+                        blue_check_mark.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.green)));
+                        blue_check_mark.setVisibility(View.VISIBLE);}
+                    else{
+                        blue_check_mark.setVisibility(View.INVISIBLE);
+                        ConstraintSet constraintSet = new ConstraintSet();
+                        constraintSet.clone(constraintLayout);
+                        constraintSet.connect(R.id.shopping_list_item_name, ConstraintSet.TOP, R.id.shopping_list_user_item_card_view_cl, ConstraintSet.TOP, 0);
+                        constraintSet.connect(R.id.shopping_list_item_name, ConstraintSet.BOTTOM, R.id.shopping_list_user_item_card_view_cl, ConstraintSet.BOTTOM, 0);
+                        constraintLayout.setConstraintSet(constraintSet);
+                    }
                     lastBoughtDate.setVisibility(View.GONE);
-                    blue_check_mark.setVisibility(View.INVISIBLE);
-                    ConstraintSet constraintSet = new ConstraintSet();
-                    constraintSet.clone(constraintLayout);
-                    constraintSet.connect(R.id.shopping_list_item_name, ConstraintSet.TOP, R.id.shopping_list_user_item_card_view_cl, ConstraintSet.TOP, 0);
-                    constraintSet.connect(R.id.shopping_list_item_name, ConstraintSet.BOTTOM, R.id.shopping_list_user_item_card_view_cl, ConstraintSet.BOTTOM, 0);
-                    constraintLayout.setConstraintSet(constraintSet);
+                    lastBoughtDate.setText(R.string.last_bought);
+                    System.out.println("MADE IT DOESNT HAVE LAST BOUGHT 4:" + shoppingListUserItemName);
                 }
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
@@ -164,6 +177,8 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                 }
             }
         });
+
+
         return newItemView;
     }
 

@@ -219,8 +219,11 @@ public class MainActivity extends AppCompatActivity {
         System.out.print("JSON DATA: " + Constants.json_data_str);
         shoppingListsView = (ListView) findViewById(R.id.shopping_list_items_list_view);
         storesListView = (ListView) findViewById(R.id.stores_list_view);
+        TextView itemRepTv = (TextView) findViewById(R.id.item_repository_label);
         SearchView shoppingListSearchView = findViewById(R.id.shopping_list_search_bar);
         SearchView storesSearchView = findViewById(R.id.store_list_search_bars);
+        storesSearchView.clearFocus();
+        shoppingListSearchView.clearFocus();
         FloatingActionButton addStoreFab = (FloatingActionButton) findViewById(R.id.store_list_fab);
         FloatingActionButton addShoppingListFab = (FloatingActionButton) findViewById(R.id.shopping_list_fab);
         stores = new ArrayList<Store>();
@@ -231,7 +234,8 @@ public class MainActivity extends AppCompatActivity {
                 shoppingLists = QueryUtils.getShoppingLists();
                 stores = QueryUtils.getStores();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("EXCEPTION MAIN THREAD");
             e.printStackTrace();
         }
@@ -496,6 +500,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showDialog(getString(R.string.add_shopping_list), JSONEditCodes.ADD_NEW_SHOPPING_LIST, null);
+            }
+        });
+
+        itemRepTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
+                startActivity(intent);
             }
         });
 

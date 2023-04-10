@@ -10,4 +10,7 @@ public final class JSONEditCodes { // class to help distinguish between what do 
     public static final int DELETE_SHOPPING_LIST = 6;
     public static final int DELETE_SHOPPING_LIST_ITEM = 7;
     public static final int REORDER_SHOPPING_LIST_ITEM = 8;
+    public static final int EDIT_REP_ITEM_NAME = 9;
+    public static final int DELETE_REP_ITEM = 10;
+    public static final int ADD_REP_ITEM = 11;
 }

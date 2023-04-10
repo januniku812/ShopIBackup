@@ -54,7 +54,7 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
         System.out.println("SHOPPING LIST NAME: " + shoppingList);
         submitButton = (ImageButton) findViewById(R.id.submit_button);
         try {
-            userItems = QueryUtils.getAllStoreUserItems();
+            userItems = QueryUtils.getAllItemMasterItemsAsStoreUserItems();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {

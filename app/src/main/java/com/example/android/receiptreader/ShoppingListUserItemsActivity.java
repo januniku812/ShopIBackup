@@ -2,6 +2,7 @@ package com.example.android.receiptreader;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +23,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -1516,6 +1518,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         });
                     }
                     else {
+                        System.out.println("STORE FINAL PASS: " + Constants.storeBeingShoppedIn);
                         try {
                             String finalAdditionalWeightToPass = additionalWeightEditText.getText().toString();
                             if(!finalAdditionalWeightToPass.isEmpty() && !isOrContainsMeasurementUnit(finalAdditionalWeightToPass)){
@@ -1525,7 +1528,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 System.out.println("CALLED LIST VIEW QUANTITY IS INDIVIDUAL");
                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
                                         quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                        unitPriceEditText.getText().toString(), "/ea", finalAdditionalWeightToPass, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                        unitPriceEditText.getText().toString(), "/ea", null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
 
                                 alertDialog.dismiss();
                             }
@@ -1964,12 +1967,69 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                            }
                                        }
         );
+
         shoppingListUserItemsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 ShoppingListUserItem shoppingListUserItem = (ShoppingListUserItem) shoppingListUserItemAdapter.getItem(i);
                 String shoppingListUserItemName = shoppingListUserItem.getName();
                 View selectedStoreView = shoppingListUserItemAdapter.getView(i, view, adapterView);
+                selectedStoreView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        System.out.println("LONG CLICKED");
+                        try {
+                            TextView name = (TextView) v.findViewById(R.id.shopping_list_item_name);
+                            if (!shoppingListUserItem.isIfGreenMarked()) {
+                                QueryUtils.setItemGreenTickMarked(name.getText().toString(), shoppingListName, getApplicationContext());
+                            } else {
+                                QueryUtils.setItemNotGreenTickMarked(name.getText().toString(), shoppingListName, getApplicationContext());
+
+
+                            }
+                        }
+                         catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        ShoppingListUserItemsActivity.update();
+                        return true;
+                    }
+
+                });
+                selectedStoreView.setOnTouchListener(new OnSwipeTouchListener(ShoppingListUserItemsActivity.this) {
+                    public void onSwipeLeft() {
+                        System.out.println("SWIPED - LEFT");
+                        try {
+                            QueryUtils.setItemGreenTickMarked(shoppingListUserItemName, shoppingListName, getApplicationContext());
+                        } catch(Exception e){
+                            e.printStackTrace();
+                        }
+                        update();
+
+                    }
+
+                    public void onSwipeRight() {
+                        System.out.println("SWIPED - RIGHT");
+                        try {
+                            QueryUtils.setItemGreenTickMarked(shoppingListUserItemName, shoppingListName, getApplicationContext());
+                        } catch(Exception e){
+                            e.printStackTrace();
+                        }
+                        update();
+                    }
+
+                    public void onSwipeBottom() {
+
+                    }
+
+                    public void onSwipeTop() {
+
+                    }
+
+                    public void onDownTouch() {
+
+                    }
+                });
 //                ImageView historyButton = (ImageView) selectedStoreView.findViewById(R.id.history_button_sl_item);
 //                ImageView duplicateIndicator = (ImageView) selectedStoreView.findViewById(R.id.duplicate_indicator);
                 ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
@@ -1994,6 +2054,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         try {
+                            System.out.println("STORE BEING SHOPPED IN: " + Constants.storeBeingShoppedIn);
                             speakWithVoiceDialog(shoppingListUserItemName, !Constants.storeBeingShoppedIn.isEmpty());
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -2001,10 +2062,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 });
 
+
             }
 
 
+
+
         });
+
+
+
     }
 
     @Override
