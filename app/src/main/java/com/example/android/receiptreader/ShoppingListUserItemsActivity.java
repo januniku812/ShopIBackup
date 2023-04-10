@@ -1843,7 +1843,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         });
 
         hideSoftKeyboard(this);
-        searchView.setIconified(false);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 

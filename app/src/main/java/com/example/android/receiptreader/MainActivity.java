@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -19,11 +20,13 @@ import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -239,14 +242,35 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("EXCEPTION MAIN THREAD");
             e.printStackTrace();
         }
+        LinearLayout shoppingListLy = findViewById(R.id.shopping_lists_ly);
         shoppingListAdapter = new ShoppingListAdapter(this, shoppingLists);
         storeListAdapter = new StoreListAdapter(this, stores);
         shoppingListsView.setAdapter(shoppingListAdapter);
         storesListView.setAdapter(storeListAdapter);
+        shoppingListLy.setMinimumHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.1)));
+        shoppingListsView.setMinimumHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.4)));
+        itemRepTv.setHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.1))); // setting item rep Tv height as 5 percent of the screen height
+        itemRepTv.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                System.out.println("CURRENT PERCEN: " +storesListView.getHeight() + " WINDOW: " + getWindowManager().getDefaultDisplay().getHeight());
+                Double listVHeight = Double.parseDouble(String.valueOf(storesListView.getHeight()));
+                Double windowHeight = Double.parseDouble(String.valueOf(getWindowManager().getDefaultDisplay().getHeight()));
+                System.out.println("PERCEN: " + (listVHeight/windowHeight));
+                if((listVHeight/windowHeight) > 0.4) {
+                        System.out.println("CALLED ON GLOBALLAYOUT");
+                        ConstraintLayout constraintLayout = findViewById(R.id.stores_list_view_and_item_rep_label_cl);
+                        ConstraintSet constraintSet = new ConstraintSet();
+                        constraintSet.clone(constraintLayout);
+                        constraintSet.connect(R.id.item_repository_label, ConstraintSet.BOTTOM, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.BOTTOM, 15);
+                        constraintSet.connect(R.id.stores_list_view, ConstraintSet.BOTTOM, R.id.item_repository_label, ConstraintSet.TOP, 5);
+                        constraintSet.connect(R.id.stores_list_view, ConstraintSet.TOP, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, 5);
+                        constraintLayout.setConstraintSet(constraintSet);
+                    }
 
+            }
+        });
         hideSoftKeyboard(this);
-        shoppingListSearchView.setIconified(false);
-        storesSearchView.setIconified(false);
         // all functions for searching through the stores list view
         storesSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                                                     @Override

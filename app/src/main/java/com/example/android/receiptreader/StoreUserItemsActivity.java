@@ -76,7 +76,6 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         storeUserItemsListView.setAdapter(storeUserItemAdapter);
 
         hideSoftKeyboard(this);
-        searchView.setIconified(false);
 
         ArrayList<StoreUserItem> finalStoreUserItems = storeUserItems;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
