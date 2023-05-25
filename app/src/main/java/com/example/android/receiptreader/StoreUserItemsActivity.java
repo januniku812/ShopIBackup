@@ -32,6 +32,8 @@ public class StoreUserItemsActivity extends AppCompatActivity {
     StoreUserItemAdapter storeUserItemAdapter;
     TextView resultsForStoreUserItemsView;
     ListView storeUserItemsListView;
+    ArrayList<StoreUserItem> storeUserItems;
+    String storeName;
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
@@ -45,6 +47,21 @@ public class StoreUserItemsActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
+    public void update(){
+        int index = storeUserItemsListView.getFirstVisiblePosition();
+        View v = storeUserItemsListView.getChildAt(0);
+        int top = (v == null) ? 0 : v.getTop();
+        try {
+            storeUserItems = QueryUtils.getStoreUserItems(storeName);
+        } catch (Exception  e) {
+            e.printStackTrace();
+        }
+
+        storeUserItemAdapter = new StoreUserItemAdapter(getApplicationContext(), storeUserItems);
+        storeUserItemsListView.setSelectionFromTop(index, top);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +70,7 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         resultsForStoreUserItemsView = findViewById(R.id.results_for_user_item_text);
         SearchView searchView = findViewById(R.id.search_bar);
         TextView titleTextView = findViewById(R.id.title);
-        String storeName = getIntent().getStringExtra("storeName");
+         storeName = getIntent().getStringExtra("storeName");
         titleTextView.setText(storeName);
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

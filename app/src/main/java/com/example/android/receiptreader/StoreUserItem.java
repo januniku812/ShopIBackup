@@ -1,6 +1,7 @@
 package com.example.android.receiptreader;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 
 public class StoreUserItem implements Serializable {
     String store;
@@ -9,7 +10,24 @@ public class StoreUserItem implements Serializable {
     String quantity;
     String totalAmountPaid;
     String unitPrice;
+
+    public String getWithinPackageItemCount() {
+        return withinPackageItemCount;
+    }
+    public void setWithinPackageItemCount(String withinPackageItemCount) {
+        this.withinPackageItemCount = withinPackageItemCount;
+    }
+
+    String withinPackageItemCount;
     String additionalWeightUnitPriceDetail;
+
+    public String getPricePerPound(){
+        if ((additionalWeightUnitPriceDetail == null) || (additionalWeightUnitPriceDetail.isEmpty())){
+            return null;
+        }
+        DecimalFormat df = new DecimalFormat("0.00");
+        return String.valueOf(df.format(Double.parseDouble(unitPrice.replaceAll("[^0-9.]","")) / Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^0-9.]",""))));
+    }
 
     public String getAdditionalWeightUnitPriceDetail() {
         return additionalWeightUnitPriceDetail;
@@ -19,6 +37,16 @@ public class StoreUserItem implements Serializable {
         this.additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail;
     }
 
+    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String withinPackageItemCount) {
+        this.store = store;
+        this.dateOfPurchase = dateOfPurchase;
+        this.itemName = itemName;
+        this.quantity = quantity;
+        this.totalAmountPaid = totalAmountPaid;
+        this.unitPrice = unitPrice;
+        this.withinPackageItemCount = withinPackageItemCount;
+    }
+    // weight based item
     public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice) {
         this.store = store;
         this.dateOfPurchase = dateOfPurchase;
@@ -28,13 +56,14 @@ public class StoreUserItem implements Serializable {
         this.unitPrice = unitPrice;
     }
 
-    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String additionalWeightUnitPriceDetail) {
+    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String withinPackageItemCount, String additionalWeightUnitPriceDetail) {
         this.store = store;
         this.dateOfPurchase = dateOfPurchase;
         this.itemName = itemName;
         this.quantity = quantity;
         this.totalAmountPaid = totalAmountPaid;
         this.unitPrice = unitPrice;
+        this.withinPackageItemCount = withinPackageItemCount;
         this.additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail;
     }
 

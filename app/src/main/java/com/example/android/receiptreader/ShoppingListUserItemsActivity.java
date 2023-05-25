@@ -5,6 +5,11 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.Intent;
+import javax.measure.Measure;
+import javax.measure.converter.UnitConverter;
+import javax.measure.quantity.Length;
+import static javax.measure.unit.NonSI.*;
+import static javax.measure.unit.SI.*;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.DataSetObserver;
@@ -72,6 +77,7 @@ import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -83,8 +89,11 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import static android.os.Build.VERSION_CODES.O;
@@ -98,6 +107,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     public static MutableLiveData<Boolean> actuallyNeedsToBeUpdated = new MutableLiveData<>();
     int quantityMicrophoneState = 0;
     int unitPriceMicrophoneState = 0;
+    int withinPackageMicrophoneState = 0;
     int additionalWeightMicrophoneState = 0;
     ArrayList<ShoppingListUserItem> shoppingListUserItems;
     //    static Thread updateRunnable =  new Thread(
@@ -132,6 +142,44 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         System.out.println("made it hideSoftKeyboard");
+    }
+    private boolean eligibleForInsights(ArrayList<StoreUserItem> storeUserItemArrayList) throws java.text.ParseException {
+        if(storeUserItemArrayList == null){
+            return false;
+        }
+        boolean eligible = true;
+        ConcurrentHashMap<String, ArrayList<StoreUserItem>> differentStores = new   ConcurrentHashMap<String, ArrayList<StoreUserItem>>();
+        // sorting into different stores
+        for(StoreUserItem item: storeUserItemArrayList){
+            if(!differentStores.containsKey(item.getStore())){
+                differentStores.put(item.getStore(), new ArrayList<StoreUserItem>());
+            }
+            differentStores.get(item.getStore()).add(item);
+        }
+        // sorting by date
+        for(String key: differentStores.keySet()){
+            ArrayList<StoreUserItem> history = differentStores.get(key);
+            StoreUserItem oldestBoughtItem = history.get(0);
+            StoreUserItem newestBoughtItem = history.get(0);
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            Date oldestBoughtDate = sdf.parse(oldestBoughtItem.getDateOfPurchase());
+            Date newestBoughtDate = sdf.parse(newestBoughtItem.getDateOfPurchase());
+            for(StoreUserItem item: history){
+                Date itemDate = sdf.parse(item.getDateOfPurchase());
+                if(itemDate.before(oldestBoughtDate)){
+                    oldestBoughtDate = itemDate;
+                }
+                if(itemDate.after(newestBoughtDate)){
+                    newestBoughtDate = itemDate;
+
+                }
+            }
+            if(TimeUnit.DAYS.convert(newestBoughtDate.getTime() - oldestBoughtDate.getTime(), TimeUnit.MILLISECONDS) < 1){
+                differentStores.remove(key);
+            }
+
+        }
+        return differentStores.size() >= 1;
     }
 
     @RequiresApi(api = O)
@@ -236,7 +284,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = O)
-    private void moreVertActionsDialog(ShoppingListUserItem shoppingListUserItem) throws IOException, ParseException {
+    private void moreVertActionsDialog(ShoppingListUserItem shoppingListUserItem) throws IOException, ParseException, java.text.ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
                         (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom2);
@@ -265,6 +313,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         TextView viewInsightsTextView = (TextView) view.findViewById(R.id.view_insights_of_item_text_view);
 
         ArrayList<ShoppingList> shoppingListsContainingSl = QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
+
         if(shoppingListsContainingSl != null) {
             duplicate_indicator_cl.setVisibility(View.VISIBLE);
             TextView duplicateIndicatorTextView = duplicate_indicator_cl.findViewById(R.id.view_other_sl_with_text_view);
@@ -325,13 +374,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 }
             });
 
-        } else{
+        }
+        else{
             view_history_tv.setTextColor(getResources().getColor(R.color.grey_four));
             ImageViewCompat.setImageTintList(view_history_image,
                     ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey_four)));
 
         }
-        if((storeUserItemsHistory != null) && storeUserItemsHistory.size() >= 2){
+
+        if(eligibleForInsights(QueryUtils.getHistoryOfShoppingListItem(itemName))){
             viewInsightsCl.setVisibility(View.VISIBLE);
             viewInsightsTextView.setText(String.format(getString(R.string.view_insights_for_item), itemName));
             viewInsightsCl.setOnClickListener(new View.OnClickListener() {
@@ -344,7 +395,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 }
             });
-        }  else{
+        }
+        else{
             viewInsightsCl.setVisibility(View.GONE);
             viewInsightsTextView.setVisibility(View.GONE);
         }
@@ -413,19 +465,46 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         unitPriceTextView.setVisibility(View.GONE);
 
 
-
         // seperating the items history into different stores
-        HashMap<String, ArrayList<StoreUserItem>> differentStoreHistories = new HashMap<>();
+        ConcurrentHashMap<String, ArrayList<StoreUserItem>> differentStoreHistories = new ConcurrentHashMap<>();
 
         for (StoreUserItem storeUserItem : storeUserItemHistory) {
             if (!differentStoreHistories.containsKey(storeUserItem.getStore())) {
                 ArrayList<StoreUserItem> emptyList = new ArrayList<>();
                 differentStoreHistories.put(storeUserItem.getStore(), emptyList);
             }
+            System.out.println("ADDING: " + storeUserItem.getItemName() + " TO --> " + storeUserItem.getStore());
             differentStoreHistories.get(storeUserItem.getStore()).add(storeUserItem);
         }
+        System.out.println("DIFFERENT STORE HISTORIES: " + differentStoreHistories.size());
 
-        HashMap<String, ArrayList<StoreUserItem>> differentStoreHistoriesCopy =differentStoreHistories;
+        ConcurrentHashMap<String, ArrayList<StoreUserItem>> differentStoreHistoriesCopy2 =differentStoreHistories;
+        Set<String> keySet = differentStoreHistories.keySet();
+        System.out.println("keyset: " + keySet);
+        for(String key: keySet){
+            ArrayList<StoreUserItem> history = differentStoreHistoriesCopy2.get(key);
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            StoreUserItem oldestBoughtItem = history.get(0);
+            StoreUserItem newestBoughtItem = history.get(0);
+            Date oldestBoughtDate = sdf.parse(oldestBoughtItem.getDateOfPurchase());
+            Date newestBoughtDate = sdf.parse(newestBoughtItem.getDateOfPurchase());
+            for(StoreUserItem item: history){
+                Date itemDate = sdf.parse(item.getDateOfPurchase());
+                if(itemDate.before(oldestBoughtDate)){
+                    oldestBoughtDate = itemDate;
+                }
+                if(itemDate.after(newestBoughtDate)){
+                    newestBoughtDate = itemDate;
+
+                }
+            }
+            if(TimeUnit.DAYS.convert(newestBoughtDate.getTime() - oldestBoughtDate.getTime(), TimeUnit.MILLISECONDS) < 1){
+                differentStoreHistoriesCopy2.remove(key);
+            }
+
+        }
+        System.out.println("MADE IT: "  + differentStoreHistories.size());
+        ConcurrentHashMap<String, ArrayList<StoreUserItem>> differentStoreHistoriesCopy =differentStoreHistoriesCopy2;
         for (String key: differentStoreHistories.keySet()) {
             System.out.println("KEY: " + key);
             ArrayList<StoreUserItem> history = differentStoreHistoriesCopy.get(key);
@@ -444,7 +523,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<StoreUserItem> dateHistory = datesOfPurchase.get(dateOfPurchase);
                 Double total = 0.0;
                 for (StoreUserItem storeUserItem : dateHistory) {
-                    total += Double.parseDouble(storeUserItem.getUnitPrice().substring(0, storeUserItem.getUnitPrice().indexOf("/")));
+                     if(storeUserItem.getPricePerPound() != null) {
+                        total += Double.parseDouble(storeUserItem.getUnitPrice().substring(0, storeUserItem.getUnitPrice().indexOf("/")));
+                    }
                 }
                 Double finalAverage = total / dateHistory.size();
                 System.out.print("ADDING DATE OF PURCHASE: " + dateOfPurchase + " FINAL AVG: " + finalAverage + " KEY : "  + key);
@@ -618,8 +699,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
         alertDialog.show();
     }
-
-
+    
     @RequiresApi(api = O)
     private void showDialog(String title, String originalName, String shoppingListName, Integer jsonEditCode) throws IOException, ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
@@ -656,9 +736,20 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 @RequiresApi(api = O)
                 @Override
                 public void onClick(View view) {
-                    try {
+                    try {System.out.println("CONSTANTS JSON BEFORE DELETE: " + PreferenceManager.
+                            getDefaultSharedPreferences(getApplicationContext()).getString("jsonData", ""));
                         QueryUtils.deleteShoppingListUserItem(originalName, shoppingListName, getApplicationContext());
+                        System.out.println("CONSTANTS JSON AFTER DELETE: " + PreferenceManager.
+                                getDefaultSharedPreferences(getApplicationContext()).getString("jsonData", ""));
+                        for(ShoppingListUserItem shoppingListUserItem: shoppingListUserItems){
+                            System.out.println("SLUI NAME BEFORE: " + shoppingListUserItem.getName());
+                        }
                         shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+                        System.out.println("CONSTANTS JSON AFTER UPDATE: " + PreferenceManager.
+                                getDefaultSharedPreferences(getApplicationContext()).getString("jsonData", ""));
+                        for(ShoppingListUserItem shoppingListUserItem: shoppingListUserItems){
+                            System.out.println("SLUI NAME: " + shoppingListUserItem.getName());
+                        }
                         shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
                         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                     } catch (ParseException e) {
@@ -736,8 +827,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 R.layout.voice_input_dialog,
                 (ConstraintLayout) findViewById(R.id.layoutDialogContainerVID)
         );
-        final boolean[] ifQuantityIsIndividual = {true};
+        final boolean[] ifQuantityIsIndividualPackageBased = {true};
+        // following layouts are for package based purchase details
         ConstraintLayout additional_weight_cl = view.findViewById(R.id.additional_weight_cl);
+        ConstraintLayout within_package_item_count_cl = view.findViewById(R.id.within_package_item_count_ly);
+        // following layouts are for weight based purchase details and package based details
+        ConstraintLayout quanity_detail_cl = view.findViewById(R.id.quantity_detail_ly);
+        ConstraintLayout unit_price_detail_cl = view.findViewById(R.id.unit_price_detail_ly);
+
         TextView choseStoreTextView = view.findViewById(R.id.chose_a_store_text_view);
         ListView choseStoreListView = view.findViewById(R.id.chose_stores_list_view);
         TextView recordDetailsTextView = (TextView) view.findViewById(R.id.textTitle);
@@ -745,21 +842,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         Display display = getWindowManager().getDefaultDisplay();
         ToggleButton toggleButton = view.findViewById(R.id.eachWeightToggleButton);
-        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (!isChecked) {
-                    ifQuantityIsIndividual[0] = true;
-                    // The toggle is enabled
-                    additional_weight_cl.setVisibility(View.VISIBLE);
-                } else {
-                    // The toggle is disabled
-                    ifQuantityIsIndividual[0] = false;
-                    additional_weight_cl.setVisibility(View.GONE);
-                }
-            }
-
-        });
         int width = display.getWidth();
         view.setMinimumWidth(width/2);
         choseStoreTextView.setVisibility(View.GONE);
@@ -767,12 +849,34 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         builder.setView(view);
         Button cancel_button = view.findViewById(R.id.cancel_button);
         Button enter_button = view.findViewById(R.id.enterButton);
+        EditText withinPackageItemCountEditText = view.findViewById(R.id.within_package_item_count_edit_text);
         EditText quantityEditText = view.findViewById(R.id.quantity_edit_text);
         EditText unitPriceEditText = view.findViewById(R.id.unit_price_edit_text);
         EditText additionalWeightEditText = view.findViewById(R.id.additional_weight_edit_text);
+        EditText withinPackageItemCount = view.findViewById(R.id.within_package_item_count_edit_text);
         ImageView quantityMicrophone = view.findViewById(R.id.quantity_microphone);
         ImageView unitPriceMicrophone = view.findViewById(R.id.unit_price_microphone);
         ImageView additionalWeightMicrophone = view.findViewById(R.id.additional_weight_microphone);
+        ImageView withinPackageItemCountMicrophone = view.findViewById(R.id.within_package_item_count_microphone);
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (!isChecked) {
+                    ifQuantityIsIndividualPackageBased[0] = true;
+                    // The toggle is enabled
+                    additional_weight_cl.setVisibility(View.VISIBLE);
+                    within_package_item_count_cl.setVisibility(View.VISIBLE);
+                    unitPriceEditText.setHint(getString(R.string.price_per_package));
+                } else {
+                    // The toggle is disabled
+                    ifQuantityIsIndividualPackageBased[0] = false;
+                    additional_weight_cl.setVisibility(View.GONE);
+                    within_package_item_count_cl.setVisibility(View.GONE);
+                    unitPriceEditText.setHint(getString(R.string.price_per_pound));
+                }
+            }
+
+        });
         SpeechRecognizer additionalWeightSr = SpeechRecognizer.createSpeechRecognizer(this);
         final Intent additionalWeightSrIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         additionalWeightSrIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -961,6 +1065,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         });
         SpeechRecognizer quantitySpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         SpeechRecognizer unitPriceSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        SpeechRecognizer withinPackageItemCountRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         final Intent quantitySpeechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         quantitySpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         quantitySpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS , 800);
@@ -968,6 +1073,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         final Intent unitPriceRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         unitPriceRecognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS , 800);
         // when the users click on the textviews next to the edit texts for hold details, listening starts
+        final Intent withinPackageItemCountRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        unitPriceRecognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS , 800);
+
         RecognitionListener quantityRecognitionListener = new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
@@ -1010,7 +1118,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
                         String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
-                        if(!ifQuantityIsIndividual[0]) {
+                        if(!ifQuantityIsIndividualPackageBased[0]) {
                             try {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
@@ -1063,7 +1171,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         }
 
                     } else {
-                        quantityEditText.setText(result);
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            unitPriceEditText.setText(result);
+                        }
 
                     }
                 }
@@ -1092,7 +1204,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
                         String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
-                        if(!ifQuantityIsIndividual[0]) {
+                        if(!ifQuantityIsIndividualPackageBased[0]) {
                             try {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
@@ -1145,7 +1257,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         }
 
                     } else {
-                        quantityEditText.setText(result);
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            unitPriceEditText.setText(result);
+                        }
 
                     }
                 }
@@ -1165,7 +1281,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
                         String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
-                        if(!ifQuantityIsIndividual[0]) {
+                        if(!ifQuantityIsIndividualPackageBased[0]) {
                             try {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
@@ -1218,7 +1334,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         }
 
                     } else {
-                        quantityEditText.setText(result);
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            unitPriceEditText.setText(result);
+                        }
 
                     }
                 }
@@ -1315,7 +1435,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                         }
                     } else {
-                        unitPriceEditText.setText(result);
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.unit_price_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            unitPriceEditText.setText(result);
+                        }
 
                     }
                 }
@@ -1351,7 +1475,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                         }
                     } else {
-                        unitPriceEditText.setText(result);
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.unit_price_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            unitPriceEditText.setText(result);
+                        }
+
 
                     }
                 }
@@ -1377,7 +1506,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                         }
                     } else {
-                        unitPriceEditText.setText(result);
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.unit_price_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            unitPriceEditText.setText(result);
+                        }
 
                     }
                 }
@@ -1388,7 +1521,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         };
         unitPriceSpeechRecognizer.setRecognitionListener(unitPriceRecognitionListener);
-
         unitPriceMicrophone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1436,6 +1568,314 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         });
 
+        RecognitionListener withinPackageItemCountRecognitionListener = new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle bundle) {
+                Toast.makeText(ShoppingListUserItemsActivity.this, "Listening...", Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onBeginningOfSpeech() {
+
+            }
+
+            @Override
+            public void onRmsChanged(float v) {
+
+            }
+
+            @Override
+            public void onBufferReceived(byte[] bytes) {
+
+            }
+
+            @Override
+            public void onEndOfSpeech() {
+                System.out.println("@onEndOfSpeech - quantity");
+                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+
+            @Override
+            public void onError(int i) {
+
+            }
+
+            @Override
+            public void onResults(Bundle bundle) {
+                ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                try {
+                    String result = data.get(0);
+                    System.out.println("@onResults - quantity 34455: " + result);
+                    if (result.matches(".*[a-z].*")) {
+                        System.out.println("A_Z CONTIANING ONE: " + result);
+                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        if(!ifQuantityIsIndividualPackageBased[0]) {
+                            try {
+                                if (result.matches(".*[a-z].*")) {
+                                    System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
+                                    System.out.println("JUST ALPHA: " + justAlpha);
+                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        justAlpha = "";
+                                        System.out.println("JUST ALPHA 2: " + result);
+                                    }
+                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
+                                    System.out.println("Wo A_Z CONTIANING ONE: " + result);
+                                    try {
+                                        Double.parseDouble(result);
+                                    }
+                                    catch(Exception e){
+                                        String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
+                                        if(!replaceNumbers.equals("0")) {
+                                            result = replaceNumbers;
+                                        } else { // the only exception it will be catching is a double parsing exception
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                    withinPackageItemCountEditText.setText(result + " " + justAlpha);
+                                } else {
+                                    withinPackageItemCountEditText.setText(result);
+                                }
+                            }
+                            catch (Exception e){
+                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                final Runnable stopListeningRunnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        withinPackageItemCountRecognizer.stopListening();
+                                        System.out.println("MADE IT");
+                                    }
+                                };
+                                stopListeningRunnable.run();
+                                withinPackageMicrophoneState = 0;
+                            }
+                        }
+                        else{
+                            String replaceNumbers = convertWithEnglishWordsToNumbers( result); // removing and converting any numeric values that were written in lik e'three' and 'five' and if there are still alphanumeric values, telling the user that they should only put stand only values in individual pricing setting
+                            System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
+                            String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
+                            if(!justAlpha2.equals("")) {
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.please_only_stand_alone_values_for_individuals), Toast.LENGTH_SHORT ).show();
+                            }
+                            withinPackageItemCountEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
+                        }
+
+                    } else {
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            withinPackageItemCountEditText.setText(result);
+                        }
+
+                    }
+                }
+                catch (Exception e){
+                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                    final Runnable stopListeningRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            withinPackageItemCountRecognizer.stopListening();
+                            System.out.println("MADE IT");
+                        }
+                    };
+                    stopListeningRunnable.run();
+                    withinPackageMicrophoneState = 0;
+                }
+            }
+
+            @Override
+            public void onPartialResults(Bundle bundle) {
+                System.out.println("@onPartialResults - quantity");
+                ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                try {
+                    String result = data.get(0);
+                    System.out.println("@onResults - quantity 34455: " + result);
+                    if (result.matches(".*[a-z].*")) {
+                        System.out.println("A_Z CONTIANING ONE: " + result);
+                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        if(!ifQuantityIsIndividualPackageBased[0]) {
+                            try {
+                                if (result.matches(".*[a-z].*")) {
+                                    System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
+                                    System.out.println("JUST ALPHA: " + justAlpha);
+                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        justAlpha = "";
+                                        System.out.println("JUST ALPHA 2: " + result);
+                                    }
+                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
+                                    System.out.println("Wo A_Z CONTIANING ONE: " + result);
+                                    try {
+                                        Double.parseDouble(result);
+                                    }
+                                    catch(Exception e){
+                                        String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
+                                        if(!replaceNumbers.equals("0")) {
+                                            result = replaceNumbers;
+                                        } else { // the only exception it will be catching is a double parsing exception
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                    withinPackageItemCountEditText.setText(result + " " + justAlpha);
+                                } else {
+                                    withinPackageItemCountEditText.setText(result);
+                                }
+                            }
+                            catch (Exception e){
+                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                final Runnable stopListeningRunnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        withinPackageItemCountRecognizer.stopListening();
+                                        System.out.println("MADE IT");
+                                    }
+                                };
+                                stopListeningRunnable.run();
+                                withinPackageMicrophoneState = 0;
+                            }
+                        }
+                        else{
+                            String replaceNumbers = convertWithEnglishWordsToNumbers( result); // removing and converting any numeric values that were written in lik e'three' and 'five' and if there are still alphanumeric values, telling the user that they should only put stand only values in individual pricing setting
+                            System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
+                            String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
+                            if(!justAlpha2.equals("")) {
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.please_only_stand_alone_values_for_individuals), Toast.LENGTH_SHORT ).show();
+                            }
+                            withinPackageItemCountEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
+                        }
+
+                    } else {
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            withinPackageItemCountEditText.setText(result);
+                        }
+
+                    }
+                }
+
+
+                catch (Exception e){
+                }
+
+            }
+
+            @Override
+            public void onEvent(int i, Bundle bundle) {
+                ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                try {
+                    String result = data.get(0);
+                    System.out.println("@onResults - quantity 34455: " + result);
+                    if (result.matches(".*[a-z].*")) {
+                        System.out.println("A_Z CONTIANING ONE: " + result);
+                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        if(!ifQuantityIsIndividualPackageBased[0]) {
+                            try {
+                                if (result.matches(".*[a-z].*")) {
+                                    System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
+                                    System.out.println("JUST ALPHA: " + justAlpha);
+                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        justAlpha = "";
+                                        System.out.println("JUST ALPHA 2: " + result);
+                                    }
+                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
+                                    System.out.println("Wo A_Z CONTIANING ONE: " + result);
+                                    try {
+                                        Double.parseDouble(result);
+                                    }
+                                    catch(Exception e){
+                                        String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
+                                        if(!replaceNumbers.equals("0")) {
+                                            result = replaceNumbers;
+                                        } else { // the only exception it will be catching is a double parsing exception
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                    withinPackageItemCountEditText.setText(result + " " + justAlpha);
+                                } else {
+                                    withinPackageItemCountEditText.setText(result);
+                                }
+                            }
+                            catch (Exception e){
+                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                final Runnable stopListeningRunnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        withinPackageItemCountRecognizer.stopListening();
+                                        System.out.println("MADE IT");
+                                    }
+                                };
+                                stopListeningRunnable.run();
+                                withinPackageMicrophoneState = 0;
+                            }
+                        }
+                        else{
+                            String replaceNumbers = convertWithEnglishWordsToNumbers( result); // removing and converting any numeric values that were written in lik e'three' and 'five' and if there are still alphanumeric values, telling the user that they should only put stand only values in individual pricing setting
+                            System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
+                            String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
+                            if(!justAlpha2.equals("")) {
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.please_only_stand_alone_values_for_individuals), Toast.LENGTH_SHORT ).show();
+                            }
+                            withinPackageItemCountEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
+                        }
+
+                    } else {
+                        if(Double.parseDouble(result) <= 0){
+                            Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
+                        } else {
+                            withinPackageItemCountEditText.setText(result);
+                        }
+
+                    }
+                }
+                catch (Exception e){
+                }
+            }
+        };
+        withinPackageItemCountRecognizer.setRecognitionListener(withinPackageItemCountRecognitionListener);
+        withinPackageItemCountMicrophone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(withinPackageMicrophoneState == 0){
+                    if(ContextCompat.checkSelfPermission(ShoppingListUserItemsActivity.this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+                        System.out.println("ACCESS DENIED");
+                        ActivityCompat.requestPermissions(ShoppingListUserItemsActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+
+                    } else {
+                        withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
+                        final Runnable startListeningRunnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                withinPackageItemCountRecognizer.startListening(quantitySpeechRecognizerIntent);
+                            }
+                        };
+                        startListeningRunnable.run();
+                        withinPackageMicrophoneState = 1;
+                    }
+                }
+                else if(withinPackageMicrophoneState == 1){
+                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    final Handler handler = new Handler();
+                    final Runnable stopListeningRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            withinPackageItemCountRecognizer.stopListening();
+                            System.out.println("MADE IT");
+                        }
+                    };
+                    stopListeningRunnable.run();
+                    withinPackageMicrophoneState = 0;
+
+                }
+            }
+        });
+
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
         cancel_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1443,17 +1883,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 alertDialog.dismiss();
             }
         });
+
         enter_button.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = O)
             @Override
             public void onClick(View view) {
-                if(ifQuantityIsIndividual[0]) {
+                if(ifQuantityIsIndividualPackageBased[0]) {
                     String quantityToPass = quantityEditText.getText().toString();
                     System.out.println("quantityToPass: " + quantityToPass);
+                    String withinPackageItemCountToPass = withinPackageItemCountEditText.getText().toString();
                     String unitPriceToPass = unitPriceEditText.getText().toString();
                     String additionalWeightToPass = additionalWeightEditText.getText().toString();
                     if (quantityToPass.isEmpty()) {
                         quantityToPass = "not filled";
+                    }
+                    if (withinPackageItemCountToPass.isEmpty()) {
+                        withinPackageItemCountToPass = "not filled";
                     }
                     if (unitPriceToPass.isEmpty()) {
                         unitPriceToPass = "not filled";
@@ -1501,7 +1946,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS INDIVIDUAL + FINAL WEIGHT: " + finalAdditionalWeightToPass);
                                         QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, selectedStore.getStoreName(), dateStr,
                                                 quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                                unitPriceEditText.getText().toString(), "ea", finalAdditionalWeightToPass, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                                unitPriceEditText.getText().toString(), "ea", finalAdditionalWeightToPass, withinPackageItemCountEditText.getText().toString(), getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                                                 .putString("jsonData",Constants.json_data_str.toString()).apply();
                                         alertDialog.dismiss();
@@ -1528,7 +1973,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 System.out.println("CALLED LIST VIEW QUANTITY IS INDIVIDUAL");
                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
                                         quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                        unitPriceEditText.getText().toString(), "/ea", null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                        unitPriceEditText.getText().toString(), "/ea", null, quantityEditText.getText().toString(), getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
 
                                 alertDialog.dismiss();
                             }
@@ -1541,7 +1986,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                } else{
+                }
+                else{
 
                     String quantityToPass = quantityEditText.getText().toString();
                     System.out.println("quantityToPass 2: " + quantityToPass);
@@ -1591,7 +2037,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS NOT IND");
                                         QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, selectedStore.getStoreName(), dateStr,
                                                 quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                                unitPriceEditText.getText().toString(), numberRelatedRemoved, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                                unitPriceEditText.getText().toString(), numberRelatedRemoved, null, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         alertDialog.dismiss();
                                     }
                                     shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
@@ -1614,7 +2060,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 System.out.println("CALLED NOT STORE VIEW QUANTITY IS NOT IND");
                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
                                         quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                        unitPriceEditText.getText().toString(), numberRelatedRemoved, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                        unitPriceEditText.getText().toString(), numberRelatedRemoved, null, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                 alertDialog.dismiss();
                             }
                             shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
@@ -1683,6 +2129,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         System.out.println("RETURN: " + returnStr.toString());
         return returnStr.toString();
     }
+
     public void resetAdapter(){
         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
     }
@@ -1736,10 +2183,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS AFTER: " + shoppingListUserItems.size());
-                    for (ShoppingListUserItem item: shoppingListUserItems
-                    ) {
-                        System.out.println(item.getName() + item.getUserQuantity() + item.getLastBought());
-                    }
+
                     shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
                     resetAdapter();
                     shoppingListUserItemsListView.setSelectionFromTop(index, top);
@@ -1813,6 +2257,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         });
         shoppingListUserItems = null;
         try {
+            System.out.println("JSON DATE WHEN OPENED: " + PreferenceManager.
+                    getDefaultSharedPreferences(getApplicationContext()).getString("jsonData", ""));
             shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingListName);
             System.out.println("ITEMSSSS @onCreate");
             for (ShoppingListUserItem item: shoppingListUserItems
@@ -2045,6 +2491,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (ParseException e) {
+                            e.printStackTrace();
+                        } catch (java.text.ParseException e) {
                             e.printStackTrace();
                         }
                     }

@@ -45,7 +45,7 @@
                 android:id="@+id/item_name_cl"
                 android:layout_width="wrap_content"
                 app:layout_constraintStart_toEndOf="@id/store_date"
-                app:layout_constraintEnd_toStartOf="@id/quantity"
+                app:layout_constraintEnd_toStartOf="@id/total_purchase_price"
                 android:layout_height="match_parent">
             <TextView
                 style="@style/user_item_details_text_style"
@@ -62,34 +62,15 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
             <TextView
                 style="@style/user_item_details_text_style"
-                android:id="@+id/quantity"
+                android:id="@+id/total_purchase_price"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/item_name_cl"
-                app:layout_constraintEnd_toStartOf="@id/amount_paid"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_width="wrap_content"
                 android:text="2"
                 android:layout_height="wrap_content"/>
-            <TextView
-                style="@style/user_item_details_text_style"
-                android:id="@+id/amount_paid"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/unit_price"
-                app:layout_constraintStart_toEndOf="@id/quantity"
-                android:layout_width="wrap_content"
-                android:text="6.30"
-                android:layout_height="wrap_content"/>
-            <TextView
-                style="@style/user_item_details_text_style"
-                android:id="@+id/unit_price"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/amount_paid"
-                android:layout_width="wrap_content"
-                android:text="3.15"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_height="wrap_content"/>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

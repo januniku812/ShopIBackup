@@ -46,17 +46,10 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
         TextView userItemName = (TextView) newItemView.findViewById(R.id.item_name);
         userItemName.setText(storeUserItem.getItemName());
 
-        //find the text view in the user item individual view and setting it with object quantity data
-        TextView userItemQuantity = (TextView) newItemView.findViewById(R.id.quantity);
-        userItemQuantity.setText(storeUserItem.getQuantity());
 
         //find the text view in the user item individual view and setting it with object amount paid data
-        TextView userItemAmountPaid = (TextView) newItemView.findViewById(R.id.amount_paid);
+        TextView userItemAmountPaid = (TextView) newItemView.findViewById(R.id.total_purchase_price);
         userItemAmountPaid.setText(storeUserItem.getAmountPaid());
-
-        //find the text view in the user item individual view and setting it with object amount paid data
-        TextView userItemUnitPrice = (TextView) newItemView.findViewById(R.id.unit_price);
-        userItemUnitPrice.setText(storeUserItem.getUnitPrice());
 
         TextView extraWeighBasedUnitPrice = (TextView) newItemView.findViewById(R.id.extra_weight_based_unit_price);
 

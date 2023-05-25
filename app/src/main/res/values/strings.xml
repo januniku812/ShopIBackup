@@ -68,7 +68,7 @@
     <string name="reorder_shopping_list">Move To Shopping List</string>
     <string name="purchase_history">Purchase History - %s</string>
     <string name="quantity">Quantity</string>
-    <string name="unit_price">Unit Price</string>
+    <string name="unit_price">Unit Price (Price of the Package or per lb)</string>
     <string name="record_details_for">Record Details For Item</string>
     <string name="audio_permission_granted">Audio Permission Granted</string>
     <string name="cant_use_this_feature">Can\'t Use Save Microphone Feature Without Granted Record Audio Permission</string>
@@ -102,5 +102,10 @@
     <string name="delete_rep_item">Delete \'%s\' Item</string>
     <string name="add_rep_item">Add Item to Item Repository</string>
     <string name="rep_item_activity_label">Item Repository</string>
+    <string name="quantity_val_have_to_be_greater_than_0">Quantity Value has to be greater than 0</string>
+    <string name="unit_price_val_have_to_be_greater_than_0">Unit price value has to be greater than 0</string>
+    <string name="item_count_in_package">Item Count in Package</string>
+    <string name="price_per_pound">Price per pound or preferred unit</string>
+    <string name="price_per_package">Price Per Package</string>
 
 </resources>

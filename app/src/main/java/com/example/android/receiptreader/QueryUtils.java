@@ -24,7 +24,9 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 public class QueryUtils  {
     public static String strip(String string){
@@ -83,11 +85,20 @@ public class QueryUtils  {
                 e.printStackTrace();
             }
         }
+
+        if (shoppingListUserItemsToReturn.size() > 0) {
+            Collections.sort(shoppingListUserItemsToReturn, new Comparator<ShoppingListUserItem>() {
+                @Override
+                public int compare(final ShoppingListUserItem object1, final ShoppingListUserItem object2) {
+                    return object1.getName().compareTo(object2.getName());
+                }
+            });
+        }
         return shoppingListUserItemsToReturn;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice, String measurementUnit, String additionalWeight, android.content.Context context) throws ParseException {
+    public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice, String measurementUnit, String additionalWeight, String withinPackageItemCount, android.content.Context context) throws ParseException {
         System.out.println("IVE BEEN ACCESSED - saveDetailsOfShoppingListUserItem func");
         System.out.println("ORIGINAL NAME PARAMETER saveDetailsOfShoppingListUserItem func @QueryUtils: " + storeName);
         String jsonData = Constants.json_data_str;
@@ -110,6 +121,11 @@ public class QueryUtils  {
                     storeUserItemToAdd.put("user_item_date", date);
                     storeUserItemToAdd.put("user_item_name", shoppingListUserItemName);
                     storeUserItemToAdd.put("user_item_quantity", quantity);
+                    if(withinPackageItemCount != null) {
+                        storeUserItemToAdd.put("user_item_within_package_item_count", withinPackageItemCount);
+                    } else{
+                        storeUserItemToAdd.put("user_item_within_package_item_count", "1");
+                    }
                     DecimalFormat df = new DecimalFormat("#.##");
                     if(!quantity.equals("not filled") && !unitPrice.equals("not filled")){
                         try {
@@ -125,6 +141,9 @@ public class QueryUtils  {
                         storeUserItemToAdd.put("user_item_total_amount_paid", "not enough info given");
                     }
                     storeUserItemToAdd.put("user_item_unit_price", unitPrice + " /" + measurementUnit);
+                    if(withinPackageItemCount == null && additionalWeight == null){
+                        storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", unitPrice + " /" + quantity.replaceAll("[^a-z]",""));
+                    }
                     if(additionalWeight != null){
                         storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", df.format(total / Double.parseDouble(additionalWeight.replaceAll("[a-z]", ""))) + " /" + additionalWeight.replaceAll("[^a-z]",""));
                     }
@@ -189,7 +208,6 @@ public class QueryUtils  {
         }
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void setItemNotGreenTickMarked(String shoppingListUserItemName, String shoppingList, Context context) throws ParseException {
         System.out.println("IVE BEEN ACCESSED - setItemGreenTickMarked func");
@@ -232,7 +250,6 @@ public class QueryUtils  {
             e.printStackTrace();
         }
     }
-
 
     public static boolean ifShoppingListAlreadyExists(String shoppingListName) throws ParseException {
         System.out.println("IVE BEEN ACCESSED - editStoreName func");
@@ -770,7 +787,6 @@ public class QueryUtils  {
 
     }
 
-
     @RequiresApi
     public static void deleteShoppingListUserItem(String shoppingListUserItemName, String shoppingListName, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
@@ -790,6 +806,7 @@ public class QueryUtils  {
                         if (shopping_list_user_item.get("shopping_list_item_name").equals(shoppingListUserItemName)) {
                             System.out.println("MADE iT DELETE FUNC: " + shopping_list_user_item.get("shopping_list_item_name"));
                             shopping_list_user_items.remove(shopping_list_user_item);
+                            System.out.println("SHOPPING LIST NOW: "  + shoppingList.toJSONString());
                         }
                     }
                 }
@@ -833,13 +850,14 @@ public class QueryUtils  {
                         String userItemStore = (String) userItemObject.get("user_item_store");
                         String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
                         String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
+                        String withinPackageItemCount = (String) userItemObject.get("within_package_item_count");
                         String userItemAdditionWeightPricingDetail = (String) userItemObject.get("user_item_additional_weight_pricing_detail");
                         if(userItemAdditionWeightPricingDetail != null){ // if the store user item json object has an additional weight pricing detail then use different constructor and save the detail
                             System.out.println("MADE ITTTTTTTTTTTTTT: " + userItemName + ": " + userItemAdditionWeightPricingDetail);
-                            userItemToAdd = new StoreUserItem(userItemStore, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, userItemAdditionWeightPricingDetail);
+                            userItemToAdd = new StoreUserItem(userItemStore, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, withinPackageItemCount, userItemAdditionWeightPricingDetail);
 
                         }else{
-                            userItemToAdd = new StoreUserItem(userItemStore, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
+                            userItemToAdd = new StoreUserItem(userItemStore, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, withinPackageItemCount);
                         }
                         storeUserItemsHistoryOfShoppingListItem.add(userItemToAdd);
                     }
@@ -989,13 +1007,22 @@ public class QueryUtils  {
                         String userItemQuantity = (String) userItemObject.get("user_item_quantity");
                         String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
                         String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
+                        String withinPackageItemCount = (String) userItemObject.get("user_item_within_package_item_count");
                         String userItemAdditionWeightPricingDetail = (String) userItemObject.get("user_item_additional_weight_pricing_detail");
                         StoreUserItem userItemToAdd = new StoreUserItem();
-                        if(userItemAdditionWeightPricingDetail != null){ // if the store user item json object has an additional weight pricing detail then use different constructor and save the detail
-                            System.out.println("MADE IT @getStoreUserItems: " + userItemName + ": " + userItemAdditionWeightPricingDetail);
-                            userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, userItemAdditionWeightPricingDetail);
-                        }else{
+                        if(withinPackageItemCount == null){
+                            // weight based detail
                             userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
+
+                        } else { // package based detail
+                            if(userItemAdditionWeightPricingDetail != null){ // if the store user item json object has an additional weight pricing detail then use different constructor and save the detail
+                                System.out.println("MADE IT @getStoreUserItems: " + userItemName + ": " + userItemAdditionWeightPricingDetail);
+                                userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, withinPackageItemCount, userItemAdditionWeightPricingDetail);
+                            }else{
+                                // weight based detail
+                                userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, withinPackageItemCount);
+                            }
+
                         }
                         storeUserItemArrayList.add(userItemToAdd);
                     }
@@ -1004,6 +1031,15 @@ public class QueryUtils  {
 
         }catch(Exception e){
             e.printStackTrace();
+        }
+
+        if (storeUserItemArrayList.size() > 0) {
+            Collections.sort(storeUserItemArrayList, new Comparator<StoreUserItem>() {
+                @Override
+                public int compare(final StoreUserItem object1, final StoreUserItem object2) {
+                    return object1.getItemName().compareTo(object2.getItemName());
+                }
+            });
         }
         return storeUserItemArrayList;
 
@@ -1045,6 +1081,18 @@ public class QueryUtils  {
         }catch(Exception e){
             e.printStackTrace();
         }
+        System.out.println("GET SHOPPING LIST ITEMS FOR " + shoppingListName);
+        for(ShoppingListUserItem shoppingListUserItem: ShoppingListUserItemArraylist){
+            System.out.println("ITEM NAME: " + shoppingListUserItem.getName());
+        }
+        if (ShoppingListUserItemArraylist.size() > 0) {
+            Collections.sort(ShoppingListUserItemArraylist, new Comparator<ShoppingListUserItem>() {
+                @Override
+                public int compare(final ShoppingListUserItem object1, final ShoppingListUserItem object2) {
+                    return object1.getName().compareTo(object2.getName());
+                }
+            });
+        }
         return ShoppingListUserItemArraylist;
 
     }
@@ -1074,14 +1122,15 @@ public class QueryUtils  {
                     String userItemQuantity = (String) userItemObject.get("user_item_quantity");
                     String userItemTotalAmountPaid = String.valueOf(userItemObject.get("user_item_total_amount_paid"));
                     String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
+                    String withinPackageItemCount = (String) userItemObject.get("within_package_item_count");
                     String userItemAdditionWeightPricingDetail = (String) userItemObject.get("user_item_additional_weight_pricing_detail");
                     StoreUserItem userItemToAdd = new StoreUserItem();
                     if(userItemAdditionWeightPricingDetail != null){ // if the store user item json object has an additional weight pricing detail then use different constructor and save the detail
                         System.out.println("MADE ITTTTTTTTTTTTTT: " + userItemName + ": " + userItemAdditionWeightPricingDetail);
-                        userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, userItemAdditionWeightPricingDetail);
+                        userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, withinPackageItemCount, userItemAdditionWeightPricingDetail);
 
                     }else{
-                        userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice);
+                        userItemToAdd = new StoreUserItem(userItemStoreName, userItemDate, userItemName, userItemQuantity, userItemTotalAmountPaid, userItemUnitPrice, withinPackageItemCount);
                     }
                     userItemArrayList.add(userItemToAdd);
                 }
@@ -1092,9 +1141,16 @@ public class QueryUtils  {
         }catch(Exception e){
             e.printStackTrace();
         }
+        if (storeArrayList.size() > 0) {
+            Collections.sort(storeArrayList, new Comparator<Store>() {
+                @Override
+                public int compare(final Store object1, final Store object2) {
+                    return object1.getStoreName().compareTo(object2.getStoreName());
+                }
+            });
+        }
         return setAllStoresToNotBeingShoppedInExcept(storeArrayList, Constants.storeBeingShoppedIn);
     }
-
 
     public static ArrayList<Store> setAllStoresToNotBeingShoppedInExcept(ArrayList<Store> stores, String storeName) {
         for(Store store: stores){
@@ -1102,7 +1158,6 @@ public class QueryUtils  {
         }
         return stores;
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static ArrayList<ShoppingList> getShoppingLists() throws IOException, ParseException {
@@ -1143,7 +1198,14 @@ public class QueryUtils  {
         }catch(Exception e){
             e.printStackTrace();
         }
-
+        if (shoppingListArray.size() > 0) {
+            Collections.sort(shoppingListArray, new Comparator<ShoppingList>() {
+                @Override
+                public int compare(final ShoppingList object1, final ShoppingList object2) {
+                    return object1.getName().compareTo(object2.getName());
+                }
+            });
+        }
         return shoppingListArray;
 
     }
