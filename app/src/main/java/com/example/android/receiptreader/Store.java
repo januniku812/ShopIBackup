@@ -39,4 +39,5 @@ public class Store {
     public void setStoreUserItems(ArrayList<StoreUserItem> storeUserItems) {
         this.storeUserItems = storeUserItems;
     }
+
 }

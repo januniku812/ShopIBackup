@@ -207,13 +207,17 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
         return super.getItemId(position);
     }
 
-    @Override
-    public int getViewTypeCount() {
-        return getCount();
-    }
 
     @Override
     public int getItemViewType(int position) {
         return position;
+    }
+    @Override
+    public int getViewTypeCount() {
+        if (getCount() > 0) {
+            return getCount();
+        } else {
+            return super.getViewTypeCount();
+        }
     }
 }

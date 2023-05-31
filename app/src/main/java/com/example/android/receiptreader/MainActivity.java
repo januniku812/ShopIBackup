@@ -13,6 +13,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -42,12 +44,52 @@ public class MainActivity extends AppCompatActivity {
 //    TextView resultsForShoppingListsViews;
     ShoppingListAdapter shoppingListAdapter;
     StoreListAdapter storeListAdapter;
+    Observer<View> itemRepLabelObserver;
     ArrayList<Store> stores;
     ArrayList<ShoppingList> shoppingLists;
     String inputTextToRetrieved = "";
+    Observer<String> shoppingListLaunchUpdatedObserver;
+    public static MutableLiveData<String> shoppingListLaunchNeedsToBeUpdated = new MutableLiveData<>();
+    Observer<String> storeLaunchUpdatedObserver;
+    public static MutableLiveData<String> storeLaunchNeedsToBeUpdated = new MutableLiveData<>();
     ListView shoppingListsView;
     ListView storesListView;
 
+    public static void updateShoppingListLaunch(String originalShoppingListName){
+        shoppingListLaunchNeedsToBeUpdated.postValue(originalShoppingListName);
+    }
+
+    public void shoppingListLaunch(String originalShoppingListName) {
+        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+        intent.putExtra("shoppingListName",originalShoppingListName);
+        startActivity(intent);
+        shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
+    }
+
+
+
+    public static void updateStoreLaunch(String originalStoreName){
+        storeLaunchNeedsToBeUpdated.postValue(originalStoreName);
+    }
+
+    public void storeLaunch(String originalStoreName) {
+        Intent intent = new Intent(MainActivity.this, StoreUserItemsActivity.class);
+        intent.putExtra("storeName", originalStoreName);
+        startActivity(intent);
+        storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
+    }
+
+    public boolean isVisible(final View view) {
+        if (view == null) {
+            return false;
+        }
+        if (!view.isShown()) {
+            return false;
+        }
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        return (location[1] <= getWindowManager().getDefaultDisplay().getHeight());
+    }
     private void showDialog(String title, int jsonEditCode, @Nullable String originalName) {
         final int finalJsonEditCode = jsonEditCode;
         androidx.appcompat.app.AlertDialog.Builder builder =
@@ -135,6 +177,17 @@ public class MainActivity extends AppCompatActivity {
                             stores = QueryUtils.getStores();
                             storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                             storesListView.setAdapter(storeListAdapter);
+                            View itemRepLabel = findViewById(R.id.item_repository_label);
+                            if(!isVisible(itemRepLabel)){
+                                System.out.println("NOT VISIBLE");
+                                ConstraintLayout constraintLayout = findViewById(R.id.stores_list_view_and_item_rep_label_cl);
+                                ConstraintSet constraintSet = new ConstraintSet();
+                                constraintSet.connect(R.id.stores_list_view, ConstraintSet.TOP, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, 5);
+                                constraintSet.connect(R.id.stores_list_view, ConstraintSet.BOTTOM, R.id.item_repository_label, ConstraintSet.TOP, 5);
+                                constraintSet.connect(R.id.item_repository_label, ConstraintSet.BOTTOM, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.BOTTOM, 15);
+                                constraintLayout.setConstraintSet(constraintSet);
+
+                            }
                             alertDialog.dismiss();
                         } else {
                             Toast.makeText(MainActivity.this, String.format(getString(R.string.store_already_exists), editTextVal), Toast.LENGTH_SHORT).show();
@@ -165,7 +218,12 @@ public class MainActivity extends AppCompatActivity {
                 if(finalJsonEditCode == JSONEditCodes.DELETE_STORE){ // should only be triggered by add fab button for shopping lists
                     try {
                         QueryUtils.deleteStore(originalName, getApplicationContext());
-
+                        ConstraintLayout constraintLayout = findViewById(R.id.stores_list_view_and_item_rep_label_cl);
+                        ConstraintSet constraintSet = new ConstraintSet();
+                        constraintSet.clone(constraintLayout);
+                        constraintSet.connect(R.id.stores_list_view, ConstraintSet.TOP, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, 5);
+                        constraintSet.connect(R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, R.id.stores_label, ConstraintSet.BOTTOM, 5);
+                        constraintLayout.setConstraintSet(constraintSet);
                         stores =  QueryUtils.getStores();
                         storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                         storesListView.setAdapter(storeListAdapter);
@@ -242,6 +300,48 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("EXCEPTION MAIN THREAD");
             e.printStackTrace();
         }
+        shoppingListLaunchUpdatedObserver = new Observer<String>() {
+            @Override
+            public void onChanged(String newString) {
+                if(!newString.equals("")){
+                    shoppingListLaunchNeedsToBeUpdated.postValue("");
+                    shoppingListLaunch(newString);
+                    
+                }
+            }
+        };
+        shoppingListLaunchNeedsToBeUpdated.observeForever(shoppingListLaunchUpdatedObserver);
+
+        storeLaunchUpdatedObserver = new Observer<String>() {
+            @Override
+            public void onChanged(String newString) {
+                if(!newString.equals("")){
+                    storeLaunchNeedsToBeUpdated.postValue("");
+                    storeLaunch(newString);
+
+                }
+            }
+        };
+        storeLaunchNeedsToBeUpdated.observeForever(storeLaunchUpdatedObserver);
+
+        
+        View itemRepLabel = findViewById(R.id.item_repository_label);
+
+        itemRepLabel.setTag(itemRepLabel.getVisibility());
+        itemRepLabel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                System.out.println("TRIGGERED: " + isVisible(itemRepLabel));
+                    if(!isVisible(itemRepLabel)){
+                        System.out.println("NOT VISIBLE?!?!?!");
+                        ListView storeListView = findViewById(R.id.stores_list_view);
+                        storeListView.setLayoutParams(new ConstraintLayout.LayoutParams(storeListView.getWidth(), storeListView.getHeight()-itemRepLabel.getHeight()-10));
+                        storeListView.setClickable(true);
+                    }
+                    //visibility has changed
+            }
+        });
+
         LinearLayout shoppingListLy = findViewById(R.id.shopping_lists_ly);
         shoppingListAdapter = new ShoppingListAdapter(this, shoppingLists);
         storeListAdapter = new StoreListAdapter(this, stores);
@@ -259,13 +359,6 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("PERCEN: " + (listVHeight/windowHeight));
                 if((listVHeight/windowHeight) > 0.4) {
                         System.out.println("CALLED ON GLOBALLAYOUT");
-                        ConstraintLayout constraintLayout = findViewById(R.id.stores_list_view_and_item_rep_label_cl);
-                        ConstraintSet constraintSet = new ConstraintSet();
-                        constraintSet.clone(constraintLayout);
-                        constraintSet.connect(R.id.item_repository_label, ConstraintSet.BOTTOM, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.BOTTOM, 15);
-                        constraintSet.connect(R.id.stores_list_view, ConstraintSet.BOTTOM, R.id.item_repository_label, ConstraintSet.TOP, 5);
-                        constraintSet.connect(R.id.stores_list_view, ConstraintSet.TOP, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, 5);
-                        constraintLayout.setConstraintSet(constraintSet);
                     }
 
             }
@@ -441,16 +534,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                store_name_cl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        System.out.println("MADE IT STORE historyButton @onClick");
-                        Intent intent = new Intent(MainActivity.this, StoreUserItemsActivity.class);
-                        intent.putExtra("storeName", store.getStoreName());
-                        intent.putExtra("title", store.getStoreName());
-                        startActivity(intent);
-                    }
-                });
+//                store_name_cl.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        System.out.println("MADE IT STORE historyButton @onClick");
+//                        Intent intent = new Intent(MainActivity.this, StoreUserItemsActivity.class);
+//                        intent.putExtra("storeName", store.getStoreName());
+//                        intent.putExtra("title", store.getStoreName());
+//                        startActivity(intent);
+//                    }
+//                });
                 shoppingCartButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -486,15 +579,15 @@ public class MainActivity extends AppCompatActivity {
                 ImageView editViewIcon = (ImageView) selectedStoreView.findViewById(R.id.edit_name_sl_button);
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
                 ConstraintLayout shopping_list_name_cl = (ConstraintLayout) selectedStoreView.findViewById(R.id.shopping_list_name_cl);
-                shopping_list_name_cl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
-                        intent.putExtra("shoppingListName",originalShoppingListName);
-                        startActivity(intent);
-
-                    }
-                });
+//                shopping_list_name_cl.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+//                        intent.putExtra("shoppingListName",originalShoppingListName);
+//                        startActivity(intent);
+//
+//                    }
+//                });
                 editViewIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -532,6 +625,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
                 startActivity(intent);
+                storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
+                shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
             }
         });
 

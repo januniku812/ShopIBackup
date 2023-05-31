@@ -14,16 +14,16 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:layout_height="match_parent">
-<!--        <SearchView-->
-<!--            android:id="@+id/search_bar"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginLeft="5dp"-->
-<!--            android:layout_marginTop="5dp"-->
-<!--            android:layout_marginRight="5dp"-->
-<!--            android:background="@color/white_two"-->
-<!--            android:inputType="text"-->
-<!--            android:queryHint="Search For a Item" />-->
+        <!--        <SearchView-->
+        <!--            android:id="@+id/search_bar"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginLeft="5dp"-->
+        <!--            android:layout_marginTop="5dp"-->
+        <!--            android:layout_marginRight="5dp"-->
+        <!--            android:background="@color/white_two"-->
+        <!--            android:inputType="text"-->
+        <!--            android:queryHint="Search For a Item" />-->
 
         <ScrollView
             android:layout_width="fill_parent"
@@ -94,6 +94,7 @@
                     android:id="@+id/shopping_list_items_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
+                    android:nestedScrollingEnabled="true"
                     android:layout_marginTop="5dp"
                     tools:listitem="@layout/shopping_list"/>
 
@@ -165,6 +166,7 @@
                         tools:listitem="@layout/store_item"
                         android:id="@+id/stores_list_view"
                         android:layout_marginTop="5dp"
+                        android:nestedScrollingEnabled="true"
                         android:layout_width="match_parent"
                         android:layout_marginBottom="60dp"
                         android:layout_height="wrap_content"/>

@@ -38,6 +38,13 @@ public class StoreListAdapter extends ArrayAdapter<Store> {
             View cardView = newItemView.findViewById(R.id.user_item_card_view);
             cardView.setBackgroundResource(R.drawable.light_blue_card_view_bkg);
         }
+        newItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.updateStoreLaunch(store.getStoreName());
+            }
+
+        });
 
         return newItemView;
 

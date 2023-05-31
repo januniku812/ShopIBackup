@@ -1,15 +1,16 @@
 package com.example.android.receiptreader;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 
@@ -20,6 +21,7 @@ public class ShoppingListAdapter extends ArrayAdapter<ShoppingList> {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -34,6 +36,14 @@ public class ShoppingListAdapter extends ArrayAdapter<ShoppingList> {
         //find the text view in the user item individual view and setting it with object name data
         TextView shoppingListName = (TextView) newItemView.findViewById(R.id.shopping_list_name);
         shoppingListName.setText(shoppingList.getName());
+
+        newItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.updateShoppingListLaunch(shoppingList.getName());
+            }
+
+        });
 
         return newItemView;
 
