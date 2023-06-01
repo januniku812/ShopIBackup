@@ -37,7 +37,7 @@ public class ShoppingListAdapter extends ArrayAdapter<ShoppingList> {
         TextView shoppingListName = (TextView) newItemView.findViewById(R.id.shopping_list_name);
         shoppingListName.setText(shoppingList.getName());
 
-        newItemView.setOnClickListener(new View.OnClickListener() {
+        newItemView.findViewById(R.id.shopping_list_name_cl).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 MainActivity.updateShoppingListLaunch(shoppingList.getName());

@@ -13,6 +13,7 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="placeholder_item_name">ORANGE JUICE</string>
     <string name="placeholder_store_name">WALMART</string>
+    <string name="placeholder_simple_measurement_unit_name">pounds (lb)</string>
     <string name="placeholder_date_user_item">10/21/22</string>
     <string name="json_data_trial">{
   "user_items": [
@@ -107,5 +108,20 @@
     <string name="item_count_in_package">Item Count in Package</string>
     <string name="price_per_pound">Price per pound or preferred unit</string>
     <string name="price_per_package">Price Per Package</string>
+    <string name="measurement_units">Measurement Units</string>
+    <string-array name="measurement_units_array">
+
+        <item>pounds (lb)</item>
+        <item>kilograms (kg)</item>
+        <item>grams (g)</item>
+        <item>fluid ounces (fl oz)</item>
+        <item>ounces (oz)</item>
+        <item>pints (pt)</item>
+        <item>gallons (gl)</item>
+        <item>milliliters (ml)</item>
+        <item>liters (l)</item>
+
+
+    </string-array>
 
 </resources>

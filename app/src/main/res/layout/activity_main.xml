@@ -34,6 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
+
                 <LinearLayout
                     android:id="@+id/shopping_lists_ly"
                     android:orientation="horizontal"
@@ -73,6 +74,20 @@
                         android:focusedByDefault="false"
                         android:inputType="text"
                         android:queryHint="Search For a Shopping List" />
+
+                    <ImageView
+                        android:id="@+id/menu_image_view"
+                        android:layout_width="33dp"
+                        android:layout_height="33dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="15dp"
+                        android:layout_weight="2"
+                        android:inputType="text"
+                        android:tint="@color/black"
+                        android:src="@drawable/menu"
+
+                        android:queryHint="Search For a Shopping List" />
+
 
                 </LinearLayout>
                 <!--                <SearchView-->
@@ -160,16 +175,17 @@
                     android:layout_width="match_parent"
                     android:id="@+id/stores_list_view_and_item_rep_label_cl"
                     android:layout_height="fill_parent">
+
                     <ListView
+                        android:id="@+id/stores_list_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="104dp"
+                        android:layout_marginTop="108dp"
+                        android:nestedScrollingEnabled="true"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:listitem="@layout/store_item"
-                        android:id="@+id/stores_list_view"
-                        android:layout_marginTop="5dp"
-                        android:nestedScrollingEnabled="true"
-                        android:layout_width="match_parent"
-                        android:layout_marginBottom="60dp"
-                        android:layout_height="wrap_content"/>
+                        tools:listitem="@layout/store_item" />
 
                     <TextView
                         app:layout_constraintStart_toStartOf="parent"
