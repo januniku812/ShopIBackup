@@ -11,17 +11,29 @@
         android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
         style="@style/user_item_details_text_style"
-        android:layout_height="45dp">
+        android:layout_height="35dp">
         <TextView
             style="@style/user_item_details_text_style"
-            android:id="@+id/simple_user_item_name"
+            android:id="@+id/simple_measurement_unit_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:fontFamily="sans-serif-condensed-medium"
             android:layout_width="wrap_content"
-            android:text="@string/placeholder_store_name"
+            android:text="@string/placeholder_simple_measurement_unit_name"
             android:layout_height="wrap_content"/>
+        <ImageView
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:id="@+id/check_mark"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="25dp"
+            android:src="@drawable/ic_baseline_check_24"
+            android:layout_height="25dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

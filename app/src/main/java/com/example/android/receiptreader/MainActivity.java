@@ -1,22 +1,27 @@
 package com.example.android.receiptreader;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import android.preference.PreferenceManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -37,7 +42,9 @@ import android.widget.Toast;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     //    TextView resultsForStoresViews;
@@ -277,6 +284,36 @@ public class MainActivity extends AppCompatActivity {
                 "  \"shopping_lists\":[],\n" +
                 "  \"general_items_master\": []\n" +
                 "}");
+        Constants.currentMeasureUnit = PreferenceManager.getDefaultSharedPreferences(this).getString("measurementUnit", "");
+        if(Constants.currentMeasureUnit.isEmpty()){
+            ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+            String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+            System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
+            measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+            measurementUnitsDialog(measurementUnitsArrayList);
+
+        }
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.side_menu);
+        navigationView.getMenu().findItem(R.id.measurement_units_menu_item).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+                String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+                System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray[1]);
+                measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+                System.out.println("MEASUREMENT UNITS: " +measurementUnitsArrayList);
+                measurementUnitsDialog(measurementUnitsArrayList);
+                return true;
+            }
+        });
+        ImageView menuImageView = (ImageView) findViewById(R.id.menu_image_view);
+        menuImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(Gravity.RIGHT);
+            }
+        });
         System.out.print("JSON DATA: " + Constants.json_data_str);
         shoppingListsView = (ListView) findViewById(R.id.shopping_list_items_list_view);
         storesListView = (ListView) findViewById(R.id.stores_list_view);
@@ -631,6 +668,37 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void measurementUnitsDialog(ArrayList<String> measurementUnits) {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder
+                        (MainActivity.this, R.style.AlertDialogCustom);
+        View view = LayoutInflater.from(MainActivity.this).inflate(
+                R.layout.measurement_units_dialog,
+                (ConstraintLayout) findViewById(R.id.layoutDialog)
+        );
+        builder.setView(view);
+        ListView measurementUnitsListView = view.findViewById(R.id.simple_measurement_units_list_view);
+        SimpleMeasurementUnitItemAdapter simpleMeasurementUnitItemAdapter = new SimpleMeasurementUnitItemAdapter(getApplicationContext(), measurementUnits);
+        measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter);
+        measurementUnitsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String measurementUnit =  simpleMeasurementUnitItemAdapter.getItem(position);
+                Constants.currentMeasureUnit = measurementUnit;
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+                        .putString("measurementUnit", measurementUnit).apply();
+                measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter);
+            }
+        });
+        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(true);
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+        alertDialog.show();
     }
 
     public ArrayList<Store> setAllStoresToNotBeingShoppedInExcept(ArrayList<Store> stores, String storeName) {

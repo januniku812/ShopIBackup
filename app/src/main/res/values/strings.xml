@@ -109,6 +109,8 @@
     <string name="price_per_pound">Price per pound or preferred unit</string>
     <string name="price_per_package">Price Per Package</string>
     <string name="measurement_units">Measurement Units</string>
+    <string name="chose_a_measurement_unit">Select a unit of weight to compare item prices</string>
+    <string name="measurement_unit">Measurement Unit</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>
