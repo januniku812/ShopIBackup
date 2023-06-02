@@ -143,6 +143,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         System.out.println("made it hideSoftKeyboard");
     }
+
     private boolean eligibleForInsights(ArrayList<StoreUserItem> storeUserItemArrayList) throws java.text.ParseException {
         if(storeUserItemArrayList == null){
             return false;
@@ -382,7 +383,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         }
 
-        if(eligibleForInsights(QueryUtils.getHistoryOfShoppingListItem(itemName))){
+        if(eligibleForInsights(QueryUtils.getHistoryOfShoppingListItem(itemName)) && (Constants.wantsPriceComparisonUnit && !Constants.currentMeasureUnit.isEmpty())){
             viewInsightsCl.setVisibility(View.VISIBLE);
             viewInsightsTextView.setText(String.format(getString(R.string.view_insights_for_item), itemName));
             viewInsightsCl.setOnClickListener(new View.OnClickListener() {
@@ -444,6 +445,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
         alertDialog.show();
     }
+
     //
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void insightsDialog(String itemName, ArrayList<StoreUserItem> storeUserItemHistory) throws java.text.ParseException {

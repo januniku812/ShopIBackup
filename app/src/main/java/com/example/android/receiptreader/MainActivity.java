@@ -14,12 +14,14 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -285,7 +287,8 @@ public class MainActivity extends AppCompatActivity {
                 "  \"general_items_master\": []\n" +
                 "}");
         Constants.currentMeasureUnit = PreferenceManager.getDefaultSharedPreferences(this).getString("measurementUnit", "");
-        if(Constants.currentMeasureUnit.isEmpty()){
+        Constants.wantsPriceComparisonUnit = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("priceComparisonUnitOn", false);
+        if(Constants.currentMeasureUnit.isEmpty() && Constants.wantsPriceComparisonUnit ){
             ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
             String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
             System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
@@ -295,7 +298,8 @@ public class MainActivity extends AppCompatActivity {
         }
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.side_menu);
-        navigationView.getMenu().findItem(R.id.measurement_units_menu_item).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        MenuItem checkable_measurement_item = navigationView.getMenu().findItem(R.id.measurement_units_menu_item);
+        checkable_measurement_item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
@@ -305,6 +309,27 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("MEASUREMENT UNITS: " +measurementUnitsArrayList);
                 measurementUnitsDialog(measurementUnitsArrayList);
                 return true;
+            }
+        });
+        checkable_measurement_item.setChecked(Constants.wantsPriceComparisonUnit);
+        SwitchCompat mySwitch = (SwitchCompat) checkable_measurement_item.getActionView();
+
+        mySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked){
+                if(!Constants.wantsPriceComparisonUnit){
+                    ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+                    String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+                    System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
+                    measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+                    measurementUnitsDialog(measurementUnitsArrayList);
+                }
+                Constants.wantsPriceComparisonUnit = true;
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
+            } else{
+                Constants.wantsPriceComparisonUnit = false;
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", false).apply();
+
+
             }
         });
         ImageView menuImageView = (ImageView) findViewById(R.id.menu_image_view);
@@ -687,10 +712,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String measurementUnit =  simpleMeasurementUnitItemAdapter.getItem(position);
+                int index = measurementUnitsListView.getFirstVisiblePosition();
+                View v = measurementUnitsListView.getChildAt(0);
+                int top = (v == null) ? 0 : v.getTop();
                 Constants.currentMeasureUnit = measurementUnit;
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                         .putString("measurementUnit", measurementUnit).apply();
                 measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter);
+                measurementUnitsListView.setSelectionFromTop(index, top);
             }
         });
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
@@ -711,7 +740,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -721,10 +749,25 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        System.out.println("ID: " + id);
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.measurement_units_menu_item) {
+            if(item.isChecked()){
+                if(!Constants.wantsPriceComparisonUnit){
+                    ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+                    String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+                    System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
+                    measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+                    measurementUnitsDialog(measurementUnitsArrayList);
+                }
+                Constants.wantsPriceComparisonUnit = true;
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
+            } else{
+                Constants.wantsPriceComparisonUnit = false;
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", false).apply();
+
+
+            }
         }
 
         return super.onOptionsItemSelected(item);

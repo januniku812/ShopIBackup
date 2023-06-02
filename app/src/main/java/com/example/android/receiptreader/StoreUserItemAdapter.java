@@ -1,5 +1,6 @@
 package com.example.android.receiptreader;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
@@ -52,10 +54,29 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
         userItemAmountPaid.setText(storeUserItem.getAmountPaid());
 
         TextView extraWeighBasedUnitPrice = (TextView) newItemView.findViewById(R.id.extra_weight_based_unit_price);
-
+        System.out.println("WANTS COMPARSION UNIT: "+ Constants.wantsPriceComparisonUnit);
         if(extraWeighBasedUnitPrice != null){
             System.out.println("ADDITIONAL WEIGHT DETAIL REACHED: " + additionalWeightUnitPriceDetail);
-            extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail);
+            String currentMeasureUnit = Constants.currentMeasureUnit;
+            if(Constants.wantsPriceComparisonUnit && !currentMeasureUnit.isEmpty()){
+                System.out.println("MADE IT!!");
+                Double actualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("\\D+.",""));
+
+                String ogMeasurementUnit = additionalWeightUnitPriceDetail.substring(additionalWeightUnitPriceDetail.indexOf("/")+1, additionalWeightUnitPriceDetail.length());
+                System.out.println(ogMeasurementUnit);
+                System.out.println(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit));
+
+                actualPrice = actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
+                System.out.println("ACTUAL PRICE: " + (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit))));
+                DecimalFormat f = new DecimalFormat("##.00");
+                actualPrice = Double.parseDouble(f.format(actualPrice));
+                String newWeightBasedDetail = actualPrice + "/" + currentMeasureUnit.substring(currentMeasureUnit.indexOf("(")+1, currentMeasureUnit.indexOf(")"));
+                extraWeighBasedUnitPrice.setText(newWeightBasedDetail);
+                System.out.println("MADE IT!!");
+
+            } else{
+                extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail);
+            }
         }
         return newItemView;
 
