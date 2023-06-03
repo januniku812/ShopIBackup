@@ -21,7 +21,7 @@ public class StoreUserItem implements Serializable {
     String withinPackageItemCount;
     String additionalWeightUnitPriceDetail;
 
-    public String getPricePerPound(){
+    public String getPricePerMeasurementUnit(){
         if ((additionalWeightUnitPriceDetail == null) || (additionalWeightUnitPriceDetail.isEmpty())){
             return null;
         }

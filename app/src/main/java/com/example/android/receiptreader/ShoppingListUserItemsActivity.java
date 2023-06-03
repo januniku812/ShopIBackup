@@ -75,6 +75,7 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
@@ -525,11 +526,19 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<StoreUserItem> dateHistory = datesOfPurchase.get(dateOfPurchase);
                 Double total = 0.0;
                 for (StoreUserItem storeUserItem : dateHistory) {
-                     if(storeUserItem.getPricePerPound() != null) {
-                        total += Double.parseDouble(storeUserItem.getUnitPrice().substring(0, storeUserItem.getUnitPrice().indexOf("/")));
+                     String additionalWeightUnitPriceDetail = storeUserItem.getAdditionalWeightUnitPriceDetail();
+                     if(additionalWeightUnitPriceDetail != null) {
+                         Double actualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
+                         String currentMeasureUnit = Constants.currentMeasureUnit;
+                         String ogMeasurementUnit = additionalWeightUnitPriceDetail.substring(additionalWeightUnitPriceDetail.indexOf("/")+1);
+                         actualPrice = actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
+                         System.out.println("ACTUAL PRICE: " + (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit))));
+
+                         total += actualPrice;
                     }
                 }
-                Double finalAverage = total / dateHistory.size();
+                DecimalFormat f = new DecimalFormat("##.00");
+                Double finalAverage = Double.parseDouble(f.format(total / dateHistory.size()));
                 System.out.print("ADDING DATE OF PURCHASE: " + dateOfPurchase + " FINAL AVG: " + finalAverage + " KEY : "  + key);
                 newHistory.add(new StoreUserItem(dateOfPurchase, finalAverage.toString()));
             }
@@ -658,6 +667,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         graphView.getViewport().setScalableY(false);
 //        graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
         graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this));
+        graphView.getGridLabelRenderer().setVerticalAxisTitle("Item price per " + Constants.currentMeasureUnit);
 //        graphView.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
         System.out.println("DATE X VALUES: " + datePointXValues.get(0));
 //        graphView.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){

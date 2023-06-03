@@ -288,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
                 "}");
         Constants.currentMeasureUnit = PreferenceManager.getDefaultSharedPreferences(this).getString("measurementUnit", "");
         Constants.wantsPriceComparisonUnit = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("priceComparisonUnitOn", false);
+        System.out.println("WANTS PRICE COMPARISON UNIT: " + Constants.wantsPriceComparisonUnit);
         if(Constants.currentMeasureUnit.isEmpty() && Constants.wantsPriceComparisonUnit ){
             ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
             String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
@@ -299,6 +300,8 @@ public class MainActivity extends AppCompatActivity {
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.side_menu);
         MenuItem checkable_measurement_item = navigationView.getMenu().findItem(R.id.measurement_units_menu_item);
+        SwitchCompat mySwitch = (SwitchCompat) checkable_measurement_item.getActionView();
+        mySwitch.setChecked(Constants.wantsPriceComparisonUnit);
         checkable_measurement_item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -311,8 +314,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        checkable_measurement_item.setChecked(Constants.wantsPriceComparisonUnit);
-        SwitchCompat mySwitch = (SwitchCompat) checkable_measurement_item.getActionView();
 
         mySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){

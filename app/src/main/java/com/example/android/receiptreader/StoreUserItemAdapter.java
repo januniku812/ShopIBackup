@@ -59,20 +59,21 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
             System.out.println("ADDITIONAL WEIGHT DETAIL REACHED: " + additionalWeightUnitPriceDetail);
             String currentMeasureUnit = Constants.currentMeasureUnit;
             if(Constants.wantsPriceComparisonUnit && !currentMeasureUnit.isEmpty()){
-                System.out.println("MADE IT!!");
-                Double actualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("\\D+.",""));
+                System.out.println("MADE IT!!: " + additionalWeightUnitPriceDetail + " --> " + additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
+                Double actualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
 
                 String ogMeasurementUnit = additionalWeightUnitPriceDetail.substring(additionalWeightUnitPriceDetail.indexOf("/")+1, additionalWeightUnitPriceDetail.length());
                 System.out.println(ogMeasurementUnit);
                 System.out.println(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit));
-
+                System.out.println("ACTUAL PRICE BEFORE:  " + actualPrice);
                 actualPrice = actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
-                System.out.println("ACTUAL PRICE: " + (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit))));
+                System.out.println("ACTUAL PRICE: " + actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit))));
                 DecimalFormat f = new DecimalFormat("##.00");
                 actualPrice = Double.parseDouble(f.format(actualPrice));
+                System.out.println("ACTUAL PRICE AFTER DECIMAL FORMAT: " + actualPrice);
                 String newWeightBasedDetail = actualPrice + "/" + currentMeasureUnit.substring(currentMeasureUnit.indexOf("(")+1, currentMeasureUnit.indexOf(")"));
                 extraWeighBasedUnitPrice.setText(newWeightBasedDetail);
-                System.out.println("MADE IT!!");
+                System.out.println("MADE IT!! NEW ACTUAL PRICE: " + actualPrice);
 
             } else{
                 extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail);
