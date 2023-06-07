@@ -2,7 +2,6 @@ package com.example.android.receiptreader;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.Intent;
 //import android.content.Intent;
 //import javax.measure.Measure;
@@ -14,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.DataSetObserver;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,11 +22,9 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -57,10 +53,7 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.LabelFormatter;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
@@ -73,29 +66,19 @@ import com.jjoe64.graphview.series.Series;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import static android.os.Build.VERSION_CODES.O;
 
@@ -336,6 +319,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                     }args.putSerializable("shoppingListsContainingSlItem", shoppingListsContainingSl);
                     intent.putExtra("BUNDLE", args);
+                    alertDialog.dismiss();
                     startActivity(intent);
                     actuallyNeedsToBeUpdated.removeObserver(updateObserver);
                     finish();
@@ -370,6 +354,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     args.putString("shoppingListName", shoppingListName);
                     args.putSerializable("storeUserItemsHistory", storeUserItemsHistory);
                     intent.putExtra("BUNDLE", args);
+                    alertDialog.dismiss();
                     startActivity(intent);
                     actuallyNeedsToBeUpdated.removeObserver(updateObserver);
                     finish();
@@ -526,15 +511,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<StoreUserItem> dateHistory = datesOfPurchase.get(dateOfPurchase);
                 Double total = 0.0;
                 for (StoreUserItem storeUserItem : dateHistory) {
-                     String additionalWeightUnitPriceDetail = storeUserItem.getAdditionalWeightUnitPriceDetail();
-                     if(additionalWeightUnitPriceDetail != null) {
-                         Double actualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
-                         String currentMeasureUnit = Constants.currentMeasureUnit;
-                         String ogMeasurementUnit = additionalWeightUnitPriceDetail.substring(additionalWeightUnitPriceDetail.indexOf("/")+1);
-                         actualPrice = actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
-                         System.out.println("ACTUAL PRICE: " + (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit))));
+                    String additionalWeightUnitPriceDetail = storeUserItem.getAdditionalWeightUnitPriceDetail();
+                    if(additionalWeightUnitPriceDetail != null) {
+                        Double actualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
+                        String currentMeasureUnit = Constants.currentMeasureUnit;
+                        String ogMeasurementUnit = additionalWeightUnitPriceDetail.substring(additionalWeightUnitPriceDetail.indexOf("/")+1);
+                        actualPrice = actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
+                        System.out.println("ACTUAL PRICE: " + (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit))));
 
-                         total += actualPrice;
+                        total += actualPrice;
                     }
                 }
                 DecimalFormat f = new DecimalFormat("##.00");
@@ -711,7 +696,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
         alertDialog.show();
     }
-    
+
     @RequiresApi(api = O)
     private void showDialog(String title, String originalName, String shoppingListName, Integer jsonEditCode) throws IOException, ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
@@ -829,6 +814,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         System.out.println("@onactivityresult: " + requestCode);
     }
 
+    // method to replace all common issues in voice to speech text in different areas
+    private String replaceAllCommonIssues(String s) {
+        return s.replaceAll("fluidounces", "fl oz").replaceAll("fluid ounces", "fl oz");
+    }
+
     @RequiresApi(O)
     private void speakWithVoiceDialog(String shoppingListUserItemName, boolean ifStoreProvided) {
         System.out.println("ACESSED");
@@ -840,13 +830,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 (ConstraintLayout) findViewById(R.id.layoutDialogContainerVID)
         );
         final boolean[] ifQuantityIsIndividualPackageBased = {true};
+
         // following layouts are for package based purchase details
         ConstraintLayout additional_weight_cl = view.findViewById(R.id.additional_weight_cl);
         ConstraintLayout within_package_item_count_cl = view.findViewById(R.id.within_package_item_count_ly);
         // following layouts are for weight based purchase details and package based details
         ConstraintLayout quanity_detail_cl = view.findViewById(R.id.quantity_detail_ly);
         ConstraintLayout unit_price_detail_cl = view.findViewById(R.id.unit_price_detail_ly);
-
         TextView choseStoreTextView = view.findViewById(R.id.chose_a_store_text_view);
         ListView choseStoreListView = view.findViewById(R.id.chose_stores_list_view);
         TextView recordDetailsTextView = (TextView) view.findViewById(R.id.textTitle);
@@ -931,13 +921,18 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onResults(Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
-                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
-
-                        if (!isOrContainsMeasurementUnit(justAlpha)){
+                        String justAlpha = "";
+                        if(!result.contains("fl oz")) {
+                            justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        }
+                        else{
+                            justAlpha = "fl oz";
+                        }
+                        if (!isMeasurementUnit(justAlpha)){
                             Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
@@ -967,18 +962,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     additionalWeightMicrophoneState = 0;
                 }
             }
-
             @Override
             public void onPartialResults(Bundle bundle) {
                 System.out.println("@onPartialResults - additionalWeight");
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
-                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
-                        if (!isOrContainsMeasurementUnit(justAlpha)){
+                        String justAlpha = "";
+                        if(!result.contains("fl oz")) {
+                            justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        }
+                        else{
+                            justAlpha = "fl oz";
+                        } if (!isMeasurementUnit(justAlpha)){
                             Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
@@ -1003,12 +1002,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onEvent(int i, Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
-                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
-                        if (!isOrContainsMeasurementUnit(justAlpha)){
+                        String justAlpha = "";
+                        if(!result.contains("fl oz")) {
+                            justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        }
+                        else{
+                            justAlpha = "fl oz";
+                        }if (!isMeasurementUnit(justAlpha)){
                             Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
@@ -1125,17 +1129,23 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onResults(Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
-                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        String justAlpha = "";
+                        if(!result.contains("fl oz")) {
+                             justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        }
+                        else{
+                            justAlpha = "fl oz";
+                        }
                         if(!ifQuantityIsIndividualPackageBased[0]) {
                             try {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
-                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                    if (!isMeasurementUnit(justAlpha)){
                                         Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
@@ -1211,17 +1221,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 System.out.println("@onPartialResults - quantity");
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
-                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
-                        if(!ifQuantityIsIndividualPackageBased[0]) {
+                        String justAlpha = "";
+                        if(!result.contains("fl oz")) {
+                             justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        }
+                        else{
+                            justAlpha = "fl oz";
+                        } if(!ifQuantityIsIndividualPackageBased[0]) {
                             try {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
-                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                    if (!isMeasurementUnit(justAlpha)){
                                         Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
@@ -1288,17 +1303,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onEvent(int i, Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
-                        String justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
-                        if(!ifQuantityIsIndividualPackageBased[0]) {
+                        String justAlpha = "";
+                        if(!result.contains("fl oz")) {
+                             justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                        }
+                        else{
+                            justAlpha = "fl oz";
+                        }if(!ifQuantityIsIndividualPackageBased[0]) {
                             try {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
-                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                    if (!isMeasurementUnit(justAlpha)){
                                         Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
@@ -1434,7 +1454,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(unitPriceSpeechRecognizer.RESULTS_RECOGNITION);
                 System.out.println("@onResults - unitPrice: " + data.get(0));
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     if (result.matches(".*[a-z].*")) {
                         String replaceNumbers = EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
                         System.out.println("REPLACE NUMBERS : " + replaceNumbers);
@@ -1475,7 +1495,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onPartialResults(Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(unitPriceSpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     if (result.matches(".*[a-z].*")) {
                         String replaceNumbers = EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
                         if(!replaceNumbers.equals("000")) {
@@ -1506,7 +1526,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onEvent(int i, Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(unitPriceSpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     if (result.matches(".*[a-z].*")) {
                         String replaceNumbers = EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
                         if(!replaceNumbers.equals("000")) {
@@ -1617,7 +1637,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onResults(Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1627,7 +1647,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
-                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                    if (!isMeasurementUnit(justAlpha)){
                                         Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
@@ -1703,7 +1723,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 System.out.println("@onPartialResults - quantity");
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1713,7 +1733,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
-                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                    if (!isMeasurementUnit(justAlpha)){
                                         Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
@@ -1780,7 +1800,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onEvent(int i, Bundle bundle) {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
-                    String result = data.get(0);
+                    String result = replaceAllCommonIssues(data.get(0));
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1790,7 +1810,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
-                                    if (!isOrContainsMeasurementUnit(justAlpha)){
+                                    if (!isMeasurementUnit(justAlpha)){
                                         Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
@@ -1900,6 +1920,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @RequiresApi(api = O)
             @Override
             public void onClick(View view) {
+
                 if(ifQuantityIsIndividualPackageBased[0]) {
                     String quantityToPass = quantityEditText.getText().toString();
                     System.out.println("quantityToPass: " + quantityToPass);
@@ -1958,7 +1979,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS INDIVIDUAL + FINAL WEIGHT: " + finalAdditionalWeightToPass);
                                         QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, selectedStore.getStoreName(), dateStr,
                                                 quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                                unitPriceEditText.getText().toString(), "ea", finalAdditionalWeightToPass, withinPackageItemCountEditText.getText().toString(), getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                                unitPriceEditText.getText().toString(), "ea", finalAdditionalWeightToPass.trim(), withinPackageItemCountEditText.getText().toString(), getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                                                 .putString("jsonData",Constants.json_data_str.toString()).apply();
                                         alertDialog.dismiss();
@@ -1978,7 +1999,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         System.out.println("STORE FINAL PASS: " + Constants.storeBeingShoppedIn);
                         try {
                             String finalAdditionalWeightToPass = additionalWeightEditText.getText().toString();
-                            if(!finalAdditionalWeightToPass.isEmpty() && !isOrContainsMeasurementUnit(finalAdditionalWeightToPass)){
+                            if(!finalAdditionalWeightToPass.isEmpty() && !isMeasurementUnit(finalAdditionalWeightToPass)){
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_weight_ms), Toast.LENGTH_LONG).show();
 
                             }else{
@@ -2063,10 +2084,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                             }
                         });
-                    } else {
+                    }
+                    else {
                         try {
                             String numberRelatedRemoved = removeNumberRelated(quantityEditText.getText().toString());
-                            if(!isOrContainsMeasurementUnit(numberRelatedRemoved.replaceAll(" ", ""))) {
+                            if(!isMeasurementUnit(numberRelatedRemoved.replaceAll(" ", ""))) {
                                 Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), quantityEditText.getText().toString()), Toast.LENGTH_SHORT).show();
                             }else{
                                 System.out.println("CALLED NOT STORE VIEW QUANTITY IS NOT IND");
@@ -2089,8 +2111,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
             }
         });
-
-
+        alertDialog.setCanceledOnTouchOutside(true);
         if (alertDialog.getWindow() != null) {
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         }
@@ -2116,7 +2137,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     private boolean containsMeasurementUnit(String string) {
         String[] stringSplitUp = string.split(" ");
         for(int i = 0; i < stringSplitUp.length; i++){
-            if(isOrContainsMeasurementUnit(stringSplitUp[i])){
+            if(isMeasurementUnit(stringSplitUp[i])){
                 return true;
             }
         }
@@ -2133,21 +2154,27 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             } catch (Exception e){
                 String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(resultSplitUp[i].replaceAll(" ", ""));
                 if(replaceNumbers.equals("0")) { // if even the replaceNumbers() func can't convert for strings like 'three' which are number related, then it is definitely not number related and we append it
-                    returnStr.append(resultSplitUp[i]);
+                    returnStr.append(resultSplitUp[i]).append(" ");
                 }
             }
 
         }
-        System.out.println("RETURN: " + returnStr.toString());
-        return returnStr.toString();
+        System.out.println("RETURN: " + returnStr.toString().trim());
+        return returnStr.toString().trim();
     }
 
     public void resetAdapter(){
         shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
     }
 
-    private boolean isOrContainsMeasurementUnit(String string) {
-        return string.toLowerCase().replaceAll(" ", "").equals("lb") || string.toLowerCase().replaceAll(" ", "").equals("kg") || string.toLowerCase().replaceAll(" ", "").equals("g");
+    private boolean isMeasurementUnit(String string) {
+        ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+        String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+        for(int i = 0; i < measurementUnitsArray.length; i++){
+            String item =measurementUnitsArray[i];
+            measurementUnitsArrayList.add(item.substring(item.indexOf("(")+1, item.indexOf(")")));
+        }
+        return measurementUnitsArrayList.contains(string.toLowerCase());
     }
 
     @Override
@@ -2445,7 +2472,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                             }
                         }
-                         catch (Exception e) {
+                        catch (Exception e) {
                             e.printStackTrace();
                         }
                         ShoppingListUserItemsActivity.update();

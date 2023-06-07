@@ -140,12 +140,12 @@ public class QueryUtils  {
                     } else{
                         storeUserItemToAdd.put("user_item_total_amount_paid", "not enough info given");
                     }
-                    storeUserItemToAdd.put("user_item_unit_price", unitPrice + " /" + measurementUnit);
+                    storeUserItemToAdd.put("user_item_unit_price", unitPrice + "/" + measurementUnit);
                     if(withinPackageItemCount == null && additionalWeight == null){
-                        storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", unitPrice + " /" + quantity.replaceAll("[^a-z]",""));
+                        storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", unitPrice + "/" + quantity.replaceAll("[^a-zA-Z\\s]","").trim());
                     }
                     if(additionalWeight != null){
-                        storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", df.format(total / Double.parseDouble(additionalWeight.replaceAll("[a-z]", ""))) + " /" + additionalWeight.replaceAll("[^a-z]",""));
+                        storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", df.format(total / Double.parseDouble(additionalWeight.replaceAll("[a-z]", ""))) + "/" + additionalWeight.replaceAll("[^a-z\\s]","").trim());
                     }
                     System.out.println("STORE USER ITEM TO ADD @saveDetailsOfShoppingListUserItem: " + storeUserItemToAdd.toJSONString());
                     store_user_items.add(storeUserItemToAdd);

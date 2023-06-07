@@ -29,7 +29,9 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
         if(newItemView == null) {
             System.out.println("ADDITIONAL WEIGHT DETAIL " +   storeUserItem.getDateOfPurchase() + storeUserItem.getStore() + storeUserItem.getItemName() + " : " + additionalWeightUnitPriceDetail);
             if(additionalWeightUnitPriceDetail != null){
-              newItemView = LayoutInflater.from(getContext()).inflate(R.layout.user_item_with_extra_weight_detail, parent, false);
+                additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail.replaceAll("floz", "fl oz");
+
+                newItemView = LayoutInflater.from(getContext()).inflate(R.layout.user_item_with_extra_weight_detail, parent, false);
             }
             else{
               newItemView = LayoutInflater.from(getContext()).inflate(R.layout.user_item, parent, false);
@@ -55,8 +57,7 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
 
         TextView extraWeighBasedUnitPrice = (TextView) newItemView.findViewById(R.id.extra_weight_based_unit_price);
         System.out.println("WANTS COMPARSION UNIT: "+ Constants.wantsPriceComparisonUnit);
-        if(extraWeighBasedUnitPrice != null){
-            System.out.println("ADDITIONAL WEIGHT DETAIL REACHED: " + additionalWeightUnitPriceDetail);
+        if(extraWeighBasedUnitPrice != null){System.out.println("ADDITIONAL WEIGHT DETAIL REACHED: " + additionalWeightUnitPriceDetail);
             String currentMeasureUnit = Constants.currentMeasureUnit;
             if(Constants.wantsPriceComparisonUnit && !currentMeasureUnit.isEmpty()){
                 System.out.println("MADE IT!!: " + additionalWeightUnitPriceDetail + " --> " + additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
@@ -67,16 +68,16 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
                 System.out.println(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit));
                 System.out.println("ACTUAL PRICE BEFORE:  " + actualPrice);
                 actualPrice = actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
-                System.out.println("ACTUAL PRICE: " + actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit))));
+                System.out.println("ACTUAL PRICE: " + actualPrice);
                 DecimalFormat f = new DecimalFormat("##.00");
                 actualPrice = Double.parseDouble(f.format(actualPrice));
                 System.out.println("ACTUAL PRICE AFTER DECIMAL FORMAT: " + actualPrice);
                 String newWeightBasedDetail = actualPrice + "/" + currentMeasureUnit.substring(currentMeasureUnit.indexOf("(")+1, currentMeasureUnit.indexOf(")"));
-                extraWeighBasedUnitPrice.setText(newWeightBasedDetail);
-                System.out.println("MADE IT!! NEW ACTUAL PRICE: " + actualPrice);
+                extraWeighBasedUnitPrice.setText(newWeightBasedDetail.trim().replaceAll("\\s{2,}", " ").trim());
+                System.out.println("MADE IT!! NEW ACTUAL PRICE: " + newWeightBasedDetail);
 
             } else{
-                extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail);
+                extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail.replaceAll("floz", "fl oz").replaceAll("\\s{2,}", " ").trim());
             }
         }
         return newItemView;

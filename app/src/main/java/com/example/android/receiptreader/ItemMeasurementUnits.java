@@ -30,7 +30,7 @@ public class ItemMeasurementUnits {
         else if(string.equalsIgnoreCase("kg")) {
             return KILOGRAMS;
         }
-        else if(string.equalsIgnoreCase("fl oz")) {
+        else if(string.equalsIgnoreCase("fl oz") || string.equalsIgnoreCase("floz")) {
             return FLUID_OUNCES;
         }
         else if(string.equalsIgnoreCase("g")) {
