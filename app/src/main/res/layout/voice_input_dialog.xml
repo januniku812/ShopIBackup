@@ -28,7 +28,7 @@
             android:text="@string/record_details_for"
             android:textColor="@color/white"
             android:textSize="17sp"
-            android:textStyle="bold"
+            android:textStyle="normal"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!--        <ImageView-->
@@ -65,9 +65,7 @@
                 android:textColorHint="@color/grey"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.2" />
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <ImageView
                 android:id="@+id/quantity_microphone"
@@ -79,16 +77,17 @@
                 app:layout_constraintEnd_toEndOf="@id/quantity_edit_text"
                 app:layout_constraintTop_toTopOf="@id/quantity_edit_text" />
             <ToggleButton
-                app:layout_constraintBottom_toBottomOf="@+id/quantity_microphone"
-                app:layout_constraintTop_toTopOf="@id/quantity_microphone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/quantity_microphone"
                 android:id="@+id/eachWeightToggleButton"
                 android:layout_width="125dp"
-                app:layout_constraintEnd_toStartOf="@id/quantity_microphone"
+                android:layout_marginBottom="10dp"
                 android:layout_height="28dp"
+                android:textStyle="normal"
                 android:background="@drawable/edit_weight_toggle_button"
                 android:button="@drawable/toggle_button_on_bkg"
-                android:textOff="By Package"
-                android:textOn="By Weight" />
+                android:textOff="@string/by_package"
+                android:textOn="@string/by_weight" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -26,8 +26,9 @@
             android:textColor="@color/white"
             android:textSize="17sp"
             android:text="@string/edit_store_name"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            android:textStyle="normal"
+            />
         <ImageView
             android:id="@+id/imageIcon"
             android:layout_width="25dp"
@@ -95,6 +96,7 @@
         android:id="@+id/cancel_button"
         android:layout_marginStart="40dp"
         android:layout_marginEnd="10dp"
+        android:textStyle="normal"
         android:elevation="10dp"
         android:textAllCaps="false"
         android:backgroundTint="@color/darker_light_blue"
@@ -113,6 +115,7 @@
         android:layout_height="40dp"
         android:id="@+id/enterButton"
         android:layout_marginStart="10dp"
+        android:textStyle="normal"
         android:layout_marginEnd="40dp"
         android:layout_marginTop="15dp"
         android:textColor="@color/white"

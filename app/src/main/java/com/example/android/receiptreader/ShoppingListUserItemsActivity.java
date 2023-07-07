@@ -1999,7 +1999,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         System.out.println("STORE FINAL PASS: " + Constants.storeBeingShoppedIn);
                         try {
                             String finalAdditionalWeightToPass = additionalWeightEditText.getText().toString();
-                            if(!finalAdditionalWeightToPass.isEmpty() && !isMeasurementUnit(finalAdditionalWeightToPass)){
+                            if(!finalAdditionalWeightToPass.1isEmpty() && !containsMeasurementUnit(finalAdditionalWeightToPass)){
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_weight_ms), Toast.LENGTH_LONG).show();
 
                             }else{
@@ -2136,8 +2136,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
     private boolean containsMeasurementUnit(String string) {
         String[] stringSplitUp = string.split(" ");
-        for(int i = 0; i < stringSplitUp.length; i++){
-            if(isMeasurementUnit(stringSplitUp[i])){
+        for (String s : stringSplitUp) {
+            if (isMeasurementUnit(s)) {
                 return true;
             }
         }
@@ -2174,6 +2174,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             String item =measurementUnitsArray[i];
             measurementUnitsArrayList.add(item.substring(item.indexOf("(")+1, item.indexOf(")")));
         }
+        System.out.println("MEASUREMENTS ARRAY: " + measurementUnitsArrayList.toString());
         return measurementUnitsArrayList.contains(string.toLowerCase());
     }
 

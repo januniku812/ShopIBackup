@@ -48,4 +48,5 @@ public class ShoppingListAdapter extends ArrayAdapter<ShoppingList> {
         return newItemView;
 
     }
+
 }

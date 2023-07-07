@@ -78,13 +78,13 @@
     <string name="chose_a_store">You have not currently selected a store(main page), please select what store you would like to save %s in below</string>
     <string name="couldnt_rec_value">Couldn\'t recognize %s as a numeric value, please enter values such as 1-10, 1.99, etc.</string>
     <string name="no_speech_detected">No Speech Detected</string>
-    <string name="additional_weight">Additional weight detail(not neccesary)</string>
+    <string name="additional_weight">Additional weight detail(not necessary)</string>
     <string name="you_need_weight_unit">Please record your customary or metric measurement of weight, such as pounds or kilograms, as you have weight toggled in quantity details</string>
     <string name="only_enter_normal_numeric_value">Please only record numeric values such as \'three\'(3), as you have \'each\' toggled in quantity details</string>
     <string name="add_proper_unit_of_weight_after_numeric_value">%s is not a proper unit of weight or numeric value, please enter input such as \'1.5 lbs\'</string>
     <string name="add_proper_unit_of_weight_after_numeric_value_2">Please add a proper unit of measurement after your literal numeric value \'%s\'</string>
 
-    <string name="add_weight_ms">If you wish to record an addition weight despite the details of your item being an individually priced one, please properly record it with details such as \'1.5 pounds\'(lbs) with the voice function or manually, otherwise just leave it blank</string>
+    <string name="add_weight_ms">If you wish to record an additional weight detail despite your item being an individually priced one, please properly record it with details such as \'1.5 pounds\'(lbs) with the voice function or manually, otherwise just leave it blank</string>
     <string name="please_only_stand_alone_values_for_individuals">Please only enter stand alone numeric values like \'three(3)\' as you have your pricing details set as individually priced</string>
     <string name="actions_shopping_list_user_item">Actions On %s Item</string>
     <string name="actions_shopping_list_user_item_formatted">Actions On %s</string>
@@ -92,13 +92,13 @@
     <string name="view_other_sl_with">View Other Shopping Lists With %s</string>
     <string name="reorder_item">Move %s</string>
     <string name="delete_item">Delete %s</string>
-    <string name="record_details_for_item">Record Purchase For %s</string>
+    <string name="record_details_for_item">Purchase Details For %s</string>
     <string name="view_insights_for_item">View Insights For %s</string>
     <string name="exit">Exit</string>
     <string name="insights_for_itemI">Date-Price Insights for %s</string>
     <string name="data_point_tapped">%s purchased from %s on %s for unit price of %f(unit price is averaged if more than one purchase under same day)</string>
     <string name="item_rep">Item Repository</string>
-    <string name="item_repository_labeled">Item Repository</string>
+    <string name="item_repository_labeled">Items</string>
     <string name="edit_rep_item">Edit \'%s\' Item</string>
     <string name="delete_rep_item">Delete \'%s\' Item</string>
     <string name="add_rep_item">Add Item to Item Repository</string>
@@ -111,6 +111,8 @@
     <string name="measurement_units">Measurement Units</string>
     <string name="chose_a_measurement_unit">Select a unit of weight to compare item prices</string>
     <string name="measurement_unit">Price Comparison Unit</string>
+    <string name="by_package">By Package</string>
+    <string name="by_weight">By Weight</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>

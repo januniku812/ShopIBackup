@@ -26,7 +26,7 @@
             android:textColor="@color/white"
             android:textSize="17sp"
             android:text="@string/actions_shopping_list_user_item"
-            android:textStyle="bold"
+            android:textStyle="normal"
             app:layout_constraintTop_toTopOf="parent"/>
         <!--        <ImageView-->
         <!--            android:id="@+id/imageIcon"-->
@@ -61,7 +61,7 @@
                 android:layout_height="30dp"/>
 
             <TextView
-                android:textStyle="bold"
+                android:textStyle="normal"
                 style="@style/user_item_details_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -94,7 +94,6 @@
                 android:layout_height="30dp"/>
 
             <TextView
-                android:textStyle="bold"
                 android:id="@+id/view_other_sl_with_text_view"
                 style="@style/user_item_details_text_style"
                 android:layout_width="wrap_content"
@@ -125,7 +124,6 @@
                 android:layout_height="30dp"/>
 
             <TextView
-                android:textStyle="bold"
                 style="@style/user_item_details_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -159,7 +157,6 @@
                 android:layout_height="30dp"/>
 
             <TextView
-                android:textStyle="bold"
                 style="@style/user_item_details_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -193,7 +190,7 @@
                 android:layout_height="30dp"/>
 
             <TextView
-                android:textStyle="bold"
+                android:textStyle="normal"
                 style="@style/user_item_details_text_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
