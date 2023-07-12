@@ -1999,7 +1999,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         System.out.println("STORE FINAL PASS: " + Constants.storeBeingShoppedIn);
                         try {
                             String finalAdditionalWeightToPass = additionalWeightEditText.getText().toString();
-                            if(!finalAdditionalWeightToPass.1isEmpty() && !containsMeasurementUnit(finalAdditionalWeightToPass)){
+                            if(!finalAdditionalWeightToPass.isEmpty() && !containsMeasurementUnit(finalAdditionalWeightToPass)){
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_weight_ms), Toast.LENGTH_LONG).show();
 
                             }else{

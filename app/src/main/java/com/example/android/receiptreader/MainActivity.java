@@ -3,6 +3,7 @@ package com.example.android.receiptreader;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +23,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import android.os.PersistableBundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
@@ -99,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         view.getLocationOnScreen(location);
         return (location[1] <= getWindowManager().getDefaultDisplay().getHeight());
     }
+
     private void showDialog(String title, int jsonEditCode, @Nullable String originalName) {
         final int finalJsonEditCode = jsonEditCode;
         androidx.appcompat.app.AlertDialog.Builder builder =
@@ -186,17 +190,17 @@ public class MainActivity extends AppCompatActivity {
                             stores = QueryUtils.getStores();
                             storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                             storesListView.setAdapter(storeListAdapter);
-                            View itemRepLabel = findViewById(R.id.item_repository_label);
-                            if(!isVisible(itemRepLabel)){
-                                System.out.println("NOT VISIBLE");
-                                ConstraintLayout constraintLayout = findViewById(R.id.stores_list_view_and_item_rep_label_cl);
-                                ConstraintSet constraintSet = new ConstraintSet();
-                                constraintSet.connect(R.id.stores_list_view, ConstraintSet.TOP, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, 5);
-                                constraintSet.connect(R.id.stores_list_view, ConstraintSet.BOTTOM, R.id.item_repository_label, ConstraintSet.TOP, 5);
-                                constraintSet.connect(R.id.item_repository_label, ConstraintSet.BOTTOM, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.BOTTOM, 15);
-                                constraintLayout.setConstraintSet(constraintSet);
-
-                            }
+//                            View itemRepLabel = findViewById(R.id.item_repository_label);
+//                            if(!isVisible(itemRepLabel)){
+//                                System.out.println("NOT VISIBLE");
+//                                ConstraintLayout constraintLayout = findViewById(R.id.stores_list_view_and_item_rep_label_cl);
+//                                ConstraintSet constraintSet = new ConstraintSet();
+//                                constraintSet.connect(R.id.stores_list_view, ConstraintSet.TOP, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, 5);
+//                                constraintSet.connect(R.id.stores_list_view, ConstraintSet.BOTTOM, R.id.item_repository_label, ConstraintSet.TOP, 5);
+//                                constraintSet.connect(R.id.item_repository_label, ConstraintSet.BOTTOM, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.BOTTOM, 15);
+//                                constraintLayout.setConstraintSet(constraintSet);
+//
+//                            }
                             alertDialog.dismiss();
                         } else {
                             Toast.makeText(MainActivity.this, String.format(getString(R.string.store_already_exists), editTextVal), Toast.LENGTH_SHORT).show();
@@ -343,7 +347,10 @@ public class MainActivity extends AppCompatActivity {
         System.out.print("JSON DATA: " + Constants.json_data_str);
         shoppingListsView = (ListView) findViewById(R.id.shopping_list_items_list_view);
         storesListView = (ListView) findViewById(R.id.stores_list_view);
+/*
         TextView itemRepTv = (TextView) findViewById(R.id.item_repository_label);
+*/
+        ImageView itemRepImageView = (ImageView) findViewById(R.id.item_repo_icon);
         SearchView shoppingListSearchView = findViewById(R.id.shopping_list_search_bar);
         SearchView storesSearchView = findViewById(R.id.store_list_search_bars);
         storesSearchView.clearFocus();
@@ -374,7 +381,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         shoppingListLaunchNeedsToBeUpdated.observeForever(shoppingListLaunchUpdatedObserver);
-
         storeLaunchUpdatedObserver = new Observer<String>() {
             @Override
             public void onChanged(String newString) {
@@ -386,25 +392,32 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         storeLaunchNeedsToBeUpdated.observeForever(storeLaunchUpdatedObserver);
+//        View itemRepLabel = findViewById(R.id.item_repository_label);
 
-        
-        View itemRepLabel = findViewById(R.id.item_repository_label);
-
-        itemRepLabel.setTag(itemRepLabel.getVisibility());
-        itemRepLabel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        itemRepImageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onGlobalLayout() {
-                System.out.println("TRIGGERED: " + isVisible(itemRepLabel));
-                    if(!isVisible(itemRepLabel)){
-                        System.out.println("NOT VISIBLE?!?!?!");
-                        ListView storeListView = findViewById(R.id.stores_list_view);
-                        storeListView.setLayoutParams(new ConstraintLayout.LayoutParams(storeListView.getWidth(), storeListView.getHeight()-itemRepLabel.getHeight()-10));
-                        storeListView.setClickable(true);
-                    }
-                    //visibility has changed
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
+                startActivity(intent);
+                storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
+                shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
             }
         });
 
+//        itemRepLabel.setTag(itemRepLabel.getVisibility());
+//        itemRepLabel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                System.out.println("TRIGGERED: " + isVisible(itemRepLabel));
+//                    if(!isVisible(itemRepLabel)){
+//                        System.out.println("NOT VISIBLE?!?!?!");
+//                        ListView storeListView = findViewById(R.id.stores_list_view);
+//                        storeListView.setLayoutParams(new ConstraintLayout.LayoutParams(storeListView.getWidth(), storeListView.getHeight()-itemRepLabel.getHeight()-10));
+//                        storeListView.setClickable(true);
+//ibility has changed
+//            }                    }
+//                //vis
+//        });
         LinearLayout shoppingListLy = findViewById(R.id.shopping_lists_ly);
         shoppingListAdapter = new ShoppingListAdapter(this, shoppingLists);
         storeListAdapter = new StoreListAdapter(this, stores);
@@ -412,20 +425,20 @@ public class MainActivity extends AppCompatActivity {
         storesListView.setAdapter(storeListAdapter);
         shoppingListLy.setMinimumHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.1)));
         shoppingListsView.setMinimumHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.4)));
-        itemRepTv.setHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.1))); // setting item rep Tv height as 5 percent of the screen height
-        itemRepTv.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                System.out.println("CURRENT PERCEN: " +storesListView.getHeight() + " WINDOW: " + getWindowManager().getDefaultDisplay().getHeight());
-                Double listVHeight = Double.parseDouble(String.valueOf(storesListView.getHeight()));
-                Double windowHeight = Double.parseDouble(String.valueOf(getWindowManager().getDefaultDisplay().getHeight()));
-                System.out.println("PERCEN: " + (listVHeight/windowHeight));
-                if((listVHeight/windowHeight) > 0.4) {
-                        System.out.println("CALLED ON GLOBALLAYOUT");
-                    }
-
-            }
-        });
+//        itemRepTv.setHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.1))); // setting item rep Tv height as 5 percent of the screen height
+//        itemRepTv.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                System.out.println("CURRENT PERCEN: " +storesListView.getHeight() + " WINDOW: " + getWindowManager().getDefaultDisplay().getHeight());
+//                Double listVHeight = Double.parseDouble(String.valueOf(storesListView.getHeight()));
+//                Double windowHeight = Double.parseDouble(String.valueOf(getWindowManager().getDefaultDisplay().getHeight()));
+//                System.out.println("PERCEN: " + (listVHeight/windowHeight));
+//                if((listVHeight/windowHeight) > 0.4) {
+//                        System.out.println("CALLED ON GLOBALLAYOUT");
+//                    }
+//
+//            }
+//        });
         hideSoftKeyboard(this);
         // all functions for searching through the stores list view
         storesSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -683,17 +696,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        itemRepTv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
-                startActivity(intent);
-                storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
-                shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
-            }
-        });
+//        itemRepTv.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
+//                startActivity(intent);
+//                storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
+//                shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
+//            }
+//        });
 
 
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     private void measurementUnitsDialog(ArrayList<String> measurementUnits) {
@@ -772,5 +790,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    @Nullable
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        return super.onRetainCustomNonConfigurationInstance();
     }
 }

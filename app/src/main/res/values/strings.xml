@@ -84,8 +84,8 @@
     <string name="add_proper_unit_of_weight_after_numeric_value">%s is not a proper unit of weight or numeric value, please enter input such as \'1.5 lbs\'</string>
     <string name="add_proper_unit_of_weight_after_numeric_value_2">Please add a proper unit of measurement after your literal numeric value \'%s\'</string>
 
-    <string name="add_weight_ms">If you wish to record an additional weight detail despite your item being an individually priced one, please properly record it with details such as \'1.5 pounds\'(lbs) with the voice function or manually, otherwise just leave it blank</string>
-    <string name="please_only_stand_alone_values_for_individuals">Please only enter stand alone numeric values like \'three(3)\' as you have your pricing details set as individually priced</string>
+    <string name="add_weight_ms">Additional weight detail despite must have proper weight unit(e.g. lb)</string>
+    <string name="please_only_stand_alone_values_for_individuals">Please only enter stand alone numeric values like \'three(3)\' for quantity</string>
     <string name="actions_shopping_list_user_item">Actions On %s Item</string>
     <string name="actions_shopping_list_user_item_formatted">Actions On %s</string>
     <string name="item_has_no_history">%s has no purchase history</string>

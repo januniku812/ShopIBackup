@@ -78,18 +78,39 @@
                         android:inputType="text"
                         android:queryHint="Search For a Shopping List" />
 
-                    <ImageView
-                        android:id="@+id/menu_image_view"
-                        android:layout_width="33dp"
-                        android:layout_height="33dp"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="wrap_content"
+                        android:layout_marginEnd='10dp'
                         android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="15dp"
-                        android:layout_weight="2"
-                        android:inputType="text"
-                        android:tint="@color/black"
-                        android:src="@drawable/menu"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:id="@+id/item_repo_icon"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_weight="2"
+                            android:inputType="text"
+                            android:src="@drawable/ic_groeryitems"
+                            android:tint="@color/black" />
 
-                        android:queryHint="Search For a Shopping List" />
+                        <ImageView
+                            android:id="@+id/menu_image_view"
+                            app:layout_constraintStart_toEndOf="@id/item_repo_icon"
+                            app:layout_constraintTop_toTopOf="@id/item_repo_icon"
+                            app:layout_constraintBottom_toBottomOf="@id/item_repo_icon"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="15dp"
+                            android:layout_weight="2"
+                            android:inputType="text"
+                            android:tint="@color/black"
+                            android:src="@drawable/menu"
+
+                            android:queryHint="Search For a Shopping List" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
                 </LinearLayout>
@@ -189,18 +210,18 @@
                         app:layout_constraintTop_toTopOf="parent"
                         tools:listitem="@layout/store_item" />
 
-                    <TextView
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/stores_list_view"
-                        android:id="@+id/item_repository_label"
-                        style="@style/user_item_details_text_style"
-                        android:layout_width="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_height="40dp"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginBottom="5dp"
-                        android:text="@string/item_rep"
-                        android:textSize="18sp" />
+<!--                    <TextView-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@id/stores_list_view"-->
+<!--                        android:id="@+id/item_repository_label"-->
+<!--                        style="@style/user_item_details_text_style"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_marginTop="5dp"-->
+<!--                        android:layout_height="40dp"-->
+<!--                        android:layout_marginStart="15dp"-->
+<!--                        android:layout_marginBottom="5dp"-->
+<!--                        android:text="@string/item_rep"-->
+<!--                        android:textSize="18sp" />-->
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
