@@ -34,11 +34,11 @@ public class StoreListAdapter extends ArrayAdapter<Store> {
         TextView storeName = (TextView) newItemView.findViewById(R.id.store_item_name);
         storeName.setText(store.getStoreName());
 
-        View cardView = newItemView.findViewById(R.id.user_item_card_view);
+        View cardView = newItemView.findViewById(R.id.store_item_card_view);
         if(store.isIfHighlighted()){ // set color to blue if it is the store being shopped in
             cardView.setBackgroundResource(R.drawable.light_blue_card_view_bkg);
         }else{
-            cardView.setBackgroundResource(R.color.white);
+            cardView.setBackgroundResource(R.drawable.white_background_card);
         }
         newItemView.findViewById(R.id.store_name_cl).setOnClickListener(new View.OnClickListener() {
             @Override

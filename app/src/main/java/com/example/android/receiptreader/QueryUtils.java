@@ -90,7 +90,7 @@ public class QueryUtils  {
             Collections.sort(shoppingListUserItemsToReturn, new Comparator<ShoppingListUserItem>() {
                 @Override
                 public int compare(final ShoppingListUserItem object1, final ShoppingListUserItem object2) {
-                    return object1.getName().compareTo(object2.getName());
+                    return object1.getName().toLowerCase().compareTo(object2.getName().toLowerCase());
                 }
             });
         }
@@ -126,7 +126,7 @@ public class QueryUtils  {
                     } else{
                         storeUserItemToAdd.put("user_item_within_package_item_count", "1");
                     }
-                    DecimalFormat df = new DecimalFormat("#.##");
+                    DecimalFormat df = new DecimalFormat("#.####");
                     if(!quantity.equals("not filled") && !unitPrice.equals("not filled")){
                         try {
                             int parsedInt = Integer.parseInt(quantity) * Integer.parseInt(unitPrice);
@@ -145,7 +145,11 @@ public class QueryUtils  {
                         storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", unitPrice + "/" + quantity.replaceAll("[^a-zA-Z\\s]","").trim());
                     }
                     if(additionalWeight != null){
-                        storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", df.format(total / Double.parseDouble(additionalWeight.replaceAll("[a-z]", ""))) + "/" + additionalWeight.replaceAll("[^a-z\\s]","").trim());
+                        storeUserItemToAdd.put("user_item_additional_weight_pricing_detail",
+                                df.format(total / Double.parseDouble(
+                                        additionalWeight.replaceAll("[a-z]", "")))
+                                        + "/" + additionalWeight.replaceAll("[^a-z\\s]","").trim()
+                        );
                     }
                     System.out.println("STORE USER ITEM TO ADD @saveDetailsOfShoppingListUserItem: " + storeUserItemToAdd.toJSONString());
                     store_user_items.add(storeUserItemToAdd);
@@ -674,6 +678,14 @@ public class QueryUtils  {
         }catch(Exception e){
             e.printStackTrace();
         }
+        if (repItemArrayList.size() > 0) {
+            Collections.sort(repItemArrayList, new Comparator<RepItem>() {
+                @Override
+                public int compare(final RepItem object1, final RepItem object2) {
+                    return object1.getName().toLowerCase().compareTo(object2.getName().toLowerCase());
+                }
+            });
+        }
         return repItemArrayList;
 
     }
@@ -1037,7 +1049,7 @@ public class QueryUtils  {
             Collections.sort(storeUserItemArrayList, new Comparator<StoreUserItem>() {
                 @Override
                 public int compare(final StoreUserItem object1, final StoreUserItem object2) {
-                    return object1.getItemName().compareTo(object2.getItemName());
+                    return object1.getItemName().toLowerCase().compareTo(object2.getItemName().toLowerCase());
                 }
             });
         }
@@ -1089,7 +1101,7 @@ public class QueryUtils  {
             Collections.sort(ShoppingListUserItemArraylist, new Comparator<ShoppingListUserItem>() {
                 @Override
                 public int compare(final ShoppingListUserItem object1, final ShoppingListUserItem object2) {
-                    return object1.getName().compareTo(object2.getName());
+                    return object1.getName().toLowerCase().compareTo(object2.getName().toLowerCase());
                 }
             });
         }
@@ -1145,7 +1157,7 @@ public class QueryUtils  {
             Collections.sort(storeArrayList, new Comparator<Store>() {
                 @Override
                 public int compare(final Store object1, final Store object2) {
-                    return object1.getStoreName().compareTo(object2.getStoreName());
+                    return object1.getStoreName().toLowerCase().compareTo(object2.getStoreName().toLowerCase());
                 }
             });
         }
@@ -1202,7 +1214,7 @@ public class QueryUtils  {
             Collections.sort(shoppingListArray, new Comparator<ShoppingList>() {
                 @Override
                 public int compare(final ShoppingList object1, final ShoppingList object2) {
-                    return object1.getName().compareTo(object2.getName());
+                    return object1.getName().toLowerCase().compareTo(object2.getName().toLowerCase());
                 }
             });
         }

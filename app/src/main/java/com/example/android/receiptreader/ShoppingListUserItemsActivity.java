@@ -933,7 +933,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             justAlpha = "fl oz";
                         }
                         if (!isMeasurementUnit(justAlpha)){
-                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
                         result = result.replaceAll("[a-z]", "");
@@ -978,7 +978,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         else{
                             justAlpha = "fl oz";
                         } if (!isMeasurementUnit(justAlpha)){
-                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
                         result = result.replaceAll("[a-z]", "");
@@ -1013,7 +1013,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         else{
                             justAlpha = "fl oz";
                         }if (!isMeasurementUnit(justAlpha)){
-                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
                         result = result.replaceAll("[a-z]", "");
@@ -1146,7 +1146,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
@@ -1169,6 +1169,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
+                                System.out.println("QUANITY EXCEPTION: " + e.toString());
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
@@ -1196,12 +1197,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         if(Double.parseDouble(result) <= 0){
                             Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
                         } else {
-                            unitPriceEditText.setText(result);
+                            quantityEditText.setText(result);
                         }
 
                     }
                 }
                 catch (Exception e){
+                    System.out.println("QUANITY EXCEPTION: " + e.toString());
                     quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                     Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
                     final Runnable stopListeningRunnable = new Runnable() {
@@ -1237,7 +1239,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
@@ -1260,6 +1262,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
+                                System.out.println("QUANITY EXCEPTION: " + e.toString());
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
@@ -1287,7 +1290,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         if(Double.parseDouble(result) <= 0){
                             Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
                         } else {
-                            unitPriceEditText.setText(result);
+                            quantityEditText.setText(result);
                         }
 
                     }
@@ -1319,7 +1322,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
@@ -1342,6 +1345,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
+                                System.out.println("QUANITY EXCEPTION: " + e.toString());
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
@@ -1369,7 +1373,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         if(Double.parseDouble(result) <= 0){
                             Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.quantity_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
                         } else {
-                            unitPriceEditText.setText(result);
+                            quantityEditText.setText(result);
                         }
 
                     }
@@ -1648,7 +1652,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
@@ -1734,7 +1738,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
@@ -1811,7 +1815,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value), justAlpha), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }

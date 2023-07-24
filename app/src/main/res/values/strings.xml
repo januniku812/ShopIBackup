@@ -81,8 +81,8 @@
     <string name="additional_weight">Additional weight detail(not necessary)</string>
     <string name="you_need_weight_unit">Please record your customary or metric measurement of weight, such as pounds or kilograms, as you have weight toggled in quantity details</string>
     <string name="only_enter_normal_numeric_value">Please only record numeric values such as \'three\'(3), as you have \'each\' toggled in quantity details</string>
-    <string name="add_proper_unit_of_weight_after_numeric_value">%s is not a proper unit of weight or numeric value, please enter input such as \'1.5 lbs\'</string>
-    <string name="add_proper_unit_of_weight_after_numeric_value_2">Please add a proper unit of measurement after your literal numeric value \'%s\'</string>
+    <string name="add_proper_unit_of_weight_after_numeric_value">Enter a proper unit of weight or numeric value for weight quantity</string>
+    <string name="add_proper_unit_of_weight_after_numeric_value_2">Please add a proper unit of weight after your literal numeric value \'%s\'</string>
 
     <string name="add_weight_ms">Additional weight detail despite must have proper weight unit(e.g. lb)</string>
     <string name="please_only_stand_alone_values_for_individuals">Please only enter stand alone numeric values like \'three(3)\' for quantity</string>

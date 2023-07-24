@@ -237,7 +237,7 @@
         android:layout_gravity="end"
         android:backgroundTintMode="src_over"
         android:backgroundTint="@color/light_blue_2"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:background="@drawable/side_menu_background"
         app:headerLayout="@layout/menu_header"
         app:menu="@menu/app_menu">
