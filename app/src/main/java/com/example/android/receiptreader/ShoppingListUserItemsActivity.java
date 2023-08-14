@@ -63,6 +63,7 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 import com.jjoe64.graphview.series.Series;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -72,6 +73,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
@@ -81,6 +83,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static android.os.Build.VERSION_CODES.O;
+import static android.text.TextUtils.isEmpty;
 
 public class ShoppingListUserItemsActivity extends AppCompatActivity {
     ShoppingListUserItemAdapter shoppingListUserItemAdapter;
@@ -114,6 +117,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     @RequiresApi(api = O)
     public static void update(){
         actuallyNeedsToBeUpdated.postValue(true);
+    }
+
+    public static String getFirstNotEmpty(List<String> list) {
+        for (String item : list) {
+            if (!isEmpty(item)) {
+                return item;
+            }
+        }
+        return null;
     }
 
     public void hideSoftKeyboard(Activity activity) {
@@ -513,15 +525,32 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 for (StoreUserItem storeUserItem : dateHistory) {
                     String additionalWeightUnitPriceDetail = storeUserItem.getAdditionalWeightUnitPriceDetail();
                     if(additionalWeightUnitPriceDetail != null) {
-                        Double actualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
+                        Double ogActualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
                         String currentMeasureUnit = Constants.currentMeasureUnit;
                         String ogMeasurementUnit = additionalWeightUnitPriceDetail.substring(additionalWeightUnitPriceDetail.indexOf("/")+1);
-                        actualPrice = actualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
+                        Double actualPrice = ogActualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
                         System.out.println("ACTUAL PRICE: " + (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit))));
+                        DecimalFormat f = new DecimalFormat("##.00");
+                        actualPrice = Double.parseDouble(f.format(actualPrice));
+                        Integer sigFigs = 2;
+                        if (ogActualPrice != 0) {
+                            while(actualPrice == 0.0){
+                                sigFigs++;
+                                String formatExpression = "##.";
+                                for(int i = 0; i < sigFigs; i++) {
+                                    formatExpression += "0";
+                                }
+                                DecimalFormat newFormatter = new DecimalFormat(formatExpression);
+                                actualPrice = Double.parseDouble(newFormatter.format(ogActualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)))));
 
+                            }
+
+                        }
+                        System.out.println("FINAL ACTUAL PRICE: " + actualPrice + "FOR ITEM: " + itemName + " ADDITIONAL WEIGHT DETAIL: " + additionalWeightUnitPriceDetail);
                         total += actualPrice;
                     }
                 }
+
                 DecimalFormat f = new DecimalFormat("##.00");
                 Double finalAverage = Double.parseDouble(f.format(total / dateHistory.size()));
                 System.out.print("ADDING DATE OF PURCHASE: " + dateOfPurchase + " FINAL AVG: " + finalAverage + " KEY : "  + key);
@@ -627,15 +656,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             graphView.addSeries(series);
         }
         storeKeyListView.setAdapter(new StoreKeyItemListAdapter(getApplicationContext(), storeKeyStringArrayList));
+        double latestDate = datePointXValues.get(0);
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         for(double doubleVal: datePointXValues){
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-
             System.out.println("DATE POINT X VALUES : " + format.format(new Date((long) doubleVal)));
+            if(doubleVal > latestDate){
+                latestDate = doubleVal;
+            }
         }
-//        staticLabelsFormatter.setHorizontalLabels(horizontalLabels);
-//        staticLabelsFormatter.setViewport(graphView.getViewport());
-//
-//        staticLabelsFormatter.setVerticalLabels(dates.toArray().toString());
+        long latestDateFormated = Date.parse(format.format(new Date((long) latestDate)));
+
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -649,7 +679,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         graphView.getViewport().setScrollableY(true);
         graphView.getViewport().setScrollable(true);
         graphView.getViewport().setScalable(true);
-        graphView.getViewport().setScalableY(false);
 //        graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
         graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this));
         graphView.getGridLabelRenderer().setVerticalAxisTitle("Item price per " + Constants.currentMeasureUnit);
@@ -672,6 +701,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //
 //        });
         graphView.getViewport().setYAxisBoundsManual(true);
+        graphView.getGridLabelRenderer().setNumHorizontalLabels(datePointXValues.size());
+        graphView.getViewport().setMaxX(latestDateFormated);
         graphView .getViewport().setXAxisBoundsManual(true);
         graphView.getGridLabelRenderer().setHumanRounding(false, false);
         graphView.setTitleColor(getResources().getColor(R.color.blue));
@@ -816,7 +847,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
     // method to replace all common issues in voice to speech text in different areas
     private String replaceAllCommonIssues(String s) {
-        return s.replaceAll("fluidounces", "fl oz").replaceAll("fluid ounces", "fl oz");
+        return s.replaceAll("fluidounces", "fl oz").replaceAll("fluid ounces", "fl oz").replaceAll("G", "g");
     }
 
     @RequiresApi(O)
@@ -922,12 +953,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
                         String justAlpha = "";
                         if(!result.contains("fl oz")) {
-                            justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                            justAlpha = getFirstNotEmpty(Arrays.asList(removeNumberRelated(result).split(" "))); // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                            System.out.println("JUST ALPHA: " + justAlpha);
                         }
                         else{
                             justAlpha = "fl oz";
@@ -941,7 +974,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             Double.parseDouble(result);
                         }
                         catch(Exception e){
-                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                         }
                         additionalWeightEditText.setText(result + " " + justAlpha);
                     } else {
@@ -949,8 +982,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 }
                 catch (Exception e){
+                    System.out.println("EXCEPTION: " );
+                    e.printStackTrace();
                     additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -968,6 +1003,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -986,7 +1022,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             Double.parseDouble(result);
                         }
                         catch(Exception e){
-                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                         }
                         additionalWeightEditText.setText(result + " " + justAlpha);
                     } else {
@@ -1003,6 +1039,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1021,7 +1058,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             Double.parseDouble(result);
                         }
                         catch(Exception e){
-                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                         }
                         additionalWeightEditText.setText(result + " " + justAlpha);
                     } else {
@@ -1130,6 +1167,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1145,22 +1183,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
+                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), result), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
-                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     System.out.println("Wo A_Z CONTIANING ONE: " + result);
                                     try {
                                         Double.parseDouble(result);
                                     }
                                     catch(Exception e){
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
-                                        if(!replaceNumbers.equals("0")) {
+                                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                     quantityEditText.setText(result + " " + justAlpha);
@@ -1171,7 +1209,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             catch (Exception e){
                                 System.out.println("QUANITY EXCEPTION: " + e.toString());
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1205,7 +1243,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 catch (Exception e){
                     System.out.println("QUANITY EXCEPTION: " + e.toString());
                     quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1224,6 +1262,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1238,22 +1277,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
+                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), result), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
-                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     System.out.println("Wo A_Z CONTIANING ONE: " + result);
                                     try {
                                         Double.parseDouble(result);
                                     }
                                     catch(Exception e){
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
-                                        if(!replaceNumbers.equals("0")) {
+                                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                     quantityEditText.setText(result + " " + justAlpha);
@@ -1264,7 +1303,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             catch (Exception e){
                                 System.out.println("QUANITY EXCEPTION: " + e.toString());
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1307,6 +1346,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1321,22 +1361,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
+                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     if (!isMeasurementUnit(justAlpha)){
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), result), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
-                                    result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     System.out.println("Wo A_Z CONTIANING ONE: " + result);
                                     try {
                                         Double.parseDouble(result);
                                     }
                                     catch(Exception e){
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
-                                        if(!replaceNumbers.equals("0")) {
+                                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                     quantityEditText.setText(result + " " + justAlpha);
@@ -1347,7 +1387,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             catch (Exception e){
                                 System.out.println("QUANITY EXCEPTION: " + e.toString());
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1459,10 +1499,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 System.out.println("@onResults - unitPrice: " + data.get(0));
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     if (result.matches(".*[a-z].*")) {
                         String replaceNumbers = EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
                         System.out.println("REPLACE NUMBERS : " + replaceNumbers);
-                        if(!replaceNumbers.equals("000")) {
+                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                             result = replaceNumbers;
                             unitPriceEditText.setText(result);
                         }else  {
@@ -1481,7 +1522,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 }
                 catch (Exception e){
                     unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1502,7 +1543,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     String result = replaceAllCommonIssues(data.get(0));
                     if (result.matches(".*[a-z].*")) {
                         String replaceNumbers = EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
-                        if(!replaceNumbers.equals("000")) {
+                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                             result = replaceNumbers;
                             unitPriceEditText.setText(result);
                         }else  {
@@ -1533,7 +1574,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     String result = replaceAllCommonIssues(data.get(0));
                     if (result.matches(".*[a-z].*")) {
                         String replaceNumbers = EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
-                        if(!replaceNumbers.equals("000")) {
+                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                             result = replaceNumbers;
                             unitPriceEditText.setText(result);
                         }else  {
@@ -1642,6 +1683,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1663,10 +1705,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     }
                                     catch(Exception e){
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
-                                        if(!replaceNumbers.equals("0")) {
+                                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                     withinPackageItemCountEditText.setText(result + " " + justAlpha);
@@ -1676,7 +1718,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             }
                             catch (Exception e){
                                 withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1709,7 +1751,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 }
                 catch (Exception e){
                     withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1728,6 +1770,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1749,10 +1792,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     }
                                     catch(Exception e){
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
-                                        if(!replaceNumbers.equals("0")) {
+                                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                     withinPackageItemCountEditText.setText(result + " " + justAlpha);
@@ -1762,7 +1805,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             }
                             catch (Exception e){
                                 withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1805,6 +1848,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
+                    String ogResult = result;
                     System.out.println("@onResults - quantity 34455: " + result);
                     if (result.matches(".*[a-z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
@@ -1826,10 +1870,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     }
                                     catch(Exception e){
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
-                                        if(!replaceNumbers.equals("0")) {
+                                        if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), result), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                     withinPackageItemCountEditText.setText(result + " " + justAlpha);
@@ -1839,7 +1883,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             }
                             catch (Exception e){
                                 withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_speech_detected), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -2128,7 +2172,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         String[] stringSplitUp = result.split(" ");
         for(String s: stringSplitUp){
             String replaceNumbers = EnglishWordsToNumbers.replaceNumbers(s);
-            if(!replaceNumbers.equals("0")){
+            if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                 stringBuilder.append(replaceNumbers);
             } else{
                 stringBuilder.append(" " + s);
@@ -2153,12 +2197,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         String[] resultSplitUp = result.toString().split(" ");
         for(int i = 0; i < resultSplitUp.length; i++){
             System.out.println("RESULT SPLIT UP i : " + resultSplitUp[i]);
-            try{
-                Double.parseDouble(resultSplitUp[i]);
-            } catch (Exception e){
-                String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(resultSplitUp[i].replaceAll(" ", ""));
-                if(replaceNumbers.equals("0")) { // if even the replaceNumbers() func can't convert for strings like 'three' which are number related, then it is definitely not number related and we append it
-                    returnStr.append(resultSplitUp[i]).append(" ");
+            if(!resultSplitUp[i].isEmpty()) {
+                try {
+                    Double.parseDouble(resultSplitUp[i]);
+                } catch (Exception e) {
+                    String replaceNumbers = EnglishWordsToNumbers.replaceNumbers(resultSplitUp[i].replaceAll(" ", ""));
+                    System.out.println("DOUBLE PARSED: " + Double.parseDouble(replaceNumbers));
+                    if (Double.parseDouble(replaceNumbers) == 0.0) {
+                        // if even the replaceNumbers() func can't convert for strings like 'three' which are number related, then it is definitely not number related and we append it
+                        returnStr.append(resultSplitUp[i]).append(" ");
+                    }
                 }
             }
 
@@ -2179,6 +2227,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             measurementUnitsArrayList.add(item.substring(item.indexOf("(")+1, item.indexOf(")")));
         }
         System.out.println("MEASUREMENTS ARRAY: " + measurementUnitsArrayList.toString());
+        System.out.println("IS : " + string + " MEASUREMENT TYPE: " + measurementUnitsArrayList.contains(string.toLowerCase()));
         return measurementUnitsArrayList.contains(string.toLowerCase());
     }
 

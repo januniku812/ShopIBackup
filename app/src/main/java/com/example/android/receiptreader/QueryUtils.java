@@ -126,7 +126,7 @@ public class QueryUtils  {
                     } else{
                         storeUserItemToAdd.put("user_item_within_package_item_count", "1");
                     }
-                    DecimalFormat df = new DecimalFormat("#.####");
+                    DecimalFormat df = new DecimalFormat("#.#####");
                     if(!quantity.equals("not filled") && !unitPrice.equals("not filled")){
                         try {
                             int parsedInt = Integer.parseInt(quantity) * Integer.parseInt(unitPrice);

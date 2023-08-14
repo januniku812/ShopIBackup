@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
 
-                <LinearLayout
+                <RelativeLayout
                     android:id="@+id/shopping_lists_ly"
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
@@ -50,13 +50,19 @@
                         android:id="@+id/shopping_list_fab"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        app:fabCustomSize="40dp"              android:layout_gravity="center_vertical"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true"
+                        app:fabCustomSize="40dp"
+                        android:layout_gravity="center_vertical"
                         android:layout_margin="@dimen/fab_margin"
                         app:srcCompat="@drawable/add_sign" />
                     <TextView
                         style="@style/user_item_details_text_style"
                         android:textSize="20sp"
-                        android:layout_marginStart="5dp"
+                        android:layout_marginStart="60dp"
+                        android:layout_alignStart="@+id/shopping_list_fab"
+                        android:layout_alignTop="@id/shopping_list_fab"
+                        android:layout_alignBottom="@id/shopping_list_fab"
                         android:layout_gravity="center_vertical"
                         android:id="@+id/shopping_lists_title"
                         android:layout_width="wrap_content"
@@ -64,23 +70,12 @@
                         android:gravity="center_vertical"
                         android:text="@string/shopping_lists" />
 
-                    <SearchView
-                        android:id="@+id/shopping_list_search_bar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="33dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="5dp"
-                        android:layout_weight="2"
-                        android:background="@color/white_two"
-                        android:focusable="false"
-                        android:focusableInTouchMode="true"
-                        android:focusedByDefault="false"
-                        android:inputType="text"
-                        android:queryHint="Search For a Shopping List" />
-
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="wrap_content"
                         android:layout_marginEnd='10dp'
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignTop="@id/shopping_list_fab"
+                        android:layout_alignBottom="@id/shopping_list_fab"
                         android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content">
                         <ImageView
@@ -113,7 +108,7 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-                </LinearLayout>
+                </RelativeLayout>
                 <!--                <SearchView-->
                 <!--                    android:id="@+id/shopping_list_general_search"-->
                 <!--                    android:layout_width="match_parent"-->
@@ -128,6 +123,18 @@
                 <!--                    android:background="@color/white_two"-->
                 <!--                    android:inputType="text"-->
                 <!--                    android:queryHint="Search For a Shopping List" />-->
+                <SearchView
+                    android:id="@+id/shopping_list_search_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@color/white_two"
+                    android:focusable="false"
+                    android:focusableInTouchMode="true"
+                    android:focusedByDefault="false"
+                    android:inputType="text"
+                    android:queryHint="Search For a Shopping List" />
 
                 <ListView
                     android:id="@+id/shopping_list_items_list_view"

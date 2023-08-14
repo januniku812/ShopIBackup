@@ -40,6 +40,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -418,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
 //            }                    }
 //                //vis
 //        });
-        LinearLayout shoppingListLy = findViewById(R.id.shopping_lists_ly);
+        RelativeLayout shoppingListLy = findViewById(R.id.shopping_lists_ly);
         shoppingListAdapter = new ShoppingListAdapter(this, shoppingLists);
         storeListAdapter = new StoreListAdapter(this, stores);
         shoppingListsView.setAdapter(shoppingListAdapter);
