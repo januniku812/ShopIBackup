@@ -145,13 +145,19 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             return false;
         }
         boolean eligible = true;
-        ConcurrentHashMap<String, ArrayList<StoreUserItem>> differentStores = new   ConcurrentHashMap<String, ArrayList<StoreUserItem>>();
+        ConcurrentHashMap<String, ArrayList<StoreUserItem>> differentStores = new ConcurrentHashMap<String, ArrayList<StoreUserItem>>();
         // sorting into different stores
         for(StoreUserItem item: storeUserItemArrayList){
-            if(!differentStores.containsKey(item.getStore())){
-                differentStores.put(item.getStore(), new ArrayList<StoreUserItem>());
+            if(item != null) {
+                if (!differentStores.containsKey(item.getStore()) && item.getAdditionalWeightUnitPriceDetail() != null) {
+                    differentStores.put(item.getStore(), new ArrayList<StoreUserItem>());
+                }
+                try {
+                    differentStores.get(item.getStore()).add(item);
+                } catch(Exception e){
+                    
+                }
             }
-            differentStores.get(item.getStore()).add(item);
         }
         // sorting by date
         for(String key: differentStores.keySet()){
@@ -525,6 +531,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 for (StoreUserItem storeUserItem : dateHistory) {
                     String additionalWeightUnitPriceDetail = storeUserItem.getAdditionalWeightUnitPriceDetail();
                     if(additionalWeightUnitPriceDetail != null) {
+                        System.out.println("ADDITIONAL WEIGHT UNIT DETAIL FOR " + storeUserItem.getItemName() + " ON DAY OF :  " + dateOfPurchase + " : " + additionalWeightUnitPriceDetail);
                         Double ogActualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
                         String currentMeasureUnit = Constants.currentMeasureUnit;
                         String ogMeasurementUnit = additionalWeightUnitPriceDetail.substring(additionalWeightUnitPriceDetail.indexOf("/")+1);
@@ -681,7 +688,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         graphView.getViewport().setScalable(true);
 //        graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
         graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this));
-        graphView.getGridLabelRenderer().setVerticalAxisTitle("Item price per " + Constants.currentMeasureUnit);
+        TextView graphLabel = (TextView) view.findViewById(R.id.graph_label);
+        graphLabel.setText("Item price per " + Constants.currentMeasureUnit);
 //        graphView.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
         System.out.println("DATE X VALUES: " + datePointXValues.get(0));
 //        graphView.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
@@ -955,7 +963,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     String result = replaceAllCommonIssues(data.get(0));
                     String ogResult = result;
                     System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
-                    if (result.matches(".*[a-z].*")) {
+                    if (result.matches(".*[a-zA-Z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
                         String justAlpha = "";
                         if(!result.contains("fl oz")) {
@@ -969,14 +977,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
-                        result = result.replaceAll("[a-z]", "");
+                        result = result.replaceAll("[a-zA-Z]", "");
                         try {
                             Double.parseDouble(result);
+                            additionalWeightEditText.setText(result + " " + justAlpha);
                         }
                         catch(Exception e){
                             Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                         }
-                        additionalWeightEditText.setText(result + " " + justAlpha);
                     } else {
                         additionalWeightEditText.setText(result);
                     }
@@ -999,39 +1007,52 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
             @Override
             public void onPartialResults(Bundle bundle) {
-                System.out.println("@onPartialResults - additionalWeight");
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
                     String ogResult = result;
-                    System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
-                    if (result.matches(".*[a-z].*")) {
+                    System.out.println("@onPartialResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
+                    if (result.matches(".*[a-zA-Z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
                         String justAlpha = "";
                         if(!result.contains("fl oz")) {
-                            justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                            justAlpha = getFirstNotEmpty(Arrays.asList(removeNumberRelated(result).split(" "))); // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                            System.out.println("JUST ALPHA: " + justAlpha);
                         }
                         else{
                             justAlpha = "fl oz";
-                        } if (!isMeasurementUnit(justAlpha)){
+                        }
+                        if (!isMeasurementUnit(justAlpha)){
                             Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
-                        result = result.replaceAll("[a-z]", "");
+                        result = result.replaceAll("[a-zA-Z]", "");
                         try {
                             Double.parseDouble(result);
+                            additionalWeightEditText.setText(result + " " + justAlpha);
                         }
                         catch(Exception e){
                             Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                         }
-                        additionalWeightEditText.setText(result + " " + justAlpha);
                     } else {
                         additionalWeightEditText.setText(result);
                     }
                 }
                 catch (Exception e){
+                    System.out.println("EXCEPTION: " );
+                    e.printStackTrace();
+                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
+                    final Runnable stopListeningRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            additionalWeightSr.stopListening();
+                            System.out.println("MADE IT");
+                        }
+                    };
+                    stopListeningRunnable.run();
+                    additionalWeightMicrophoneState = 0;
                 }
-
             }
 
             @Override
@@ -1040,32 +1061,47 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 try {
                     String result = replaceAllCommonIssues(data.get(0));
                     String ogResult = result;
-                    System.out.println("@onResults - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
-                    if (result.matches(".*[a-z].*")) {
+                    System.out.println("@onEvents - additionalWeight: " + result + "english version: " + EnglishWordsToNumbers.replaceNumbers(result));
+                    if (result.matches(".*[a-zA-Z].*")) {
                         System.out.println("A_Z CONTIANING ONE: " + result);
                         String justAlpha = "";
                         if(!result.contains("fl oz")) {
-                            justAlpha = removeNumberRelated(result).split(" ")[0]; // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                            justAlpha = getFirstNotEmpty(Arrays.asList(removeNumberRelated(result).split(" "))); // making sure if they are saying multple things after numeric value like 3.99 pounds pounds
+                            System.out.println("JUST ALPHA: " + justAlpha);
                         }
                         else{
                             justAlpha = "fl oz";
-                        }if (!isMeasurementUnit(justAlpha)){
+                        }
+                        if (!isMeasurementUnit(justAlpha)){
                             Toast.makeText(ShoppingListUserItemsActivity.this,getString(R.string.add_proper_unit_of_weight_after_numeric_value), Toast.LENGTH_SHORT).show();
                             justAlpha = "";
                         }
-                        result = result.replaceAll("[a-z]", "");
+                        result = result.replaceAll("[a-zA-Z]", "");
                         try {
                             Double.parseDouble(result);
+                            additionalWeightEditText.setText(result + " " + justAlpha);
                         }
                         catch(Exception e){
                             Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.couldnt_rec_value), ogResult), Toast.LENGTH_SHORT).show();
                         }
-                        additionalWeightEditText.setText(result + " " + justAlpha);
                     } else {
                         additionalWeightEditText.setText(result);
                     }
                 }
                 catch (Exception e){
+                    System.out.println("EXCEPTION: " );
+                    e.printStackTrace();
+                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
+                    final Runnable stopListeningRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            additionalWeightSr.stopListening();
+                            System.out.println("MADE IT");
+                        }
+                    };
+                    stopListeningRunnable.run();
+                    additionalWeightMicrophoneState = 0;
                 }
             }
         };
@@ -1985,6 +2021,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         unitPriceToPass = "not filled";
                     }
                     if (additionalWeightToPass.isEmpty()) {
+                        System.out.println("ADDITIONAL WEIGHT DETAIL IS EMPTY");
                         additionalWeightToPass = null;
                     }
                     Long date = System.currentTimeMillis();
@@ -2050,11 +2087,19 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             if(!finalAdditionalWeightToPass.isEmpty() && !containsMeasurementUnit(finalAdditionalWeightToPass)){
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_weight_ms), Toast.LENGTH_LONG).show();
 
-                            }else{
-                                System.out.println("CALLED LIST VIEW QUANTITY IS INDIVIDUAL");
+                            }
+                            else if(finalAdditionalWeightToPass.isEmpty()){
+                                System.out.println("CALLED LIST VIEW QUANTITY IS INDIVIDUAL NO ADDITIONAL WEIGHT DETAIL");
                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
                                         quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         unitPriceEditText.getText().toString(), "/ea", null, quantityEditText.getText().toString(), getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+
+                                alertDialog.dismiss();
+                            }
+                            else if(!finalAdditionalWeightToPass.isEmpty() && containsMeasurementUnit(finalAdditionalWeightToPass)){
+                                QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
+                                        quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                        unitPriceEditText.getText().toString(), "/ea", additionalWeightToPass, quantityEditText.getText().toString(), getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
 
                                 alertDialog.dismiss();
                             }

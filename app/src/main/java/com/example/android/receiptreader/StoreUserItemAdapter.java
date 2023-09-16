@@ -57,7 +57,7 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
 
         TextView extraWeighBasedUnitPrice = (TextView) newItemView.findViewById(R.id.extra_weight_based_unit_price);
         System.out.println("WANTS COMPARSION UNIT: "+ Constants.wantsPriceComparisonUnit);
-        if(extraWeighBasedUnitPrice != null){System.out.println("ADDITIONAL WEIGHT DETAIL REACHED: " + additionalWeightUnitPriceDetail);
+        if(extraWeighBasedUnitPrice != null && additionalWeightUnitPriceDetail != null){System.out.println("ADDITIONAL WEIGHT DETAIL REACHED: " + additionalWeightUnitPriceDetail);
             String currentMeasureUnit = Constants.currentMeasureUnit;
             if(Constants.wantsPriceComparisonUnit && !currentMeasureUnit.isEmpty()){
                 System.out.println("MADE IT!!: " + additionalWeightUnitPriceDetail + " --> " + additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
@@ -91,8 +91,10 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
                 System.out.println("MADE IT!! NEW ACTUAL PRICE: " + newWeightBasedDetail);
 
             } else{
-                extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail.replaceAll("floz", "fl oz").replaceAll("\\s{2,}", " ").trim());
-            }
+                if (additionalWeightUnitPriceDetail != null) {
+                    extraWeighBasedUnitPrice.setText(additionalWeightUnitPriceDetail.replaceAll("floz", "fl oz").replaceAll("\\s{2,}", " ").trim());
+
+                }}
         }
         return newItemView;
 

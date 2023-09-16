@@ -33,6 +33,11 @@ public class SimpleStoreListAdapter extends ArrayAdapter<Store> {
         TextView storeName = (TextView) newItemView.findViewById(R.id.store_item_name);
         storeName.setText(store.getStoreName());
 
+        if(store.isIfHighlighted()){
+            ImageView blueCheckMark = newItemView.findViewById(R.id.simple_store_item_check_mark);
+            blueCheckMark.setVisibility(View.VISIBLE);
+        }
+
         return newItemView;
 
     }

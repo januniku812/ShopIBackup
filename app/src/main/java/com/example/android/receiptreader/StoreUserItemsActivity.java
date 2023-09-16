@@ -71,7 +71,7 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         SearchView searchView = findViewById(R.id.search_bar);
         TextView titleTextView = findViewById(R.id.title);
          storeName = getIntent().getStringExtra("storeName");
-        titleTextView.setText(storeName);
+        titleTextView.setText(String.format(getString(R.string.purchase_history_name), storeName));
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

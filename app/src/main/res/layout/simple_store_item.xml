@@ -22,6 +22,20 @@
                     android:layout_width="wrap_content"
                     android:text="@string/placeholder_store_name"
                     android:layout_height="wrap_content"/>
+
+                <ImageView
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:visibility="invisible"
+                    android:id="@+id/simple_store_item_check_mark"
+                    android:layout_marginEnd="10dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_width="25dp"
+                    android:src="@drawable/ic_baseline_check_24"
+                    android:layout_height="25dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

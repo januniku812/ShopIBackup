@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     ShoppingListAdapter shoppingListAdapter;
     StoreListAdapter storeListAdapter;
     Observer<View> itemRepLabelObserver;
+    SimpleStoreListAdapter simpleStoreListAdapter;
     ArrayList<Store> stores;
     ArrayList<ShoppingList> shoppingLists;
     String inputTextToRetrieved = "";
@@ -72,14 +73,14 @@ public class MainActivity extends AppCompatActivity {
         shoppingListLaunchNeedsToBeUpdated.postValue(originalShoppingListName);
     }
 
+
+
     public void shoppingListLaunch(String originalShoppingListName) {
         Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
         intent.putExtra("shoppingListName",originalShoppingListName);
         startActivity(intent);
         shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
     }
-
-
 
     public static void updateStoreLaunch(String originalStoreName){
         storeLaunchNeedsToBeUpdated.postValue(originalStoreName);
@@ -266,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
         }
         alertDialog.show();
     }
-
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
@@ -302,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
             measurementUnitsDialog(measurementUnitsArrayList);
 
         }
+        ImageView shoppingCartIcon = findViewById(R.id.shopping_list_icon);
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.side_menu);
         MenuItem checkable_measurement_item = navigationView.getMenu().findItem(R.id.measurement_units_menu_item);
@@ -317,6 +318,61 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("MEASUREMENT UNITS: " +measurementUnitsArrayList);
                 measurementUnitsDialog(measurementUnitsArrayList);
                 return true;
+            }
+        });
+
+        shoppingCartIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                androidx.appcompat.app.AlertDialog.Builder builder =
+                        new androidx.appcompat.app.AlertDialog.Builder
+                                (MainActivity.this, R.style.AlertDialogCustom);
+                View view = LayoutInflater.from(MainActivity.this).inflate(
+                        R.layout.choose_store_currently_shopping_in,
+                        (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+                );
+                builder.setView(view);
+                ((TextView) view.findViewById(R.id.textTitle))
+                        .setText(getString(R.string.choose_a_store_text_tile));
+                final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+                alertDialog.setCanceledOnTouchOutside(true);
+                ListView chooseStoreListView = view.findViewById(R.id.chose_stores_list_view);
+                simpleStoreListAdapter = new SimpleStoreListAdapter(MainActivity.this, stores);
+                chooseStoreListView.setAdapter(simpleStoreListAdapter);
+                chooseStoreListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Store selectedStore = (Store) parent.getItemAtPosition(position);
+                        String originalStoreName = selectedStore.getStoreName();
+                        if(Constants.storeBeingShoppedIn.isEmpty()) {
+                            Constants.storeBeingShoppedIn = originalStoreName; // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
+                            selectedStore.setIfHighlighted(true);
+                        } else{
+                            if(Constants.storeBeingShoppedIn.equals(originalStoreName)){
+                                Constants.storeBeingShoppedIn = "";
+                                stores = setAllStoresToNotBeingShoppedInExcept(stores, Constants.storeBeingShoppedIn);
+                            }
+                            else {
+                                Constants.storeBeingShoppedIn = originalStoreName;
+                                stores = setAllStoresToNotBeingShoppedInExcept(stores, originalStoreName);
+                            }
+                        }
+                        simpleStoreListAdapter  = new SimpleStoreListAdapter(MainActivity.this, stores);
+                        storeListAdapter = new StoreListAdapter(MainActivity.this, stores);
+                        chooseStoreListView.setAdapter(simpleStoreListAdapter);
+                        storesListView.setAdapter(storeListAdapter);
+                    }
+                });
+                view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertDialog.dismiss();
+                    }
+                });
+                if (alertDialog.getWindow() != null) {
+                    alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+                }
+                alertDialog.show();
             }
         });
 
@@ -596,7 +652,7 @@ public class MainActivity extends AppCompatActivity {
                 View selectedStoreView = storeListAdapter.getView(i, view, adapterView);
                 ImageView editViewIcon = (ImageView) selectedStoreView.findViewById(R.id.edit_name_button);
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
-                ImageView shoppingCartButton = (ImageView) selectedStoreView.findViewById(R.id.select_shopping_mode);
+//                ImageView shoppingCartButton = (ImageView) selectedStoreView.findViewById(R.id.select_shopping_mode);
                 ConstraintLayout store_name_cl = (ConstraintLayout) selectedStoreView.findViewById(R.id.store_name_cl);
                 editViewIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -621,27 +677,27 @@ public class MainActivity extends AppCompatActivity {
 //                        startActivity(intent);
 //                    }
 //                });
-                shoppingCartButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(Constants.storeBeingShoppedIn.isEmpty()) {
-                            Constants.storeBeingShoppedIn = originalStoreName; // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
-                            store.setIfHighlighted(true);
-                        } else{
-                            if(Constants.storeBeingShoppedIn.equals(originalStoreName)){
-                                Constants.storeBeingShoppedIn = "";
-                                stores = setAllStoresToNotBeingShoppedInExcept(stores, Constants.storeBeingShoppedIn);
-                            }
-                            else {
-                                Constants.storeBeingShoppedIn = originalStoreName;
-                                stores = setAllStoresToNotBeingShoppedInExcept(stores, originalStoreName);
-                            }
-                        }
-                        // update list view
-                        storeListAdapter = new StoreListAdapter(MainActivity.this, stores);
-                        storesListView.setAdapter(storeListAdapter);
-                    }
-                });
+//                shoppingCartButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        if(Constants.storeBeingShoppedIn.isEmpty()) {
+//                            Constants.storeBeingShoppedIn = originalStoreName; // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
+//                            store.setIfHighlighted(true);
+//                        } else{
+//                            if(Constants.storeBeingShoppedIn.equals(originalStoreName)){
+//                                Constants.storeBeingShoppedIn = "";
+//                                stores = setAllStoresToNotBeingShoppedInExcept(stores, Constants.storeBeingShoppedIn);
+//                            }
+//                            else {
+//                                Constants.storeBeingShoppedIn = originalStoreName;
+//                                stores = setAllStoresToNotBeingShoppedInExcept(stores, originalStoreName);
+//                            }
+//                        }
+//                        // update list view
+//                        storeListAdapter = new StoreListAdapter(MainActivity.this, stores);
+//                        storesListView.setAdapter(storeListAdapter);
+//                    }
+//                });
 
             }
         });

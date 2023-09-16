@@ -75,14 +75,15 @@
     <string name="cant_use_this_feature">Can\'t Use Save Microphone Feature Without Granted Record Audio Permission</string>
     <string name="store_already_exists">%s Already Exists Under Stores</string>
     <string name="shopping_list_already_exists">%s Already Exists Under Shopping Lists</string>
+    <string name="current_store">Select a store from below, all your recorded purchase details will be stored in that its history</string>
     <string name="chose_a_store">You have not currently selected a store(main page), please select what store you would like to save %s in below</string>
-    <string name="couldnt_rec_value">Couldn\'t recognize %s as a numeric value, please enter values such as 1-10, 1.99, etc.</string>
-    <string name="no_speech_detected">No Speech Detected</string>
+    <string name="couldnt_rec_value">Couldn\'t recognize %s as a numeric value</string>
+    <string name="no_proper_input_detected">Error in processing input, enter proper numeric/weight values</string>
     <string name="additional_weight">Additional weight detail(not necessary)</string>
     <string name="you_need_weight_unit">Please record your customary or metric measurement of weight, such as pounds or kilograms, as you have weight toggled in quantity details</string>
     <string name="only_enter_normal_numeric_value">Please only record numeric values such as \'three\'(3), as you have \'each\' toggled in quantity details</string>
-    <string name="add_proper_unit_of_weight_after_numeric_value">Enter a proper unit of weight or numeric value for weight quantity</string>
-    <string name="add_proper_unit_of_weight_after_numeric_value_2">Please add a proper unit of weight after your literal numeric value \'%s\'</string>
+    <string name="add_proper_unit_of_weight_after_numeric_value">Enter a proper unit of weight</string>
+    <string name="add_proper_unit_of_weight_after_numeric_value_2">Please add a proper unit of weight after your numeric value \'%s\'</string>
 
     <string name="add_weight_ms">Additional weight detail despite must have proper weight unit(e.g. lb)</string>
     <string name="please_only_stand_alone_values_for_individuals">Please only enter stand alone numeric values like \'three(3)\' for quantity</string>
@@ -113,6 +114,9 @@
     <string name="measurement_unit">Price Comparison Unit</string>
     <string name="by_package">By Package</string>
     <string name="by_weight">By Weight</string>
+    <string name="choose_a_store_text_tile">Choose Current Store</string>
+    <string name="close">Close</string>
+    <string name="purchase_history_name">%s - Purchase History</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>

@@ -37,14 +37,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
-
-                <RelativeLayout
-                    android:id="@+id/shopping_lists_ly"
-                    android:orientation="horizontal"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:focusable="false" android:focusableInTouchMode="true"
-                    android:weightSum="2"
                     android:layout_height="wrap_content">
+                    <RelativeLayout
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:id="@+id/shopping_lists_ly"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:focusable="false" android:focusableInTouchMode="true"
+                        android:weightSum="2"
+                        android:layout_height="wrap_content">
 
                     <com.google.android.material.floatingactionbutton.FloatingActionButton
                         android:id="@+id/shopping_list_fab"
@@ -69,7 +73,6 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:text="@string/shopping_lists" />
-
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="wrap_content"
                         android:layout_marginEnd='10dp'
@@ -80,6 +83,16 @@
                         android:layout_height="wrap_content">
                         <ImageView
                             app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:id="@+id/shopping_list_icon"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_weight="2"
+                            android:inputType="text"
+                            android:src="@drawable/ic_baseline_shopping_cart_24"
+                            android:tint="@color/grey_two" />
+                        <ImageView
+                            app:layout_constraintStart_toEndOf="@id/shopping_list_icon"
                             app:layout_constraintTop_toTopOf="parent"
                             android:id="@+id/item_repo_icon"
                             android:layout_width="45dp"
@@ -123,26 +136,32 @@
                 <!--                    android:background="@color/white_two"-->
                 <!--                    android:inputType="text"-->
                 <!--                    android:queryHint="Search For a Shopping List" />-->
+
                 <SearchView
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/shopping_lists_ly"
                     android:id="@+id/shopping_list_search_bar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="5dp"
                     android:layout_marginEnd="10dp"
+
                     android:background="@color/white_two"
                     android:focusable="false"
                     android:focusableInTouchMode="true"
                     android:focusedByDefault="false"
-                    android:inputType="text"
+                    android:insetTop="0dp"
                     android:queryHint="Search For a Shopping List" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <ListView
                     android:id="@+id/shopping_list_items_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
-                    android:nestedScrollingEnabled="true"
                     android:layout_marginTop="5dp"
-                    tools:listitem="@layout/shopping_list"/>
+                    android:nestedScrollingEnabled="true"
+                    tools:listitem="@layout/shopping_list" />
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -174,19 +193,19 @@
                         android:gravity="center_vertical"
                         android:text="@string/store" />
 
-                    <SearchView
-                        android:id="@+id/store_list_search_bars"
-                        android:layout_width="wrap_content"
-                        android:layout_weight="2"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="5dp"
-                        android:focusedByDefault="false"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:layout_gravity="center_vertical"
-                        android:background="@color/white_two"
-                        android:inputType="text"
-                        android:queryHint="Search For a Store" />
+<!--                    <SearchView-->
+<!--                        android:id="@+id/store_list_search_bars"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_weight="2"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginEnd="5dp"-->
+<!--                        android:focusedByDefault="false"-->
+<!--                        android:focusable="true"-->
+<!--                        android:focusableInTouchMode="true"-->
+<!--                        android:layout_gravity="center_vertical"-->
+<!--                        android:background="@color/white_two"-->
+<!--                        android:inputType="text"-->
+<!--                        android:queryHint="Search For a Store" />-->
                 </LinearLayout>
                 <!--                <SearchView-->
                 <!--                    android:id="@+id/general_store_items_search"-->
@@ -202,6 +221,18 @@
                 <!--                    android:background="@color/white_two"-->
                 <!--                    android:inputType="text"-->
                 <!--                    android:queryHint="Search For a Shopping List" />-->
+                <SearchView
+                    android:id="@+id/store_list_search_bars"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:focusedByDefault="false"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/white_two"
+                    android:inputType="text"
+                    android:queryHint="Search For a Store" />
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:id="@+id/stores_list_view_and_item_rep_label_cl"
@@ -211,7 +242,7 @@
                         android:id="@+id/stores_list_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="10dp"
                         android:nestedScrollingEnabled="true"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -247,14 +278,14 @@
         android:visibility="invisible"
         android:background="@drawable/side_menu_background"
         app:headerLayout="@layout/menu_header"
-        app:menu="@menu/app_menu">
-<!--        <TextView-->
-<!--            android:layout_marginStart="40dp"-->
-<!--            android:layout_marginTop="60dp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/measurement_unit"/>-->
-    </com.google.android.material.navigation.NavigationView>
+        app:menu="@menu/app_menu"/>
+<!--&lt;!&ndash;        <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_marginStart="40dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_marginTop="60dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:textStyle="bold"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:text="@string/measurement_unit"/>&ndash;&gt;-->
+<!--    </com.google.android.material.navigation.NavigationView>-->
 
 </androidx.drawerlayout.widget.DrawerLayout>
