@@ -2049,7 +2049,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         view.setVisibility(View.VISIBLE);
                         System.out.println("CALLED 2");
 
-                        String finalAdditionalWeightToPass = additionalWeightToPass;
+                        final String[] finalAdditionalWeightToPass = {additionalWeightToPass};
                         choseStoreListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -2057,14 +2057,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 Store selectedStore = simpleStoreListAdapter.getItem(i);
                                 try {
 
-                                    if(finalAdditionalWeightToPass != null && !containsMeasurementUnit(finalAdditionalWeightToPass)){
+                                    if(finalAdditionalWeightToPass[0] != null && !containsMeasurementUnit(finalAdditionalWeightToPass[0])){
                                         Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_weight_ms), Toast.LENGTH_LONG).show();
 
                                     }else{
-                                        System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS INDIVIDUAL + FINAL WEIGHT: " + finalAdditionalWeightToPass);
+                                        if(finalAdditionalWeightToPass[0] != null){
+                                            finalAdditionalWeightToPass[0] = finalAdditionalWeightToPass[0].trim();
+                                        }
+                                        System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS INDIVIDUAL + FINAL WEIGHT: " + finalAdditionalWeightToPass[0]);
                                         QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, selectedStore.getStoreName(), dateStr,
                                                 quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
-                                                unitPriceEditText.getText().toString(), "ea", finalAdditionalWeightToPass.trim(), withinPackageItemCountEditText.getText().toString(), getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
+                                                unitPriceEditText.getText().toString(), "ea", finalAdditionalWeightToPass[0], withinPackageItemCountEditText.getText().toString(), getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                                                 .putString("jsonData",Constants.json_data_str.toString()).apply();
                                         alertDialog.dismiss();

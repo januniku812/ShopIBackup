@@ -294,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
         Constants.currentMeasureUnit = PreferenceManager.getDefaultSharedPreferences(this).getString("measurementUnit", "");
         Constants.wantsPriceComparisonUnit = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("priceComparisonUnitOn", false);
         System.out.println("WANTS PRICE COMPARISON UNIT: " + Constants.wantsPriceComparisonUnit);
+
         if(Constants.currentMeasureUnit.isEmpty() && Constants.wantsPriceComparisonUnit ){
             ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
             String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
