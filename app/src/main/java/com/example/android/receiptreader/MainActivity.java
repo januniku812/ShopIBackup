@@ -45,6 +45,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -84,6 +85,16 @@ public class MainActivity extends AppCompatActivity {
         shoppingListLaunchNeedsToBeUpdated.postValue(originalShoppingListName);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
     private void checkFirstRun() throws InterruptedException {
 
         final String PREFS_NAME = "MyPrefsFile";
@@ -92,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Get current version code
         int currentVersionCode = BuildConfig.VERSION_CODE;
+        final Boolean[] tourGuideNavButtonClicked = {false};
 
         // Get saved version code
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -99,7 +111,14 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("FIRST TIME RUN YES OR NO: " + (currentVersionCode == savedVersionCode));
         // Check for first run or upgrade
         if (currentVersionCode == savedVersionCode) {
-
+            ImageButton tourGuideNavButton = findViewById(R.id.tour_gide_nav_button);
+            tourGuideNavButton.setVisibility(View.VISIBLE);
+            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tourGuideNavButtonClicked[0] = true;
+                }
+            });
             // This is just a normal run
             GuideView shoppingListGuideView = new GuideView.Builder(this)
                     .setTitle("Shopping Lists")
@@ -111,46 +130,54 @@ public class MainActivity extends AppCompatActivity {
                     .setDismissType(DismissType.outside)
                     .build(); //optional - default dismissible by TargetView
 
-            Runnable shoppingListGuideViewRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    if(shoppingListGuideView.getParent() != null) {
-                        ((ViewGroup)shoppingListGuideView.getParent()).removeView(shoppingListGuideView); // <- fix
-                    }
 
-                    shoppingListGuideView.show();
-                }
-            };
-
-            Thread shoppingListGuideViewThread = new Thread(shoppingListGuideViewRunnable);
-            runOnUiThread(shoppingListGuideViewThread);
-            shoppingListGuideViewThread.join();
-
-            GuideView shoppingListAddButton = new GuideView.Builder(this)
+            GuideView shoppingListAddButtonGuideView = new GuideView.Builder(this)
                     .setTitle("Shopping Lists Add Button")
                     .setContentText("This is where you add new shopping lists")
                     .setTargetView(findViewById(R.id.shopping_list_fab))
                     .setContentTextSize(12)//optional
                     .setTitleTextSize(14)//optional
                     .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                    .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
                     .build();
 
+            ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
+            tourGuideViewArrayList.add(shoppingListGuideView);
+            tourGuideViewArrayList.add(shoppingListAddButtonGuideView);
+            Thread guideViewsThread = new Thread();
+            for(GuideView guideView: tourGuideViewArrayList){
+                guideView.show();
+                    synchronized (tourGuideNavButton){
 
-            Runnable shoppingListAddButtonRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    if(shoppingListAddButton.getParent() != null) {
-                        ((ViewGroup)shoppingListAddButton.getParent()).removeView(shoppingListAddButton); // <- fix
                     }
-                    shoppingListAddButton.show();
                 }
-            };
+            }
 
+//            Runnable shoppingListAddButtonRunnable = new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (shoppingListAddButtonGuideView.getParent() != null) {
+//                        ((ViewGroup) shoppingListAddButtonGuideView.getParent()).removeView(shoppingListAddButtonGuideView); // <- fix
+//                    }
+//                    shoppingListAddButtonGuideView.show();
+//                }
+//            };
+//            Runnable shoppingListGuideViewRunnable = new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (shoppingListGuideView.getParent() != null) {
+//                        ((ViewGroup) shoppingListGuideView.getParent()).removeView(shoppingListGuideView); // <- fix
+//                    }
+//
+//                    shoppingListGuideView.show();
+//                }
+//
+//            };
+//            Thread shoppingListAddButtonThread = new Thread(shoppingListAddButtonRunnable);
+//            Thread shoppingListGuideViewThread = new Thread(shoppingListGuideViewRunnable);
+//
+//            runOnUiThread(shoppingListGuideViewThread);
 
-            Thread shoppingListAddButtonThread = new Thread(shoppingListAddButtonRunnable);
-            shoppingListGuideViewThread.start();
-            shoppingListGuideViewThread.join();
 
 //            new GuideView.Builder(this)
 //                    .setTitle("Shopping Lists Search View")
@@ -164,12 +191,9 @@ public class MainActivity extends AppCompatActivity {
 //                    .show();
 
 
-
-
-
-
-
         }
+
+
 
         // Update the shared preferences with the current version code
         prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
