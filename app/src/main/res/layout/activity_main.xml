@@ -46,20 +46,24 @@
                         android:id="@+id/shopping_lists_ly"
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:focusable="false" android:focusableInTouchMode="true"
+                        android:focusable="false"
+                        android:focusableInTouchMode="true"
                         android:weightSum="2"
                         android:layout_height="wrap_content">
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/shopping_list_fab"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentStart="true"
-                        app:fabCustomSize="40dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_margin="@dimen/fab_margin"
-                        app:srcCompat="@drawable/add_sign" />
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/shopping_list_fab"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="@dimen/fab_margin"
+                            android:layout_marginTop="@dimen/fab_margin"
+                            android:layout_marginEnd="@dimen/fab_margin"
+                            android:layout_marginBottom="@dimen/fab_margin"
+                            app:fabCustomSize="40dp"
+                            app:srcCompat="@drawable/add_sign" />
                     <TextView
                         style="@style/user_item_details_text_style"
                         android:textSize="20sp"

@@ -3,12 +3,18 @@ package com.example.android.receiptreader;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
@@ -28,10 +34,12 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -52,6 +60,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+
 public class MainActivity extends AppCompatActivity {
     //    TextView resultsForStoresViews;
 //    TextView resultsForShoppingListsViews;
@@ -71,6 +82,97 @@ public class MainActivity extends AppCompatActivity {
 
     public static void updateShoppingListLaunch(String originalShoppingListName){
         shoppingListLaunchNeedsToBeUpdated.postValue(originalShoppingListName);
+    }
+
+    private void checkFirstRun() throws InterruptedException {
+
+        final String PREFS_NAME = "MyPrefsFile";
+        final String PREF_VERSION_CODE_KEY = "version_code";
+        final int DOESNT_EXIST = -1;
+
+        // Get current version code
+        int currentVersionCode = BuildConfig.VERSION_CODE;
+
+        // Get saved version code
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int savedVersionCode = prefs.getInt(PREF_VERSION_CODE_KEY, DOESNT_EXIST);
+        System.out.println("FIRST TIME RUN YES OR NO: " + (currentVersionCode == savedVersionCode));
+        // Check for first run or upgrade
+        if (currentVersionCode == savedVersionCode) {
+
+            // This is just a normal run
+            GuideView shoppingListGuideView = new GuideView.Builder(this)
+                    .setTitle("Shopping Lists")
+                    .setContentText("This is where your shopping lists are and you can edit names and delete them as needed")
+                    .setTargetView(findViewById(R.id.shopping_list_items_list_view))
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                    .setDismissType(DismissType.outside)
+                    .build(); //optional - default dismissible by TargetView
+
+            Runnable shoppingListGuideViewRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if(shoppingListGuideView.getParent() != null) {
+                        ((ViewGroup)shoppingListGuideView.getParent()).removeView(shoppingListGuideView); // <- fix
+                    }
+
+                    shoppingListGuideView.show();
+                }
+            };
+
+            Thread shoppingListGuideViewThread = new Thread(shoppingListGuideViewRunnable);
+            runOnUiThread(shoppingListGuideViewThread);
+            shoppingListGuideViewThread.join();
+
+            GuideView shoppingListAddButton = new GuideView.Builder(this)
+                    .setTitle("Shopping Lists Add Button")
+                    .setContentText("This is where you add new shopping lists")
+                    .setTargetView(findViewById(R.id.shopping_list_fab))
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                    .build();
+
+
+            Runnable shoppingListAddButtonRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if(shoppingListAddButton.getParent() != null) {
+                        ((ViewGroup)shoppingListAddButton.getParent()).removeView(shoppingListAddButton); // <- fix
+                    }
+                    shoppingListAddButton.show();
+                }
+            };
+
+
+            Thread shoppingListAddButtonThread = new Thread(shoppingListAddButtonRunnable);
+            shoppingListGuideViewThread.start();
+            shoppingListGuideViewThread.join();
+
+//            new GuideView.Builder(this)
+//                    .setTitle("Shopping Lists Search View")
+//                    .setContentText("This is where you can search within your shopping lists")
+//                    .setTargetView(findViewById(R.id.shopping_list_search_bar))
+//                    .setContentTextSize(12)//optional
+//                    .setTitleTextSize(14)//optional
+//                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                    .build()
+//                    .show();
+
+
+
+
+
+
+
+        }
+
+        // Update the shared preferences with the current version code
+        prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
     }
 
 
@@ -763,8 +865,11 @@ public class MainActivity extends AppCompatActivity {
 //                shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
 //            }
 //        });
-
-
+        try {
+            checkFirstRun();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
