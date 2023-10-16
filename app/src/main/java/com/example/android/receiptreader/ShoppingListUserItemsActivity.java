@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.DataSetObserver;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -82,6 +83,9 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+
 import static android.os.Build.VERSION_CODES.O;
 import static android.text.TextUtils.isEmpty;
 
@@ -89,6 +93,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     ShoppingListUserItemAdapter shoppingListUserItemAdapter;
     TextView resultsForshoppingListUserItemsView;
     Observer<Boolean> updateObserver;
+    View moreVertActionsView;
     ListView shoppingListUserItemsListView;
     String shoppingListName;
     public static MutableLiveData<Boolean> actuallyNeedsToBeUpdated = new MutableLiveData<>();
@@ -291,29 +296,29 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
                         (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom2);
-        View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
+        moreVertActionsView = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
                 R.layout.more_vert_actions_custom_dialog,
                 (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
         );
-        builder.setView(view);
+        builder.setView(moreVertActionsView);
         String itemName = shoppingListUserItem.getName();
-        ((TextView) view.findViewById(R.id.textTitle))
+        ((TextView) moreVertActionsView.findViewById(R.id.textTitle))
                 .setText(String.format(getString(R.string.actions_shopping_list_user_item), itemName));
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
         // extracting all the views and setting their text based on item we are running the actions for
-        ImageView historyButton = (ImageView) view.findViewById(R.id.history_button_image_view);
-        ConstraintLayout view_history_cl = (ConstraintLayout) view.findViewById(R.id.view_history_cl);
-        TextView view_history_tv = (TextView) view.findViewById(R.id.view_history_text_view);
+        ImageView historyButton = (ImageView) moreVertActionsView.findViewById(R.id.history_button_image_view);
+        ConstraintLayout view_history_cl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.view_history_cl);
+        TextView view_history_tv = (TextView) moreVertActionsView.findViewById(R.id.view_history_text_view);
         ImageView view_history_image = (ImageView) view_history_cl.getViewById(R.id.history_button_image_view);
-        ConstraintLayout duplicate_indicator_cl = (ConstraintLayout) view.findViewById(R.id.duplicate_indicator_cl);
-        ConstraintLayout reorderCl = (ConstraintLayout) view.findViewById(R.id.reorder_item_cl);
-        TextView reorderItemTextView = (TextView) view.findViewById(R.id.reorder_item_text_view);
+        ConstraintLayout duplicate_indicator_cl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.duplicate_indicator_cl);
+        ConstraintLayout reorderCl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.reorder_item_cl);
+        TextView reorderItemTextView = (TextView) moreVertActionsView.findViewById(R.id.reorder_item_text_view);
         reorderItemTextView.setText(String.format(getString(R.string.reorder_item), itemName));
-        ConstraintLayout deleteCl = (ConstraintLayout) view.findViewById(R.id.delete_item_cl);
-        TextView deleteItemTextView = (TextView) view.findViewById(R.id.delete_item_text_view);
+        ConstraintLayout deleteCl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.delete_item_cl);
+        TextView deleteItemTextView = (TextView) moreVertActionsView.findViewById(R.id.delete_item_text_view);
         deleteItemTextView.setText(String.format(getString(R.string.delete_item), itemName));
-        ConstraintLayout viewInsightsCl = (ConstraintLayout) view.findViewById(R.id.view_insights_of_item_cl);
-        TextView viewInsightsTextView = (TextView) view.findViewById(R.id.view_insights_of_item_text_view);
+        ConstraintLayout viewInsightsCl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.view_insights_of_item_cl);
+        TextView viewInsightsTextView = (TextView) moreVertActionsView.findViewById(R.id.view_insights_of_item_text_view);
 
         ArrayList<ShoppingList> shoppingListsContainingSl = QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
 
@@ -438,7 +443,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         });
 
 
-        view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+        moreVertActionsView.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
@@ -2658,8 +2663,177 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         });
 
+        if(getIntent().getBooleanExtra("isTour", false)){
+            try {
+                firstRunTour();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
 
+    }
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void firstRunTour() throws ParseException, IOException {
+        QueryUtils.addShoppingListItem(shoppingListName,getString(R.string.granola_bar), null, getApplicationContext());
+        updateUserItems();
+        View exampleShoppingListUserItemView = shoppingListUserItemAdapter.getView(0, null, null);
+
+        final int[] clickNum = {0};
+        GuideView shoppingListItemNameGuideView = new GuideView.Builder(this)
+                .setTitle("Shopping List User Item Name")
+                .setContentText("This is the unique name of your item that is saved in a larger items repository")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.shopping_list_item_name))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+        GuideView shoppingListUserItemQuantityGuideView = new GuideView.Builder(this)
+                .setTitle("Shopping List User Item Quantity")
+                .setContentText("This is the quantity of your shopping list item that you can toggle with the plus/minus buttons")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.quantity_sl_item))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+        GuideView recordPurchaseDetails = new GuideView.Builder(this)
+                .setTitle("Record Purchase Details")
+                .setContentText("This is the quantity of your shopping list item that you can toggle with the plus/minus buttons")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.record_details_button))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+        GuideView greenTickMarkGuideView = new GuideView.Builder(this)
+                .setTitle("Green Tick Mark")
+                .setContentText("This is green tick mark appears next to any shopping list item you short-long double tap and is way to keep track of what you've bought without having to record purchase details")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.check_circle))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+        GuideView blueTickMark = new GuideView.Builder(this)
+                .setTitle("Blue Tick Mark")
+                .setContentText("This is blue tick mark appears next to any shopping list item you record purchase details at least once and it overrides the green tick mark")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.check_circle))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+
+        GuideView mostRecentPurchaseDateGuideView = new GuideView.Builder(this)
+                .setTitle("Most Recent Purchase Date")
+                .setContentText("The most recent date you recorded purchase details for this item that appears the blue tick mark")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.last_bought_date))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+        GuideView moreOptionsGuideView = new GuideView.Builder(this)
+                .setTitle("More Options")
+                .setContentText("Here are other options such as the purchase history of the item, moving the item to another list, deleting item from list, and the insights graph which compares the price of an item against a common measurement of weight(e.g. lb) over time in a line graph. Some choices will be greyed out such as purchase history and insights graph based on the recorded data for the item. Insights graph is only available if you record purchase details for the item on at least 2 different dates and have your price comparision setting toggled on from the main page.")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.more_vert_actions_item_button))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+        ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
+        tourGuideViewArrayList.add(shoppingListItemNameGuideView);
+        tourGuideViewArrayList.add(shoppingListUserItemQuantityGuideView);
+        tourGuideViewArrayList.add(recordPurchaseDetails);
+        tourGuideViewArrayList.add(greenTickMarkGuideView);
+        tourGuideViewArrayList.add(blueTickMark);
+        tourGuideViewArrayList.add(mostRecentPurchaseDateGuideView);
+        tourGuideViewArrayList.add(moreOptionsGuideView);
+        View tourGuideNavButton = findViewById(R.id.tour_guide_nav_button);
+        tourGuideNavButton.setVisibility(View.VISIBLE);
+
+        tourGuideViewArrayList.get(clickNum[0]).show();
+        ShoppingListUserItem shoppingListUserItemExample = shoppingListUserItemAdapter.getItem(0);
+        TextView last_bought_date = exampleShoppingListUserItemView.findViewById(R.id.last_bought_date);
+        ImageView check_mark = (ImageView) exampleShoppingListUserItemView.findViewById(R.id.check_mark);
+
+        tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(clickNum[0] < tourGuideViewArrayList.size()){
+                    tourGuideViewArrayList.get(clickNum[0]).dismiss();
+                    clickNum[0]++;
+                    if(clickNum[0] == 3){
+                        shoppingListUserItemExample.setIfGreenMarked(true);
+                        try {
+                            updateUserItems();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(clickNum[0] == 4){
+                        check_mark.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                    }
+                    if(clickNum[0] == 5){
+                        last_bought_date.setVisibility(View.VISIBLE);
+                        last_bought_date.setText(getString(R.string.placeholder_last_bought_date));
+                    }
+                    if(clickNum[0] == 6){
+                        shoppingListUserItemExample.setIfGreenMarked(false);
+                        last_bought_date.setVisibility(View.GONE);
+                        check_mark.setVisibility(View.INVISIBLE);
+                        try {
+                            moreVertActionsDialog(shoppingListUserItemExample);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        } catch (java.text.ParseException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            updateUserItems();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(clickNum[0] < tourGuideViewArrayList.size()) {
+                        tourGuideViewArrayList.get(clickNum[0]).show();
+                    }
+                    if(clickNum[0] == tourGuideViewArrayList.size() - 1){
+                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+                        intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+                        intent.putExtra("isTour", true);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
+        System.out.println("DONE");
+
+    }
+
+    private void updateUserItems() throws IOException, ParseException {
+        shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingListName);
+        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
+        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
     }
 
     @Override

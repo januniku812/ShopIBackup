@@ -117,6 +117,9 @@
     <string name="choose_a_store_text_tile">Choose Current Store</string>
     <string name="close">Close</string>
     <string name="purchase_history_name">%s - Purchase History</string>
+    <string name="empty_shoping_list">"Empty Shopping list "</string>
+    <string name="granola_bar">Granola Bar</string>
+    <string name="placeholder_last_bought_date">10/09/23</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>

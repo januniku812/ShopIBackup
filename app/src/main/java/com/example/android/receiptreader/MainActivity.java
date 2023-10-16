@@ -1,20 +1,13 @@
 package com.example.android.receiptreader;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.github.amlcurran.showcaseview.ShowcaseView;
-import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
-import com.github.amlcurran.showcaseview.targets.Target;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
@@ -30,26 +23,19 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.PersistableBundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -59,7 +45,6 @@ import android.widget.Toast;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -97,39 +82,27 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
-    private void checkFirstRun() throws InterruptedException {
-
-        final String PREFS_NAME = "MyPrefsFile";
-        final String PREF_VERSION_CODE_KEY = "version_code";
-        final int DOESNT_EXIST = -1;
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void checkFirstRun() throws InterruptedException, ParseException, IOException {
 
         // Get current version code
-        int currentVersionCode = BuildConfig.VERSION_CODE;
-        final Boolean[] tourGuideNavButtonClicked = {false};
         final int[] clickNum = {0};
 
         // Get saved version code
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int savedVersionCode = prefs.getInt(PREF_VERSION_CODE_KEY, DOESNT_EXIST);
-        System.out.println("FIRST TIME RUN YES OR NO: " + (currentVersionCode == savedVersionCode));
-        // Check for first run or upgrade
-        if (currentVersionCode == savedVersionCode) {
+        boolean isFirstTimeRun = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true);
 
+        // Check for first run or upgrade
+        if (isFirstTimeRun || (2==2)) {
+
+            QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+            shoppingLists = QueryUtils.getShoppingLists();
+            shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
+            shoppingListsView.setAdapter(shoppingListAdapter);
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstTimeRun", false).apply();
+            System.out.println("UPDATED PREF: "+PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true));
             ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
-            View tourGuideNavButton = findViewById(R.id.tour_gide_nav_button);
+            View tourGuideNavButton = findViewById(R.id.tour_guide_nav_button);
             tourGuideNavButton.setVisibility(View.VISIBLE);
-            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(clickNum[0] < tourGuideViewArrayList.size()){
-                        tourGuideViewArrayList.get(clickNum[0]).dismiss();
-                        clickNum[0]++;
-                        if(clickNum[0] < tourGuideViewArrayList.size()) {
-                            tourGuideViewArrayList.get(clickNum[0]).show();
-                        }
-                    }
-                }
-            });
 //            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
@@ -145,10 +118,9 @@ public class MainActivity extends AppCompatActivity {
                     .setContentTextSize(12)//optional
                     .setTitleTextSize(14)//optional
                     .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.targetView)
+                    .setDismissType(DismissType.outside)
                     .build(); //optional - default dismissible by TargetView
 
-            tourGuideNavButton = findViewById(R.id.shopping_list_items_list_view);
             GuideView shoppingListAddButtonGuideView = new GuideView.Builder(this)
                     .setTitle("Shopping Lists Add Button")
                     .setContentText("This is where you add new shopping lists")
@@ -156,10 +128,9 @@ public class MainActivity extends AppCompatActivity {
                     .setTitleTextSize(14)//optional'
                     .setTargetView(findViewById(R.id.shopping_list_fab))
                     .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.targetView)//optional - default dismissible by TargetView
+                    .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
                     .build();
 
-            tourGuideNavButton = findViewById(R.id.shopping_list_items_list_view);
             GuideView storeListViewGuideView = new GuideView.Builder(this)
                     .setTitle("Shopping Lists Search View")
                     .setContentText("This is where you can search within your shopping lists")
@@ -167,19 +138,81 @@ public class MainActivity extends AppCompatActivity {
                     .setContentTextSize(12)//optional
                     .setTitleTextSize(14)//optional
                     .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.targetView) //optional - default dismissible by TargetView
+                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
                     .build();
+
+            GuideView storesListGuideView = new GuideView.Builder(this)
+                    .setTitle("Store Lists")
+                    .setContentText("This is where your stores are and you can edit names and delete them as needed")
+                    .setTargetView(findViewById(R.id.stores_list_view))
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                    .build();
+
+            GuideView storesAddListButtonGuide = new GuideView.Builder(this)
+                    .setTitle("Stores List Add Button")
+                    .setContentText("This is where you add new stores")
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional'
+                    .setTargetView(findViewById(R.id.store_list_fab))
+                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                    .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
+                    .build();
+
+            GuideView storesListSearchBarGuideView = new GuideView.Builder(this)
+                    .setTitle("Stores List Search View")
+                    .setContentText("This is where you can search within your stores ")
+                    .setTargetView(findViewById(R.id.store_list_search_bars))
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                    .build();
+
+
+            GuideView shoppingCartView = new GuideView.Builder(this)
+                    .setTitle("Shopping Cart")
+                    .setContentText("This is where you can set where you are currently shopping for recorded purchases to be stored automatically")
+                    .setTargetView(findViewById(R.id.shopping_list_icon))
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                    .build();
+
 
 
             tourGuideViewArrayList.add(shoppingListGuideView);
             tourGuideViewArrayList.add(shoppingListAddButtonGuideView);
             tourGuideViewArrayList.add(storeListViewGuideView);
+            tourGuideViewArrayList.add(storesListGuideView);
+            tourGuideViewArrayList.add(storesAddListButtonGuide);
+            tourGuideViewArrayList.add(storesListSearchBarGuideView);
+
             tourGuideViewArrayList.get(clickNum[0]).show();
 
+            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(clickNum[0] < tourGuideViewArrayList.size()){
+                        tourGuideViewArrayList.get(clickNum[0]).dismiss();
+                        clickNum[0]++;
+                        if(clickNum[0] < tourGuideViewArrayList.size()) {
+                            tourGuideViewArrayList.get(clickNum[0]).show();
+                        }
+                        if(clickNum[0] == tourGuideViewArrayList.size() - 1){
+                            Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+                            intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+                            intent.putExtra("isTour", true);
+                            startActivity(intent);
+                        }
+                    }
+                }
+            });
 
 
-            // Update the shared preferences with the current version code
-            prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
         }
     }
 
@@ -882,6 +915,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     checkFirstRun();
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }

@@ -50,7 +50,11 @@ public class QueryUtils  {
             System.out.println("SHOPPING LIST NAME i: " + shopping_list.get("shopping_list_name") + " OUR SHOPPINF LIST NAME : " + shoppingListName);
             if(shopping_list.get("shopping_list_name").toString().equalsIgnoreCase(shoppingListName)){
                 System.out.println("REACHED");
-                shopping_list_user_items = (JSONArray) shopping_list.get("shopping_list_user_items");
+                try {
+                    shopping_list_user_items = (JSONArray) shopping_list.get("shopping_list_user_items");
+                } catch(Exception e){
+                    shopping_list_user_items = (JSONArray) new JSONParser().parse(String.valueOf(shopping_list.get("shopping_list_user_items")));
+                }
             }
         }
         System.out.println("SHOPING LIST USER ITEMS ASFJASKJSHAKAJHAKJHA: " + shopping_list_user_items);

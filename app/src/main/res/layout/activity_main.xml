@@ -12,6 +12,7 @@
     tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/main_activity_linear_layout"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:focusable="true"
@@ -252,9 +253,9 @@
                         app:layout_constraintTop_toTopOf="parent"
                         tools:listitem="@layout/store_item" />
                     <ImageButton
-                        android:id="@+id/tour_gide_nav_button"
+                        android:id="@+id/tour_guide_nav_button"
                         android:visibility="invisible"
-                        android:background="@color/blue"
+                        android:background="@drawable/circle_shape"
                         android:src="@drawable/ic_baseline_navigate_next_24"
                         android:layout_marginBottom="50dp"
                         app:layout_constraintBottom_toBottomOf="parent"
