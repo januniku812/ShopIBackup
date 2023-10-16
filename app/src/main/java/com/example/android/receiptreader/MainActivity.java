@@ -86,19 +86,21 @@ public class MainActivity extends AppCompatActivity {
     private void checkFirstRun() throws InterruptedException, ParseException, IOException {
 
         // Get current version code
-        final int[] clickNum = {0};
 
         // Get saved version code
         boolean isFirstTimeRun = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true);
-
+        int mainPageTourClickNum = PreferenceManager.getDefaultSharedPreferences(this).getInt("mainPageTourClickNum", 0);
+        final int[] mainClick = new int[1];
+        mainClick[0] = mainPageTourClickNum;
         // Check for first run or upgrade
         if (isFirstTimeRun || (2==2)) {
 
             QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+            QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
             shoppingLists = QueryUtils.getShoppingLists();
             shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
             shoppingListsView.setAdapter(shoppingListAdapter);
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstTimeRun", false).apply();
+//            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstTimeRun", false).apply();
             System.out.println("UPDATED PREF: "+PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true));
             ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
             View tourGuideNavButton = findViewById(R.id.tour_guide_nav_button);
@@ -174,8 +176,32 @@ public class MainActivity extends AppCompatActivity {
 
             GuideView shoppingCartView = new GuideView.Builder(this)
                     .setTitle("Shopping Cart")
-                    .setContentText("This is where you can set where you are currently shopping for recorded purchases to be stored automatically")
+                    .setContentText("This is where you can set where you are currently shopping for recorded purchases to be stored automatically. The store you chose here will be highlighted in blue below.")
                     .setTargetView(findViewById(R.id.shopping_list_icon))
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                    .build();
+
+            GuideView itemsRepGuideView = new GuideView.Builder(this)
+                    .setTitle("Item Repository")
+                    .setContentText("This is where your items that you add to shopping lists are stored. Adding an item to this repository adds it as an option as a possible item to add to shopping lists. Editing an item name here does not change any purchase details with the item's name it just updates it for future use in adding items to a shopping list. Deleting an item from the item repository does not delete history purchase details of the item, it will stop showing up as an option in adding items to shopping lists.")
+                    .setTargetView(findViewById(R.id.item_repo_icon))
+                    .setContentTextSize(12)//optional
+                    .setTitleTextSize(14)//optional
+                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                    .build();
+
+            DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+            NavigationView navigationView = findViewById(R.id.side_menu);
+            View priceComparisonUnitView =  navigationView.getMenu().findItem(R.id.measurement_units_menu_item).getActionView();
+
+            GuideView priceComparisonUnitGuideView = new GuideView.Builder(this)
+                    .setTitle("Price Comparison Unit Functionality")
+                    .setContentText("This functionality allows you to compare all items with purchases that have weight details in different measurement units, such as lb or kg, against each other in a common unit. Toggling this on converts weight details to a common unit and allows you to compare prices across items, stores, and over time. Toggling this option on allows you to have insight graphs(price over time graphs) for shopping list items - this is further explained later in the tutorial.")
+                    .setTargetView(priceComparisonUnitView)
                     .setContentTextSize(12)//optional
                     .setTitleTextSize(14)//optional
                     .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
@@ -190,24 +216,36 @@ public class MainActivity extends AppCompatActivity {
             tourGuideViewArrayList.add(storesListGuideView);
             tourGuideViewArrayList.add(storesAddListButtonGuide);
             tourGuideViewArrayList.add(storesListSearchBarGuideView);
+            tourGuideViewArrayList.add(shoppingCartView);
+            tourGuideViewArrayList.add(itemsRepGuideView);
+            tourGuideViewArrayList.add(priceComparisonUnitGuideView);
 
-            tourGuideViewArrayList.get(clickNum[0]).show();
+            if(mainClick[0] == 0) {
+                tourGuideViewArrayList.get(mainClick[0]).show();
+            }
 
             tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(clickNum[0] < tourGuideViewArrayList.size()){
-                        tourGuideViewArrayList.get(clickNum[0]).dismiss();
-                        clickNum[0]++;
-                        if(clickNum[0] < tourGuideViewArrayList.size()) {
-                            tourGuideViewArrayList.get(clickNum[0]).show();
+                    System.out.println("MAIN CLICK RIGHT NOW: " + mainClick[0]);
+                    if(mainClick[0] < tourGuideViewArrayList.size()){
+                        tourGuideViewArrayList.get(mainClick[0]).dismiss();
+                        mainClick[0]++;
+                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putInt("mainPageTourClickNum", mainClick[0]).apply();
+                        if(mainClick[0] == 8){
+                            drawerLayout.openDrawer(Gravity.RIGHT);
+                            navigationView.setVisibility(View.VISIBLE);
                         }
-                        if(clickNum[0] == tourGuideViewArrayList.size() - 1){
-                            Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
-                            intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
-                            intent.putExtra("isTour", true);
-                            startActivity(intent);
+                        if(mainClick[0] < tourGuideViewArrayList.size()) {
+                            tourGuideViewArrayList.get(mainClick[0]).show();
                         }
+
+                    }
+                    else if(mainClick[0] >= tourGuideViewArrayList.size()){
+                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+                        intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+                        intent.putExtra("isTour", true);
+                        startActivity(intent);
                     }
                 }
             });

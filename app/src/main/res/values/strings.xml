@@ -120,6 +120,7 @@
     <string name="empty_shoping_list">"Empty Shopping list "</string>
     <string name="granola_bar">Granola Bar</string>
     <string name="placeholder_last_bought_date">10/09/23</string>
+    <string name="empty_store">Empty Store</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>
