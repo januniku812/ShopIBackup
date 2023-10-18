@@ -42,6 +42,7 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.RequiresApi;
@@ -95,6 +96,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     Observer<Boolean> updateObserver;
     View moreVertActionsView;
     View insightsView;
+    AlertDialog insightViewAlertDialog;
+    AlertDialog alertDialog;
     ListView shoppingListUserItemsListView;
     String shoppingListName;
     public static MutableLiveData<Boolean> actuallyNeedsToBeUpdated = new MutableLiveData<>();
@@ -305,7 +308,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         String itemName = shoppingListUserItem.getName();
         ((TextView) moreVertActionsView.findViewById(R.id.textTitle))
                 .setText(String.format(getString(R.string.actions_shopping_list_user_item), itemName));
-        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        alertDialog = builder.create();
         // extracting all the views and setting their text based on item we are running the actions for
         ImageView historyButton = (ImageView) moreVertActionsView.findViewById(R.id.history_button_image_view);
         ConstraintLayout view_history_cl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.view_history_cl);
@@ -451,7 +454,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         });
         if (alertDialog.getWindow() != null) {
-            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
         alertDialog.show();
     }
@@ -467,7 +470,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
         );
         builder.setView(insightsView);
-        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        insightViewAlertDialog = builder.create();
         // on below line we are initializing our graph insightsView.
         GraphView graphView = insightsView.findViewById(R.id.item_insights_graph);
         ListView storeKeyListView = insightsView.findViewById(R.id.stores_key_list_view);
@@ -682,7 +685,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                alertDialog.dismiss();
+                insightViewAlertDialog.dismiss();
             }
         });
         graphView.getViewport().setMinY(0.0);
@@ -736,10 +739,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         graphView.setTitleTextSize(40);
 
 
-        if (alertDialog.getWindow() != null) {
-            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        if (insightViewAlertDialog.getWindow() != null) {
+            insightViewAlertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         }
-        alertDialog.show();
+        insightViewAlertDialog.show();
     }
 
     @RequiresApi(api = O)
@@ -2675,7 +2678,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
     }
 
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
 
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, findViewById(R.id.user_item_card_view), listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void firstRunTour() throws ParseException, IOException {
@@ -2685,13 +2698,18 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ImageButton tourGuideNavButton = findViewById(R.id.shopping_list_tour_guide_nav_button);
         tourGuideNavButton.setVisibility(View.VISIBLE);
         shoppingListUserItemsListView.setSelection(0);
-        View exampleShoppingListUserItemView = shoppingListUserItemsListView.getSelectedView();
-        System.out.println("EXAMPLE TIME: " + exampleShoppingListUserItemView.toString());
+        View exampleShoppingListUserItemView2 = getViewByPosition(shoppingListUserItemsListView.getFirstVisiblePosition(), shoppingListUserItemsListView);
+        int[] point = new int[2];
+        exampleShoppingListUserItemView2.getLocationOnScreen(point);
+        System.out.println("SHOPPING LIST USER VIEW: " + point);
+        View exampleShoppingListUserItemView = getViewByPosition(shoppingListUserItemsListView.getFirstVisiblePosition(), shoppingListUserItemsListView);
+        System.out.println("EXAMPLE TIME X : " + exampleShoppingListUserItemView.getX());
         final int[] clickNum = {PreferenceManager.getDefaultSharedPreferences(this).getInt("shoppingListPageTourClickNum", 0)};
+        clickNum[0] = 0;
         GuideView shoppingListItemNameGuideView = new GuideView.Builder(this)
                 .setTitle("Shopping List User Item Name")
                 .setContentText("This is the unique name of your item that is saved in a larger items repository")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.shopping_list_item_name))
+                .setTargetView(exampleShoppingListUserItemView.getRootView().findViewById(R.id.shopping_list_item_name))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
                 .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
@@ -2720,7 +2738,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView greenTickMarkGuideView = new GuideView.Builder(this)
                 .setTitle("Green Tick Mark")
-                .setContentText("This is green tick mark appears next to any shopping list item you short-long double tap and is way to keep track of what you've bought without having to record purchase details")
+                .setContentText("A green tick mark appears next to any shopping list item you short-long double tap and is way to keep track of what you've bought without having to record purchase details")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.check_circle))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -2730,7 +2748,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView blueTickMark = new GuideView.Builder(this)
                 .setTitle("Blue Tick Mark")
-                .setContentText("This is blue tick mark appears next to any shopping list item you record purchase details at least once and it overrides the green tick mark")
+                .setContentText("A blue tick mark appears next to any shopping list item you record purchase details at least once and it overrides the green tick mark")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.check_circle))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -2741,7 +2759,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView mostRecentPurchaseDateGuideView = new GuideView.Builder(this)
                 .setTitle("Most Recent Purchase Date")
-                .setContentText("The most recent date you recorded purchase details for this item that appears the blue tick mark")
+                .setContentText("The most recent date you recorded purchase details for this item that appears alongside the blue tick mark under the item name.")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.last_bought_date))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -2751,16 +2769,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView moreOptionsGuideView = new GuideView.Builder(this)
                 .setTitle("More Options")
-                .setContentText("Here are other options such as the purchase history of the item, moving the item to another list, deleting item from list, and the insights graph. ")
+                .setContentText("Here are other options, marked by 3 vertical dots,  such as the purchase history of the item, moving the item to another list, deleting item from list, and the insights graph. ")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.more_vert_actions_item_button))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
                 .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
                 .setDismissType(DismissType.outside)
                 .build(); //optional - default dismissible by TargetView
-
+        moreVertActionsView = findViewById(R.id.search_bar);
+        insightsView = findViewById(R.id.search_bar);
         GuideView moreOptionsGuideViewExplained = new GuideView.Builder(this)
-                .setTitle("More Options")
+                .setTitle("More Options Explained")
                 .setContentText("The item purchase history is the collection of all recorded purchases for this item across stores with the date, the amount you spent at the time for the whole purchase, and the price per your unit comparison unit if you have the option toggled on from the home page. You can move the item to another shopping list and delete it from your shopping list entirely. The insights graph helps compare price over time. Purchase history and insights graph options are greyed out if there is not enough data for the item.")
                 .setTargetView(moreVertActionsView)
                 .setContentTextSize(12)//optional
@@ -2790,6 +2809,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         tourGuideViewArrayList.add(moreOptionsGuideViewExplained);
         tourGuideViewArrayList.add(insightsGraphExplained);
         ShoppingListUserItem shoppingListUserItemExample = shoppingListUserItemAdapter.getItem(0);
+        QueryUtils.setItemNotGreenTickMarked(shoppingListUserItemExample.getName(), shoppingListName, getApplicationContext());
+        updateUserItems();
         TextView last_bought_date = exampleShoppingListUserItemView.findViewById(R.id.last_bought_date);
         ImageView check_mark = (ImageView) exampleShoppingListUserItemView.findViewById(R.id.check_mark);
 
@@ -2803,7 +2824,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     clickNum[0]++;
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putInt("shoppingListPageTourClickNum", clickNum[0]).apply();
                     if(clickNum[0] == 3){
-                        shoppingListUserItemExample.setIfGreenMarked(true);
+                        try {
+                            QueryUtils.setItemGreenTickMarked(shoppingListUserItemExample.getName(), shoppingListName, getApplicationContext());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         try {
                             updateUserItems();
                         } catch (IOException e) {
@@ -2813,23 +2838,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         }
                     }
                     if(clickNum[0] == 4){
-                        check_mark.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
-                    }
-                    if(clickNum[0] == 5){
-                        last_bought_date.setVisibility(View.VISIBLE);
-                        last_bought_date.setText(getString(R.string.placeholder_last_bought_date));
-                    }
-                    if(clickNum[0] == 6){
-                        shoppingListUserItemExample.setIfGreenMarked(false);
-                        last_bought_date.setVisibility(View.GONE);
-                        check_mark.setVisibility(View.INVISIBLE);
                         try {
-                            moreVertActionsDialog(shoppingListUserItemExample);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemExample.getName(), getString(R.string.empty_store), "10/7/2023", "1", "3.50", "ea", "50g", "1", getApplicationContext());
                         } catch (ParseException e) {
                             e.printStackTrace();
-                        } catch (java.text.ParseException e) {
+                        }
+                        try {
+                            QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemExample.getName(), getString(R.string.empty_store), "10/9/2023", "1", "4.00", "ea", "50g", "1", getApplicationContext());
+                        } catch (ParseException e) {
                             e.printStackTrace();
                         }
                         try {
@@ -2839,28 +2855,58 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
-
                     }
+                    if(clickNum[0] == 5){
+                        last_bought_date.setVisibility(View.VISIBLE);
+                        last_bought_date.setText(getString(R.string.placeholder_last_bought_date));
+                    }
+
+
                     if(clickNum[0] == 7){
-                        moreVertActionsView.findViewById(R.id.view_insights_of_item_cl).setVisibility(View.VISIBLE);
+                        try {
+                            moreVertActionsDialog(shoppingListUserItemExample);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        } catch (java.text.ParseException e) {
+                            e.printStackTrace();
+                        }
+                        GuideView more_options_explained = new GuideView.Builder(ShoppingListUserItemsActivity.this)
+                                .setTitle("More Options Explained")
+                                .setContentText("The item purchase history is the collection of all recorded purchases for this item across stores with the date, the amount you spent at the time for the whole purchase, and the price per your unit comparison unit if you have the option toggled on from the home page. You can move the item to another shopping list and delete it from your shopping list entirely. The insights graph helps compare price over time. Purchase history and insights graph options are greyed out if there is not enough data for the item.")
+                                .setTargetView(moreVertActionsView)
+                                .setContentTextSize(12)//optional
+                                .setTitleTextSize(14)//optional
+                                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                                .setDismissType(DismissType.outside)
+                                .build();
+                        alertDialog.getWindow().setDimAmount(0f);
+                        tourGuideViewArrayList.set(clickNum[0], more_options_explained);
                     }
                     if(clickNum[0] == 8){
                         try {
-                            QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemExample.getName(), getString(R.string.empty_store), "10/4/2023", "1", "4.00", "ea", "50g", "1", getApplicationContext());
-                        } catch (ParseException e) {
+                            insightsDialog(shoppingListUserItemExample.getName(), QueryUtils.getHistoryOfShoppingListItem(shoppingListUserItemExample.getName()));
+                        } catch (Exception e)
+                        {
                             e.printStackTrace();
                         }
-                        try {
-                            QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemExample.getName(), getString(R.string.empty_store), "10/7/2023", "1", "3.50", "ea", "50g", "1", getApplicationContext());
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
+                        GuideView insights_graph_explained = new GuideView.Builder(ShoppingListUserItemsActivity.this)
+                                .setTitle("Insights Graph Explained")
+                                .setContentText("The item purchase history is the collection of all recorded purchases for this item across stores with the date, the amount you spent at the time for the whole purchase, and the price per your unit comparison unit if you have the option toggled on from the home page. You can move the item to another shopping list and delete it from your shopping list entirely. The insights graph helps compare price over time. Purchase history and insights graph options are greyed out if there is not enough data for the item.")
+                                .setTargetView(insightsView)
+                                .setContentTextSize(12)//optional
+                                .setTitleTextSize(14)//optional
+                                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                                .setDismissType(DismissType.outside)
+                                .build();
+                        insightViewAlertDialog.getWindow().setDimAmount(0f);
+                        tourGuideViewArrayList.set(clickNum[0], insights_graph_explained);
                     }
                     if(clickNum[0] < tourGuideViewArrayList.size()) {
                         tourGuideViewArrayList.get(clickNum[0]).show();
                     }
-                    if(clickNum[0] == tourGuideViewArrayList.size() - 1){
+                    if(clickNum[0] == tourGuideViewArrayList.size()){
                         Intent intent = new Intent(ShoppingListUserItemsActivity.this, AddShoppingListUserItemActivity.class);
                         intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
                         intent.putExtra("isTour", true);
