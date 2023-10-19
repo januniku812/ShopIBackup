@@ -2800,7 +2800,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 .build(); //optional - default dismissible by TargetView
 
         AppCompatImageButton add_button = (AppCompatImageButton) exampleShoppingListUserItemView.findViewById(R.id.add_image_button);
-        GuideView add_button_guide_view =  
+        GuideView add_button_guide_view =
         ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
         tourGuideViewArrayList.add(shoppingListItemNameGuideView);
         tourGuideViewArrayList.add(shoppingListUserItemQuantityGuideView);
