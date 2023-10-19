@@ -43,6 +43,7 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.RequiresApi;
@@ -2798,6 +2799,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 .setDismissType(DismissType.outside)
                 .build(); //optional - default dismissible by TargetView
 
+        AppCompatImageButton add_button = (AppCompatImageButton) exampleShoppingListUserItemView.findViewById(R.id.add_image_button);
+        GuideView add_button_guide_view =  
         ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
         tourGuideViewArrayList.add(shoppingListItemNameGuideView);
         tourGuideViewArrayList.add(shoppingListUserItemQuantityGuideView);
@@ -2813,8 +2816,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         updateUserItems();
         TextView last_bought_date = exampleShoppingListUserItemView.findViewById(R.id.last_bought_date);
         ImageView check_mark = (ImageView) exampleShoppingListUserItemView.findViewById(R.id.check_mark);
-
-
         tourGuideViewArrayList.get(clickNum[0]).show();
         tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
             @Override
