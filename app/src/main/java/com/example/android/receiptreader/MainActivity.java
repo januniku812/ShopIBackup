@@ -1,6 +1,7 @@
 package com.example.android.receiptreader;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
@@ -88,18 +89,31 @@ public class MainActivity extends AppCompatActivity {
         // Get current version code
 
         // Get saved version code
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("priceComparisonUnitOn", true).apply();
+        Constants.wantsPriceComparisonUnit = true;
+        Constants.currentMeasureUnit = "grams (g)";
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+                .putString("measurementUnit", "grams (g)").apply();
+
         boolean isFirstTimeRun = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true);
+        System.out.println("IS FIRST TIME RUN: " + isFirstTimeRun);
         int mainPageTourClickNum = PreferenceManager.getDefaultSharedPreferences(this).getInt("mainPageTourClickNum", 0);
         final int[] mainClick = new int[1];
         mainClick[0] = mainPageTourClickNum;
         // Check for first run or upgrade
-        if (isFirstTimeRun || (2==2)) {
-
-            QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
-            QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
+        if (isFirstTimeRun) {
+            if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
+                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+            }
+            if(!QueryUtils.ifStoreAlreadyExists(getString(R.string.empty_store))) {
+                QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
+            }
             shoppingLists = QueryUtils.getShoppingLists();
             shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
             shoppingListsView.setAdapter(shoppingListAdapter);
+            stores = QueryUtils.getStores();
+            storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
+            storesListView.setAdapter(storeListAdapter);
 //            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstTimeRun", false).apply();
             System.out.println("UPDATED PREF: "+PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true));
             ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
@@ -197,10 +211,11 @@ public class MainActivity extends AppCompatActivity {
             DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
             NavigationView navigationView = findViewById(R.id.side_menu);
             View priceComparisonUnitView =  navigationView.getMenu().findItem(R.id.measurement_units_menu_item).getActionView();
-
+            SwitchCompat mySwitch = (SwitchCompat) priceComparisonUnitView;
+            mySwitch.setChecked(true);
             GuideView priceComparisonUnitGuideView = new GuideView.Builder(this)
                     .setTitle("Price Comparison Unit Functionality")
-                    .setContentText("This functionality allows you to compare all items with purchases that have weight details in different measurement units, such as lb or kg, against each other in a common unit. Toggling this on converts weight details to a common unit and allows you to compare prices across items, stores, and over time. Toggling this option on allows you to have insight graphs(price over time graphs) for shopping list items - this is further explained later in the tutorial.")
+                    .setContentText("This functionality allows you to compare all items with purchases that have weight details in different measurement units, such as lb or kg, against each other in a common unit. Currently we have it set to grams for tutorial demonstration and after tutorial it will be toggled off. Toggling this on converts weight details to a common unit and allows you to compare prices across items, stores, and over time. Toggling this option on allows you to have insight graphs(price over time graphs) for shopping list items - this is further explained later in the tutorial.")
                     .setTargetView(priceComparisonUnitView)
                     .setContentTextSize(12)//optional
                     .setTitleTextSize(14)//optional
@@ -230,18 +245,22 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println("MAIN CLICK RIGHT NOW: " + mainClick[0]);
                     if(mainClick[0] < tourGuideViewArrayList.size()){
                         tourGuideViewArrayList.get(mainClick[0]).dismiss();
-                        mainClick[0]++;
-                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putInt("mainPageTourClickNum", mainClick[0]).apply();
+
                         if(mainClick[0] == 8){
                             drawerLayout.openDrawer(Gravity.RIGHT);
                             navigationView.setVisibility(View.VISIBLE);
+
+
                         }
                         if(mainClick[0] < tourGuideViewArrayList.size()) {
                             tourGuideViewArrayList.get(mainClick[0]).show();
                         }
+                        mainClick[0]++;
+                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putInt("mainPageTourClickNum", mainClick[0]).apply();
+
 
                     }
-                    else if(mainClick[0] >= tourGuideViewArrayList.size()){
+                    else if(mainClick[0] == tourGuideViewArrayList.size()){
                         Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
                         intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
                         intent.putExtra("isTour", true);
