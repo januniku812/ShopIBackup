@@ -5,7 +5,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/shopilogo"
         android:label="@string/app_name"
         android:configChanges="orientation|screenSize|keyboard"
         android:roundIcon="@mipmap/ic_launcher_round"

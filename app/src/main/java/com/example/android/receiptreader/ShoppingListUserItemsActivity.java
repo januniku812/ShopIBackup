@@ -1232,15 +1232,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         if(!ifQuantityIsIndividualPackageBased[0]) {
                             try {
                                 if (result.matches(".*[a-z].*")) {
-                                    System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
-                                    System.out.println("JUST ALPHA: " + justAlpha);
                                     result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     if (!isMeasurementUnit(justAlpha)){
                                         Toast.makeText(ShoppingListUserItemsActivity.this, String.format(getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), result), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
-                                        System.out.println("JUST ALPHA 2: " + result);
                                     }
-                                    System.out.println("Wo A_Z CONTIANING ONE: " + result);
                                     try {
                                         Double.parseDouble(result);
                                     }
@@ -1258,7 +1254,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
-                                System.out.println("QUANITY EXCEPTION: " + e.toString());
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                                 final Runnable stopListeningRunnable = new Runnable() {
@@ -1274,7 +1269,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         }
                         else{
                             String replaceNumbers = convertWithEnglishWordsToNumbers( result); // removing and converting any numeric values that were written in lik e'three' and 'five' and if there are still alphanumeric values, telling the user that they should only put stand only values in individual pricing setting
-                            System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if(!justAlpha2.equals("")) {
                                 Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.please_only_stand_alone_values_for_individuals), Toast.LENGTH_SHORT ).show();
@@ -1292,14 +1286,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 }
                 catch (Exception e){
-                    System.out.println("QUANITY EXCEPTION: " + e.toString());
                     quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                     Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
                             quantitySpeechRecognizer.stopListening();
-                            System.out.println("MADE IT");
                         }
                     };
                     stopListeningRunnable.run();
@@ -2349,27 +2341,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         };
         actuallyNeedsToBeUpdated.observeForever(updateObserver);
-//        new Thread(
-//            new Runnable() {
-//                public void run() {
-//                    System.out.println("ACTUALLYNEEDS TO BE UPDATED RUNNIn");
-//                    if(actuallyNeedsToBeUpdated.getValue() != null) {
-//                        if (actuallyNeedsToBeUpdated.getValue()) {
-//                            System.out.println("ACTUALLYNEEDS TO BE UPDATED RUNNIn 2");
-//                            try {
-//                                shoppingListUserItems = QueryUtils.getShoppingListUsersItems(shoppingListName);
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            } catch (ParseException e) {
-//                                e.printStackTrace();
-//                            }
-//
-//                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(ShoppingListUserItemsActivity.this, shoppingListUserItems, shoppingListName, shoppingListUserItemsListView);
-//                        }
-//                    }
-//
-//                }
-//        }).start();
+
         toolBar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -2430,6 +2402,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
         }
 
+
         shoppingListUserItemAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
             public void onChanged() {
@@ -2467,23 +2440,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                       }
                                                   }
                                                   shoppingListUserItems = newItems;
-                                                  //                                                  ArrayList<ShoppingListUserItem> newshoppingListUserItemList = new ArrayList<>();
-//                                                  for(int i = 0; i < shoppingListUserItems.size(); i++){
-//                                                      ShoppingListUserItem shoppingListUserItem =  shoppingListUserItems.get(i);
-//                                                      try{
-//                                                          if(!shoppingListUserItem.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
-//                                                              System.out.println("REMOVING " + shoppingListUserItem.getName() + " FOR " + query);
-//                                                              shoppingListUserItems.remove(i);
-//                                                          }
-//                                                          else{
-//
-//                                                          }
-//                                                      }
-//                                                      catch (StringIndexOutOfBoundsException exception){
-////                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
-//                                                      }
-//
-//                                                  }
+
                                                   shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
                                                   try{
                                                       shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
@@ -2515,21 +2472,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                   }
                                                   shoppingListUserItems = newItems;
                                                   System.out.println("NEW SHOPPING LIST USER ITEMS @onQuereyTExtChange: " + shoppingListUserItems);
-                                                  //
-//                                                  for(int i = 0; i < shoppingListUserItems.size(); i++){
-//                                                      ShoppingListUserItem shoppingListUserItem =  shoppingListUserItems.get(i);
-//                                                      try{
-//                                                          if(!shoppingListUserItem.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
-//                                                              System.out.println("REMOVING " + shoppingListUserItem.getName() + " FOR " + query);
-//
-//                                                              shoppingListUserItems.remove(i);
-//                                                          }
-//                                                      }
-//                                                      catch (StringIndexOutOfBoundsException exception){
-////                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
-//                                                      }
-//
-//                                                  }
+
                                                   // if user has deleted all their text
                                                   if (query.isEmpty()) {
                                                       resultsForshoppingListUserItemsView.setVisibility(GONE);
@@ -2631,13 +2574,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                     }
                 });
-//                ImageView historyButton = (ImageView) selectedStoreView.findViewById(R.id.history_button_sl_item);
-//                ImageView duplicateIndicator = (ImageView) selectedStoreView.findViewById(R.id.duplicate_indicator);
                 ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
-//                ImageView reorderButton = (ImageView) selectedStoreView.findViewById(R.id.reorder_item_button);
-//                ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
-//                ImageView increaseQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_add_button);
-//                ImageView decreasedQuantityButton = (ImageView) selectedStoreView.findViewById(R.id.quantity_minus_button);
                 ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(R.id.more_vert_actions_item_button);
                 eyeImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
