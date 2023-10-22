@@ -44,6 +44,7 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
         storeUserItemsListView = findViewById(R.id.user_items_list_view);
         storeUserItemsListView.setAdapter( storeUserItemAdapter);
         SearchView searchView = findViewById(R.id.search_bar);
+        searchView.setQueryHint(getString(R.string.search_based_on_store_or_date));
         TextView titleTextView = findViewById(R.id.title);
         Toolbar toolbar = findViewById(R.id.my_toolbar);
 

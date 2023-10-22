@@ -69,6 +69,8 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         storeUserItemsListView = findViewById(R.id.user_items_list_view);
         resultsForStoreUserItemsView = findViewById(R.id.results_for_user_item_text);
         SearchView searchView = findViewById(R.id.search_bar);
+
+        searchView.setQueryHint(getString(R.string.search_for_item));
         TextView titleTextView = findViewById(R.id.title);
          storeName = getIntent().getStringExtra("storeName");
         titleTextView.setText(String.format(getString(R.string.purchase_history_name), storeName));

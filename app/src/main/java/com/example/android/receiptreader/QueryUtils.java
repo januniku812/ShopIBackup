@@ -273,7 +273,7 @@ public class QueryUtils  {
                 JSONObject shoppingList = (JSONObject) shoppingLists.get(i);
                 String shopping_list_name = (String) shoppingList.get("shopping_list_name");
                 System.out.println("STORE NAME: " + shopping_list_name);
-                if(strip(shopping_list_name).trim().equalsIgnoreCase(strip(shoppingListName))){
+                if(strip(shopping_list_name).trim().equalsIgnoreCase(strip(shoppingListName).trim())){
                     System.out.println("IVE BEEN ACCESSED - ifShoppingListAlreadyExists: " + shoppingListName);
                     return true;
                 }

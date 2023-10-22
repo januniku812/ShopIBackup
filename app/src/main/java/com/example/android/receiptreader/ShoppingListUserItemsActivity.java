@@ -2824,6 +2824,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 .setDismissType(DismissType.outside)
                 .build(); //optional - default dismissible by TargetView
 
+        GuideView toolbar_guideview =  new GuideView.Builder(this)
+                .setTitle("Navigation Arrow")
+                .setContentText("At the top of each page is the title of your store, shopping list, purchase history or other component of this app. Next to it is the back button and please use this back arrow to navigate throughout the app instead of the in-built arrows at the bottom of your device.")
+                .setTargetView(findViewById(R.id.my_toolbar))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
         ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
         tourGuideViewArrayList.add(shoppingListItemNameGuideView);
         tourGuideViewArrayList.add(shoppingListUserItemQuantityGuideView);
@@ -2837,6 +2847,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         tourGuideViewArrayList.add(insightsGraphExplained); // filler #9
         tourGuideViewArrayList.add(add_button_guide_view);
         tourGuideViewArrayList.add(shopping_list_search_view_guide_view);
+        tourGuideViewArrayList.add(toolbar_guideview);
         ShoppingListUserItem shoppingListUserItemExample = shoppingListUserItemAdapter.getItem(0);
         QueryUtils.setItemNotGreenTickMarked(shoppingListUserItemExample.getName(), shoppingListName, getApplicationContext());
         updateUserItems();

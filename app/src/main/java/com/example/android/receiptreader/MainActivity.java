@@ -662,20 +662,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        itemRepLabel.setTag(itemRepLabel.getVisibility());
-//        itemRepLabel.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                System.out.println("TRIGGERED: " + isVisible(itemRepLabel));
-//                    if(!isVisible(itemRepLabel)){
-//                        System.out.println("NOT VISIBLE?!?!?!");
-//                        ListView storeListView = findViewById(R.id.stores_list_view);
-//                        storeListView.setLayoutParams(new ConstraintLayout.LayoutParams(storeListView.getWidth(), storeListView.getHeight()-itemRepLabel.getHeight()-10));
-//                        storeListView.setClickable(true);
-//ibility has changed
-//            }                    }
-//                //vis
-//        });
         RelativeLayout shoppingListLy = findViewById(R.id.shopping_lists_ly);
         shoppingListAdapter = new ShoppingListAdapter(this, shoppingLists);
         storeListAdapter = new StoreListAdapter(this, stores);
@@ -683,20 +669,7 @@ public class MainActivity extends AppCompatActivity {
         storesListView.setAdapter(storeListAdapter);
         shoppingListLy.setMinimumHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.1)));
         shoppingListsView.setMinimumHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.4)));
-//        itemRepTv.setHeight((int) (getWindowManager().getDefaultDisplay().getHeight() * (0.1))); // setting item rep Tv height as 5 percent of the screen height
-//        itemRepTv.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                System.out.println("CURRENT PERCEN: " +storesListView.getHeight() + " WINDOW: " + getWindowManager().getDefaultDisplay().getHeight());
-//                Double listVHeight = Double.parseDouble(String.valueOf(storesListView.getHeight()));
-//                Double windowHeight = Double.parseDouble(String.valueOf(getWindowManager().getDefaultDisplay().getHeight()));
-//                System.out.println("PERCEN: " + (listVHeight/windowHeight));
-//                if((listVHeight/windowHeight) > 0.4) {
-//                        System.out.println("CALLED ON GLOBALLAYOUT");
-//                    }
-//
-//            }
-//        });
+
         hideSoftKeyboard(this);
         // all functions for searching through the stores list view
         storesSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -704,7 +677,7 @@ public class MainActivity extends AppCompatActivity {
                                                     public boolean onQueryTextSubmit(String query) {
                                                         Integer searchQueryLength = query.length();
                                                         ArrayList<Store> newStoreList = new ArrayList<>();
-                                                        StoreListAdapter storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
+                                                        storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
                                                         try {
                                                             stores = QueryUtils.getStores();
                                                         } catch (IOException e) {
@@ -733,7 +706,7 @@ public class MainActivity extends AppCompatActivity {
                                                     public boolean onQueryTextChange(String newText) {
                                                         Integer searchQueryLength = newText.length();
                                                         ArrayList<Store> newStoreList = new ArrayList<Store>();
-                                                        StoreListAdapter storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
+                                                        storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
                                                         try {
                                                             stores = QueryUtils.getStores();
                                                         } catch (IOException e) {
@@ -777,7 +750,7 @@ public class MainActivity extends AppCompatActivity {
                                                           public boolean onQueryTextSubmit(String query) {
                                                               Integer searchQueryLength = query.length();
                                                               ArrayList<ShoppingList> newShoppingListList = new ArrayList<>();
-                                                              ShoppingListAdapter ShoppingListListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
+                                                              shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
                                                               // updating shopping list
                                                               try {
                                                                   shoppingLists = QueryUtils.getShoppingLists();
@@ -798,7 +771,7 @@ public class MainActivity extends AppCompatActivity {
                                                                   }
 
                                                               }
-                                                              shoppingListsView.setAdapter(ShoppingListListAdapter);
+                                                              shoppingListsView.setAdapter(shoppingListAdapter);
                                                               return false;
 
                                                           }
@@ -807,7 +780,7 @@ public class MainActivity extends AppCompatActivity {
                                                           public boolean onQueryTextChange(String newText) {
                                                               Integer searchQueryLength = newText.length();
                                                               ArrayList<ShoppingList> newShoppingListList = new ArrayList<ShoppingList>();
-                                                              ShoppingListAdapter ShoppingListListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
+                                                              shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), newShoppingListList);
                                                               // updating shopping list
                                                               try {
                                                                   shoppingLists = QueryUtils.getShoppingLists();
@@ -827,7 +800,7 @@ public class MainActivity extends AppCompatActivity {
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
                                                                   }
                                                               }
-                                                              shoppingListsView.setAdapter(ShoppingListListAdapter);
+                                                              shoppingListsView.setAdapter(shoppingListAdapter);
                                                               return false;
                                                           }
 
@@ -868,37 +841,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-//                store_name_cl.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        System.out.println("MADE IT STORE historyButton @onClick");
-//                        Intent intent = new Intent(MainActivity.this, StoreUserItemsActivity.class);
-//                        intent.putExtra("storeName", store.getStoreName());
-//                        intent.putExtra("title", store.getStoreName());
-//                        startActivity(intent);
-//                    }
-//                });
-//                shoppingCartButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        if(Constants.storeBeingShoppedIn.isEmpty()) {
-//                            Constants.storeBeingShoppedIn = originalStoreName; // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
-//                            store.setIfHighlighted(true);
-//                        } else{
-//                            if(Constants.storeBeingShoppedIn.equals(originalStoreName)){
-//                                Constants.storeBeingShoppedIn = "";
-//                                stores = setAllStoresToNotBeingShoppedInExcept(stores, Constants.storeBeingShoppedIn);
-//                            }
-//                            else {
-//                                Constants.storeBeingShoppedIn = originalStoreName;
-//                                stores = setAllStoresToNotBeingShoppedInExcept(stores, originalStoreName);
-//                            }
-//                        }
-//                        // update list view
-//                        storeListAdapter = new StoreListAdapter(MainActivity.this, stores);
-//                        storesListView.setAdapter(storeListAdapter);
-//                    }
-//                });
+
 
             }
         });
@@ -913,15 +856,7 @@ public class MainActivity extends AppCompatActivity {
                 ImageView editViewIcon = (ImageView) selectedStoreView.findViewById(R.id.edit_name_sl_button);
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
                 ConstraintLayout shopping_list_name_cl = (ConstraintLayout) selectedStoreView.findViewById(R.id.shopping_list_name_cl);
-//                shopping_list_name_cl.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
-//                        intent.putExtra("shoppingListName",originalShoppingListName);
-//                        startActivity(intent);
-//
-//                    }
-//                });
+
                 editViewIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -954,17 +889,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        itemRepTv.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
-//                startActivity(intent);
-//                storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
-//                shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
-//            }
-//        });
-//        HandlerThread handlerThread = new HandlerThread("Tour");
-//        handlerThread.
         Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
