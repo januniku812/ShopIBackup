@@ -870,9 +870,23 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
     // method to replace all common issues in voice to speech text in different areas
     private String replaceAllCommonIssues(String s) {
-        return s.replaceAll("fluidounces", "fl oz").replaceAll("fluid ounces", "fl oz").replaceAll("G", "g");
+        return removeLeadingZeros(s).replaceAll("fluidounces", "fl oz").replaceAll("fluid ounces", "fl oz").replaceAll("G", "g");
     }
-
+    
+    // method to remove leading zeros in a string of digits
+    private String removeLeadingZeros(String str){
+        String newstr = "";
+        int ind = 0;
+        for (int i = 0; i < str.length(); i++) {
+            char p = str.charAt(i);
+            if (p != '0') {
+                ind = i;
+                break;
+            }
+        }
+        newstr = str.substring(ind, str.length());
+        return str;
+    }
     @RequiresApi(O)
     private void speakWithVoiceDialog(String shoppingListUserItemName, boolean ifStoreProvided) {
         System.out.println("ACESSED");
