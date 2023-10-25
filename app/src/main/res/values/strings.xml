@@ -69,7 +69,7 @@
     <string name="reorder_shopping_list">Move To Shopping List</string>
     <string name="purchase_history">Purchase History - %s</string>
     <string name="quantity">Quantity</string>
-    <string name="unit_price">Unit Price (Price of the Package or per lb)</string>
+    <string name="unit_price">Price of Package</string>
     <string name="record_details_for">Record Details For Item</string>
     <string name="audio_permission_granted">Audio Permission Granted</string>
     <string name="cant_use_this_feature">Can\'t Use Save Microphone Feature Without Granted Record Audio Permission</string>
@@ -79,7 +79,7 @@
     <string name="chose_a_store">You have not currently selected a store(main page), please select what store you would like to save %s in below</string>
     <string name="couldnt_rec_value">Couldn\'t recognize %s as a numeric value</string>
     <string name="no_proper_input_detected">Error in processing input, enter proper numeric/weight values</string>
-    <string name="additional_weight">Additional weight detail(not necessary)</string>
+    <string name="additional_weight">Package Weight (Optional)</string>
     <string name="you_need_weight_unit">Please record your customary or metric measurement of weight, such as pounds or kilograms, as you have weight toggled in quantity details</string>
     <string name="only_enter_normal_numeric_value">Please only record numeric values such as \'three\'(3), as you have \'each\' toggled in quantity details</string>
     <string name="add_proper_unit_of_weight_after_numeric_value">Enter a proper unit of weight</string>
@@ -123,6 +123,10 @@
     <string name="empty_store">Empty Store</string>
     <string name="search_based_on_store_or_date">"Find store or date specific item purchase "</string>
     <string name="search_for_item">Search for An Item</string>
+    <string name="total_packages_purchased">Total Packages Purchased</string>
+    <string name="quantity_unit">"Quantity (with Unit - lb,oz,etc)"</string>
+    <string name="package_price">Package Price</string>
+    <string name="price_per_unit">Price Per Unit</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>

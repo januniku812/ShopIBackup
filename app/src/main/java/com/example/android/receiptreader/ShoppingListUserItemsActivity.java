@@ -66,7 +66,6 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 import com.jjoe64.graphview.series.Series;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -923,12 +922,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         EditText quantityEditText = view.findViewById(R.id.quantity_edit_text);
         EditText unitPriceEditText = view.findViewById(R.id.unit_price_edit_text);
         EditText additionalWeightEditText = view.findViewById(R.id.additional_weight_edit_text);
-        EditText withinPackageItemCount = view.findViewById(R.id.within_package_item_count_edit_text);
         ImageView quantityMicrophone = view.findViewById(R.id.quantity_microphone);
         ImageView unitPriceMicrophone = view.findViewById(R.id.unit_price_microphone);
         ImageView additionalWeightMicrophone = view.findViewById(R.id.additional_weight_microphone);
         ImageView withinPackageItemCountMicrophone = view.findViewById(R.id.within_package_item_count_microphone);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            TextView quantity_label = (TextView) quanity_detail_cl.findViewById(R.id.quantity_edit_text_label);
+            TextView unit_price_label = (TextView) unit_price_detail_cl.findViewById(R.id.unit_price_edit_text_label);
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (!isChecked) {
@@ -936,13 +936,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     // The toggle is enabled
                     additional_weight_cl.setVisibility(View.VISIBLE);
                     within_package_item_count_cl.setVisibility(View.VISIBLE);
-                    unitPriceEditText.setHint(getString(R.string.price_per_package));
+                    quantity_label.setText(getString(R.string.total_packages_purchased));
+                    unit_price_label.setText(getString(R.string.package_price));
                 } else {
                     // The toggle is disabled
                     ifQuantityIsIndividualPackageBased[0] = false;
                     additional_weight_cl.setVisibility(GONE);
                     within_package_item_count_cl.setVisibility(GONE);
-                    unitPriceEditText.setHint(getString(R.string.price_per_pound));
+                    quantity_label.setText(getString(R.string.quantity_unit));
+                    unit_price_label.setText(getString(R.string.price_per_unit));
                 }
             }
 
@@ -2683,7 +2685,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView recordPurchaseDetails = new GuideView.Builder(this)
                 .setTitle("Record Purchase Details")
-                .setContentText("This is the quantity of your shopping list item that you can toggle with the plus/minus buttons")
+                .setContentText("The microphone button triggers a record purchase details of a item. This is where you record the purchase of your shopping list item. Purchases can either be by package or by weight, mainly for produce, based on the type of item you buy. If you are recording for a by purchase item then you need to fill the quantity of the item, the unit price per package. The item count within package is also optional. The additional weight detail of the package is optional but useful for price analytics elaborated on later. For by weight items your quantity is the amount of the item in some weight measurement unit such as pounds (lb) or grams (g) and the unit price is the price per the weight measurement unit for the item. All fields can be filled using the voice functionality or typed and please note that if you use the voice functionality you must start your numbers with a zero, for example 1.99 will be said 01.99.")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.record_details_button))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
