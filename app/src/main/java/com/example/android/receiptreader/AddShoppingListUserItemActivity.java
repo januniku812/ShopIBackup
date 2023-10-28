@@ -28,6 +28,7 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
     SimpleUserItemAdapter simpleUserItemAdapter;
     ListView simplePastUserItemsListView;
     ArrayList<StoreUserItem> userItems;
+    ArrayList<ShoppingListUserItem> shoppingListUserItems;
     TextInputEditText newItemEditText;
     ImageButton submitButton;
     String shoppingList;
@@ -40,6 +41,13 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
         simplePastUserItemsListView = (ListView)findViewById(R.id.general_items_master);
         newItemEditText = (TextInputEditText) findViewById(R.id.new_item_edit_text);
         shoppingList = getIntent().getStringExtra("shoppingListName");
+        try {
+            shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         TextView title = findViewById(R.id.title_shopping_list_name);
         title.setText(String.format(getString(R.string.add_item), shoppingList));
@@ -61,7 +69,7 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        simpleUserItemAdapter = new SimpleUserItemAdapter(this, userItems);
+        simpleUserItemAdapter = new SimpleUserItemAdapter(this, userItems, shoppingListUserItems);
 
         simplePastUserItemsListView.setAdapter(simpleUserItemAdapter);
 
@@ -99,7 +107,7 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
                 Integer searchQueryLength = charSequence.length();
 
                 ArrayList<StoreUserItem> newUserItems = new ArrayList<StoreUserItem>();
-                simpleUserItemAdapter = new SimpleUserItemAdapter(getApplicationContext(), newUserItems);
+                simpleUserItemAdapter = new SimpleUserItemAdapter(getApplicationContext(), newUserItems, shoppingListUserItems);
                 for(int i3 = 0; i3 < userItems.size(); i3++){
                     StoreUserItem storeUserItem = (StoreUserItem) userItems.get(i3);
                     try{

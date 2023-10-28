@@ -19,6 +19,6 @@
             android:gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Personal Settings"/>
+            android:text="@string/user_settings"/>
     </androidx.cardview.widget.CardView>
 </androidx.appcompat.widget.LinearLayoutCompat>

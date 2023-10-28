@@ -309,7 +309,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         builder.setView(moreVertActionsView);
         String itemName = shoppingListUserItem.getName();
         ((TextView) moreVertActionsView.findViewById(R.id.textTitle))
-                .setText(String.format(getString(R.string.actions_shopping_list_user_item), itemName));
+                .setText(String.format(getString(R.string.actions_menu), itemName));
         alertDialog = builder.create();
         alertDialog.setCancelable(true);
         alertDialog.setCanceledOnTouchOutside(true);
@@ -921,6 +921,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         EditText withinPackageItemCountEditText = view.findViewById(R.id.within_package_item_count_edit_text);
         EditText quantityEditText = view.findViewById(R.id.quantity_edit_text);
         EditText unitPriceEditText = view.findViewById(R.id.unit_price_edit_text);
+        // setting default values of quantity and within package item count ad 1
+        quantityEditText.setText(getString(R.string.default_total_packages_and_items_within_package_purchased));
+        withinPackageItemCountEditText.setText(getString(R.string.default_total_packages_and_items_within_package_purchased));
         EditText additionalWeightEditText = view.findViewById(R.id.additional_weight_edit_text);
         ImageView quantityMicrophone = view.findViewById(R.id.quantity_microphone);
         ImageView unitPriceMicrophone = view.findViewById(R.id.unit_price_microphone);
@@ -935,8 +938,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     ifQuantityIsIndividualPackageBased[0] = true;
                     // The toggle is enabled
                     additional_weight_cl.setVisibility(View.VISIBLE);
-                    within_package_item_count_cl.setVisibility(View.VISIBLE);
-                    quantity_label.setText(getString(R.string.total_packages_purchased));
+                    within_package_item_count_cl.setVisibility(View.VISIBLE);quantity_label.setText(getString(R.string.total_packages_purchased));
                     unit_price_label.setText(getString(R.string.package_price));
                 } else {
                     // The toggle is disabled
@@ -2035,10 +2037,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     String unitPriceToPass = unitPriceEditText.getText().toString();
                     String additionalWeightToPass = additionalWeightEditText.getText().toString();
                     if (quantityToPass.isEmpty()) {
-                        quantityToPass = "not filled";
+                        quantityToPass = "1";
                     }
                     if (withinPackageItemCountToPass.isEmpty()) {
-                        withinPackageItemCountToPass = "not filled";
+                        withinPackageItemCountToPass = "1";
                     }
                     if (unitPriceToPass.isEmpty()) {
                         unitPriceToPass = "not filled";
@@ -2704,9 +2706,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 .build(); //optional - default dismissible by TargetView
 
         GuideView blueTickMark = new GuideView.Builder(this)
-                .setTitle("Blue Tick Mark")
-                .setContentText("A blue tick mark appears next to any shopping list item you record purchase details at least once and it overrides the green tick mark")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.check_circle))
+                .setTitle("Blue Item Name")
+                .setContentText("The shopping list item name is written in blue if you have recorded purchase details for it at least once.")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.shopping_list_item_name))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
                 .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))

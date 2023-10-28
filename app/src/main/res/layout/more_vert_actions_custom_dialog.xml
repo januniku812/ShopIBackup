@@ -25,7 +25,7 @@
             android:padding="10dp"
             android:textColor="@color/white"
             android:textSize="17sp"
-            android:text="@string/actions_shopping_list_user_item"
+            android:text="@string/actions_menu"
             android:textStyle="normal"
             app:layout_constraintTop_toTopOf="parent"/>
         <!--        <ImageView-->

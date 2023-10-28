@@ -89,12 +89,6 @@ public class MainActivity extends AppCompatActivity {
         // Get current version code
 
         // Get saved version code
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("priceComparisonUnitOn", true).apply();
-        Constants.wantsPriceComparisonUnit = true;
-        Constants.currentMeasureUnit = "grams (g)";
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-                .putString("measurementUnit", "grams (g)").apply();
-
         boolean isFirstTimeRun = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true);
         System.out.println("IS FIRST TIME RUN: " + isFirstTimeRun);
         int mainPageTourClickNum = PreferenceManager.getDefaultSharedPreferences(this).getInt("mainPageTourClickNum", 0);
@@ -102,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
         mainClick[0] = mainPageTourClickNum;
         // Check for first run or upgrade
         if (isFirstTimeRun) {
+            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
+            Constants.wantsPriceComparisonUnit = true;
+            Constants.currentMeasureUnit = "grams (g)";
+            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+                    .putString("measurementUnit", "grams (g)").apply();
+            System.out.println("APPLIED MEASUREMENT UNIT FIRST RUN: " + Constants.currentMeasureUnit);
             if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
                 QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
             }
@@ -921,8 +921,10 @@ public class MainActivity extends AppCompatActivity {
         );
         builder.setView(view);
         ListView measurementUnitsListView = view.findViewById(R.id.simple_measurement_units_list_view);
+        Button cancelButton = view.findViewById(R.id.close_button);
         SimpleMeasurementUnitItemAdapter simpleMeasurementUnitItemAdapter = new SimpleMeasurementUnitItemAdapter(getApplicationContext(), measurementUnits);
         measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter);
+        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
         measurementUnitsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
@@ -934,11 +936,17 @@ public class MainActivity extends AppCompatActivity {
                 Constants.currentMeasureUnit = measurementUnit;
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                         .putString("measurementUnit", measurementUnit).apply();
+                System.out.println("APPLIED MEASUREMENT UNIT THROUGH CHOSEN MEANS: " + Constants.currentMeasureUnit);
                 measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter);
                 measurementUnitsListView.setSelectionFromTop(index, top);
             }
         });
-        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
         alertDialog.setCanceledOnTouchOutside(true);
         if (alertDialog.getWindow() != null) {
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));

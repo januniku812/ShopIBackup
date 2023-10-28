@@ -38,6 +38,7 @@
     <string name="store">Stores</string>
     <string name="new_item_name">new item name</string>
     <string name="last_bought">10/27/22</string>
+    <string name="included_in_shopping_list">Exists in shopping list</string>
     <string name="quantity_sl_item_placeholder">1</string>
     <string name="enter">Enter</string>
     <string name="cancel">Cancel</string>
@@ -70,7 +71,7 @@
     <string name="purchase_history">Purchase History - %s</string>
     <string name="quantity">Quantity</string>
     <string name="unit_price">Price of Package</string>
-    <string name="record_details_for">Record Details For Item</string>
+    <string name="record_details_for">Record Purchase Details For Item</string>
     <string name="audio_permission_granted">Audio Permission Granted</string>
     <string name="cant_use_this_feature">Can\'t Use Save Microphone Feature Without Granted Record Audio Permission</string>
     <string name="store_already_exists">%s Already Exists Under Stores</string>
@@ -87,7 +88,7 @@
 
     <string name="add_weight_ms">Additional weight detail despite must have proper weight unit(e.g. lb)</string>
     <string name="please_only_stand_alone_values_for_individuals">Please only enter stand alone numeric values like \'three(3)\' for quantity</string>
-    <string name="actions_shopping_list_user_item">Actions On %s Item</string>
+    <string name="actions_menu">Actions Menu</string>
     <string name="actions_shopping_list_user_item_formatted">Actions On %s</string>
     <string name="item_has_no_history">%s has no purchase history</string>
     <string name="view_other_sl_with">View Other Shopping Lists With %s</string>
@@ -109,12 +110,12 @@
     <string name="item_count_in_package">Item Count in Package</string>
     <string name="price_per_pound">Price per pound or preferred unit</string>
     <string name="price_per_package">Price Per Package</string>
-    <string name="measurement_units">Measurement Units</string>
+    <string name="measurement_units">Set Weight Unit for Price Comparison</string>
     <string name="chose_a_measurement_unit">Select a unit of weight to compare item prices</string>
     <string name="measurement_unit">Price Comparison Unit</string>
     <string name="by_package">By Package</string>
     <string name="by_weight">By Weight</string>
-    <string name="choose_a_store_text_tile">Choose Current Store</string>
+    <string name="choose_a_store_text_tile">Select Store</string>
     <string name="close">Close</string>
     <string name="purchase_history_name">%s - Purchase History</string>
     <string name="empty_shoping_list">"Empty Shopping list "</string>
@@ -125,8 +126,10 @@
     <string name="search_for_item">Search for An Item</string>
     <string name="total_packages_purchased">Total Packages Purchased</string>
     <string name="quantity_unit">"Quantity (with Unit - lb,oz,etc)"</string>
-    <string name="package_price">Package Price</string>
+    <string name="package_price">Package Price*</string>
     <string name="price_per_unit">Price Per Unit</string>
+    <string name="user_settings">User Settings</string>
+    <string name="default_total_packages_and_items_within_package_purchased">1</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>

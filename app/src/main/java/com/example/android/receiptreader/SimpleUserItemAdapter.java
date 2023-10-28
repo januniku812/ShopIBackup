@@ -1,6 +1,7 @@
 package com.example.android.receiptreader;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +10,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 
 public class SimpleUserItemAdapter extends ArrayAdapter<StoreUserItem> {
-    public SimpleUserItemAdapter(@NonNull Context context, ArrayList<StoreUserItem> storeUserItems) {
+    ArrayList<ShoppingListUserItem> shoppingListUserItems;
+    public SimpleUserItemAdapter(@NonNull Context context, ArrayList<StoreUserItem> storeUserItems, ArrayList<ShoppingListUserItem> shoppingListUserItems) {
         super(context, 0, storeUserItems);
+        this.shoppingListUserItems = shoppingListUserItems;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -29,9 +34,25 @@ public class SimpleUserItemAdapter extends ArrayAdapter<StoreUserItem> {
         StoreUserItem storeUserItem = getItem(position);
 
         //find the text view in the user item individual view and setting it with object name data
+        String name = storeUserItem.getItemName();
         TextView userItemName = (TextView) newItemView.findViewById(R.id.simple_user_item_name);
-        userItemName.setText(storeUserItem.getItemName());
+        TextView includedInShoppingList = (TextView) newItemView.findViewById(R.id.included_in_shopping_list);
+        userItemName.setText(name);
 
+        System.out.println("SHOPPING LIST USER ITEMS: ");
+        ArrayList<String> shoppingListUserItemNames = new ArrayList<>();
+        for(ShoppingListUserItem shoppingListUserItem: shoppingListUserItems){
+            shoppingListUserItemNames.add(shoppingListUserItem.getName().replaceAll(" ", "").trim());
+            System.out.println(shoppingListUserItem.getName());
+        }
+        for(String itemName: shoppingListUserItemNames){
+            System.out.println("COMPARING: " + name + " WITH: " + itemName.replaceAll(" ", "").trim());
+            if(itemName.replaceAll(" ", "").trim().equalsIgnoreCase(name.replaceAll(" ", ""))){
+                System.out.println("CONTAINS");
+                includedInShoppingList.setVisibility(View.VISIBLE);
+                newItemView.findViewById(R.id.user_item_card_view).setBackgroundResource(R.drawable.light_blue_card_view_bkg);
+            }
+        }
         return newItemView;
 
     }
