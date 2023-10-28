@@ -2,6 +2,7 @@ package com.example.android.receiptreader;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static android.provider.Settings.System.getString;
 
 public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserItem> {
     ListView shoppingListUserItemsListView;
@@ -167,6 +170,8 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                     if(!shoppingListUserItem.isIfGreenMarked()) {
                         QueryUtils.increaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
                         ShoppingListUserItemsActivity.update();
+                    } else{
+                        Toast.makeText(getContext(), "Bought item quantity cannot be changed", Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -181,6 +186,9 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                     if(Integer.parseInt(shoppingListUserItem.getUserQuantity()) > 1 && !shoppingListUserItem.isIfGreenMarked()) {
                         QueryUtils.decreaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
                         ShoppingListUserItemsActivity.update();
+                    } else if(shoppingListUserItem.isIfGreenMarked()){
+                        Toast.makeText(getContext(), "Bought item quantity cannot be changed", Toast.LENGTH_SHORT).show();
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

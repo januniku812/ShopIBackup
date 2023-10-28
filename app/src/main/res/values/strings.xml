@@ -79,6 +79,8 @@
     <string name="current_store">Select a store from below, all your recorded purchase details will be stored in that its history</string>
     <string name="chose_a_store">You have not currently selected a store(main page), please select what store you would like to save %s in below</string>
     <string name="couldnt_rec_value">Couldn\'t recognize %s as a numeric value</string>
+    <string name="couldnt_rec_mes_unit_value">Couldn\'t recognize %s as a measurement of weight</string>
+    <string name="no_proper_input_detected_quantity">Error in processing input, enter proper numeric value such as 1.0</string>
     <string name="no_proper_input_detected">Error in processing input, enter proper numeric/weight values</string>
     <string name="additional_weight">Package Weight (Optional)</string>
     <string name="you_need_weight_unit">Please record your customary or metric measurement of weight, such as pounds or kilograms, as you have weight toggled in quantity details</string>
@@ -94,7 +96,7 @@
     <string name="view_other_sl_with">View Other Shopping Lists With %s</string>
     <string name="reorder_item">Move %s</string>
     <string name="delete_item">Delete %s</string>
-    <string name="record_details_for_item">Purchase Details For %s</string>
+    <string name="record_details_for_item">Record Purchase Details For %s</string>
     <string name="view_insights_for_item">View Insights For %s</string>
     <string name="exit">Exit</string>
     <string name="insights_for_itemI">Date-Price Insights for %s</string>
@@ -125,11 +127,18 @@
     <string name="search_based_on_store_or_date">"Find store or date specific item purchase "</string>
     <string name="search_for_item">Search for An Item</string>
     <string name="total_packages_purchased">Total Packages Purchased</string>
-    <string name="quantity_unit">"Quantity (with Unit - lb,oz,etc)"</string>
+    <string name="quantity_unit">"Quantity (without any unit)"</string>
     <string name="package_price">Package Price*</string>
+    <string name="unit_price_by_weight">Unit Price *(with /Unit - per lb, oz, kg, etc)</string>
     <string name="price_per_unit">Price Per Unit</string>
     <string name="user_settings">User Settings</string>
     <string name="default_total_packages_and_items_within_package_purchased">1</string>
+    <string name="no_measurement_unit_of_weight_needed_in_quantity_feild">For by weight items, only numeric values such as 1.0 are needed in the quantity feild</string>
+    <string name="by_weight_items_unit_price_needs_to_have_measurement_unit">By weight item unit price needs to have a measurement unit such as \'per pound/lb\'</string>
+    <string name="couldnt_rec_value_by_weight_item">Couldn\'t recognize %s as unit price with proper measurement unit</string>
+    <string name="add_up_by_weight">Please add a proper by unit price</string>
+    <string name="is_not_proper_numeric_value">%s is not a proper numeric value</string>
+    <string name="cant_change_quantity_of_purchased_item">Bought item quantity cannot be changed</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>
