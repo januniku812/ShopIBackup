@@ -164,8 +164,10 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             public void onClick(View v) {
                 try {
                     System.out.println("IVE BEEN CLICKED STORE ITEM ADAPTER");
-                    QueryUtils.increaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
-                    ShoppingListUserItemsActivity.update();
+                    if(!shoppingListUserItem.isIfGreenMarked()) {
+                        QueryUtils.increaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
+                        ShoppingListUserItemsActivity.update();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -176,7 +178,7 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             public void onClick(View v) {
                 try {
                     System.out.println("IVE BEEN CLICKED ITEM ADAPTER");
-                    if(Integer.parseInt(shoppingListUserItem.getUserQuantity()) > 1) {
+                    if(Integer.parseInt(shoppingListUserItem.getUserQuantity()) > 1 && !shoppingListUserItem.isIfGreenMarked()) {
                         QueryUtils.decreaseShoppingListItemQuantity(shoppingListNameStr, shoppingListUserItemName, getContext());
                         ShoppingListUserItemsActivity.update();
                     }

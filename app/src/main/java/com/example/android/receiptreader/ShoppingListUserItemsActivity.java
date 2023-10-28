@@ -2718,7 +2718,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView mostRecentPurchaseDateGuideView = new GuideView.Builder(this)
                 .setTitle("Most Recent Purchase Date")
-                .setContentText("The most recent date you recorded purchase details for this item that appears alongside the blue tick mark under the item name.")
+                .setContentText("The most recent date you recorded purchase details for this item that appears alongside the blue item name.")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.last_bought_date))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional

@@ -65,6 +65,12 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
                     intent.putExtra("shoppingListName", getIntent().getBundleExtra("BUNDLE").getString("shoppingListName"));
                     startActivity(intent);
                 }
+                else
+                if(classComingFrom.equals("RepItemsActivity")){
+                    System.out.println("data: " + getIntent().getBundleExtra("BUNDLE").getString("storeComingFrom"));
+                    Intent intent = new Intent(ShoppingListUserItemHistoryActivity.this, RepItemsActivity.class);
+                    startActivity(intent);
+                }
             }
         });
         titleTextView.setText(String.format(getString(R.string.purchase_history), title));

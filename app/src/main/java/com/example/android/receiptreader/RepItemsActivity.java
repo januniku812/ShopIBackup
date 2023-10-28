@@ -226,6 +226,9 @@ public class RepItemsActivity extends AppCompatActivity {
                 View selectedStoreView = repItemAdapter.getView(i, view, adapterView);
                 ImageView editNameButton = (ImageView) selectedStoreView.findViewById(R.id.edit_name_button);
                 ImageView deleteButton = (ImageView) selectedStoreView.findViewById(R.id.delete_item_button);
+                ImageView purchaseHistoryButton = (ImageView) selectedStoreView.findViewById(R.id.item_rep_purchase_history);
+
+
                 editNameButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -238,6 +241,32 @@ public class RepItemsActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         showDialog(String.format(getString(R.string.delete_rep_item), repItemName), JSONEditCodes.DELETE_REP_ITEM, repItemName);
 
+
+                    }
+                });
+
+                purchaseHistoryButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ArrayList<StoreUserItem> storeUserItemsHistory = new ArrayList<>();
+                        try {
+                            storeUserItemsHistory = QueryUtils.getHistoryOfShoppingListItem(repItemName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        if(storeUserItemsHistory != null) {
+                            Intent intent = new Intent(getApplicationContext(), ShoppingListUserItemHistoryActivity.class);
+                            Bundle intentBundle = new Bundle();
+                            intentBundle.putString("classComingFrom", "RepItemsActivity");
+                            intentBundle.putString("title", repItemName);
+                            intentBundle.putSerializable("storeUserItemsHistory", storeUserItemsHistory);
+                            intent.putExtra("BUNDLE", intentBundle);
+                            startActivity(intent);
+                        } else{
+                            Toast.makeText(getApplicationContext(), String.format(getString(R.string.item_has_no_history), repItemName), Toast.LENGTH_SHORT).show();
+                        }
 
                     }
                 });
