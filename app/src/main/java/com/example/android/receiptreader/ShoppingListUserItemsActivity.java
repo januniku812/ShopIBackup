@@ -2231,14 +2231,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     if (withinPackageItemCountToPass.isEmpty()) {
                         withinPackageItemCountToPass = "1";
                     }
-                    if (additionalWeightToPass.isEmpty()) {
-                        System.out.println("ADDITIONAL WEIGHT DETAIL IS EMPTY");
-                        additionalWeightToPass = null;
-                    }
                     Double doubleParsedUnitPrice;
                     Double doubleParsedPackageQuantity;
                     Double doubleParsedPackageWithinPackageItemCount;
-                    Double doubleParsedAdditionalWeight;
+                    Double doubleParsedAdditionalWeight = null;
                     try {
                         doubleParsedUnitPrice = Double.parseDouble(unitPriceToPass);
                     } catch(Exception e){
@@ -2254,9 +2250,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     } catch(Exception e){
                         doubleParsedPackageWithinPackageItemCount = 0.0;
                     }
+                    System.out.println("ADDITIONAL WEIGHT PASS: " + additionalWeightToPass + " IS TRUE: " + !additionalWeightToPass.replaceAll("\\s+","").isEmpty());
                     try {
-                        doubleParsedAdditionalWeight = Double.parseDouble(additionalWeightToPass.replaceAll("^[.0-9]", ""));
+                        if(!additionalWeightToPass.replaceAll("\\s+","").isEmpty()) {
+                            System.out.println("PREPARSE: " + additionalWeightToPass.replaceAll("[^0-9.]", ""));
+                            doubleParsedAdditionalWeight = Double.parseDouble(additionalWeightToPass.replaceAll("[^0-9.]", ""));
+                            System.out.println("PARSED: " + doubleParsedAdditionalWeight);
+                        }
                     } catch(Exception e){
+                        e.printStackTrace();
                         doubleParsedAdditionalWeight = null;
                     }
                     if(unitPriceToPass.isEmpty()){
@@ -2272,7 +2274,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     else if(Math.floor(doubleParsedPackageWithinPackageItemCount) != doubleParsedPackageWithinPackageItemCount){
                         errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
                     }
-                    else if(doubleParsedAdditionalWeight != null){
+                    else if(!additionalWeightToPass.replaceAll("\\s+","").isEmpty() && doubleParsedAdditionalWeight == null){
+                        System.out.println("TRIGGERED HERE 4");
                         errorDialog(getString(R.string.by_package_weight_guidelines));
                     }
                     else {
@@ -2317,14 +2320,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if (withinPackageItemCountToPass.isEmpty()) {
                                             withinPackageItemCountToPass = "1";
                                         }
-                                        if (additionalWeightToPass.isEmpty()) {
-                                            System.out.println("ADDITIONAL WEIGHT DETAIL IS EMPTY");
-                                            additionalWeightToPass = null;
-                                        }
                                         Double doubleParsedUnitPrice;
                                         Double doubleParsedPackageQuantity;
                                         Double doubleParsedPackageWithinPackageItemCount;
-                                        Double doubleParsedAdditionalWeight;
+                                        Double doubleParsedAdditionalWeight = null;
                                         try {
                                             doubleParsedUnitPrice = Double.parseDouble(unitPriceToPass);
                                         } catch(Exception e){
@@ -2341,7 +2340,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                             doubleParsedPackageWithinPackageItemCount = 0.0;
                                         }
                                         try {
-                                            doubleParsedAdditionalWeight = Double.parseDouble(additionalWeightToPass.replaceAll("^[.0-9]", ""));
+                                            if(!additionalWeightToPass.isEmpty()) {
+                                                doubleParsedAdditionalWeight = Double.parseDouble(additionalWeightToPass.replaceAll("[^0-9.]", ""));
+                                            }
                                         } catch(Exception e){
                                             doubleParsedAdditionalWeight = null;
                                         }
@@ -2355,7 +2356,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         else if(Math.floor(doubleParsedPackageQuantity) != doubleParsedPackageQuantity){
                                             errorDialog(getString(R.string.only_whole_numbers_total_package_purchased));
                                         }
-                                        else if(doubleParsedAdditionalWeight != null){
+                                        else if(!additionalWeightToPass.replaceAll("\\s+","").isEmpty() && doubleParsedAdditionalWeight == null){
+                                            System.out.println("TRIGGERED HERE 1");
                                             errorDialog(getString(R.string.by_package_weight_guidelines));
                                         }
                                         else if(Math.floor(doubleParsedPackageWithinPackageItemCount) != doubleParsedPackageWithinPackageItemCount){
@@ -2363,14 +2365,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         }
                                         else {
 
-                                            if (additionalWeightToPass != null || !containsMeasurementUnit(finalAdditionalWeightToPass[0])) {
+                                            if (!additionalWeightToPass.replaceAll("\\s+","").isEmpty() && !containsMeasurementUnit(finalAdditionalWeightToPass[0])) {
+                                                System.out.println("TRIGGERED HERE 2");
                                                 errorDialog(getString(R.string.by_package_weight_guidelines));
                                             }
 
                                             else {
-                                                if (additionalWeightToPass != null) {
-                                                    additionalWeightToPass = additionalWeightToPass.trim();
-                                                }
                                                 System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS INDIVIDUAL + FINAL WEIGHT: " + finalAdditionalWeightToPass[0]);
                                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, selectedStore.getStoreName(), dateStr,
                                                         quantityEditText.getText().toString(), // getting the quantity text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
@@ -2394,7 +2394,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("STORE FINAL PASS: " + Constants.storeBeingShoppedIn);
                             try {
                                 String finalAdditionalWeightToPass = additionalWeightEditText.getText().toString();
-                                if (!finalAdditionalWeightToPass.isEmpty() || !containsMeasurementUnit(finalAdditionalWeightToPass)) {
+                                if (!finalAdditionalWeightToPass.replaceAll("\\s+","").isEmpty() && !containsMeasurementUnit(finalAdditionalWeightToPass)) {
+                                    System.out.println("TRIGGERED HERE 3: " + finalAdditionalWeightToPass);
                                     errorDialog(getString(R.string.by_package_weight_guidelines));
                                 } else if (finalAdditionalWeightToPass.isEmpty()) {
                                     System.out.println("CALLED LIST VIEW QUANTITY IS INDIVIDUAL NO ADDITIONAL WEIGHT DETAIL");
