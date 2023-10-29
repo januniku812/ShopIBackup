@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             shoppingLists = QueryUtils.getShoppingLists();
             shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
             shoppingListsView.setAdapter(shoppingListAdapter);
-            stores = QueryUtils.getStores();
+            stores = QueryUtils.getStores(getApplicationContext());
             storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
             storesListView.setAdapter(storeListAdapter);
 //            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstTimeRun", false).apply();
@@ -365,7 +365,8 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         System.out.println("EDIT TEXT VAL SUBMIT MOMENT: "+ editText.getText());
                         QueryUtils.editStoreName(originalName, String.valueOf(editText.getText()), getApplicationContext());
-                        stores =  QueryUtils.getStores();
+
+                        stores = QueryUtils.getStores(getApplicationContext());
                         storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                         storesListView.setAdapter(storeListAdapter);
                         alertDialog.dismiss();
@@ -389,7 +390,8 @@ public class MainActivity extends AppCompatActivity {
                         String editTextVal =String.valueOf(editText.getText());
                         if(!QueryUtils.ifStoreAlreadyExists(editTextVal)) {
                             QueryUtils.addNewStore(editTextVal, getApplicationContext());
-                            stores = QueryUtils.getStores();
+
+                            stores = QueryUtils.getStores(getApplicationContext());
                             storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                             storesListView.setAdapter(storeListAdapter);
 //                            View itemRepLabel = findViewById(R.id.item_repository_label);
@@ -439,7 +441,8 @@ public class MainActivity extends AppCompatActivity {
                         constraintSet.connect(R.id.stores_list_view, ConstraintSet.TOP, R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, 5);
                         constraintSet.connect(R.id.stores_list_view_and_item_rep_label_cl, ConstraintSet.TOP, R.id.stores_label, ConstraintSet.BOTTOM, 5);
                         constraintLayout.setConstraintSet(constraintSet);
-                        stores =  QueryUtils.getStores();
+
+                        stores = QueryUtils.getStores(getApplicationContext());
                         storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
                         storesListView.setAdapter(storeListAdapter);
                         alertDialog.dismiss();
@@ -491,6 +494,7 @@ public class MainActivity extends AppCompatActivity {
                 "  \"shopping_lists\":[],\n" +
                 "  \"general_items_master\": []\n" +
                 "}");
+        Constants.storeBeingShoppedIn = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("selectedStore", "");
         Constants.currentMeasureUnit = PreferenceManager.getDefaultSharedPreferences(this).getString("measurementUnit", "");
         Constants.wantsPriceComparisonUnit = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("priceComparisonUnitOn", false);
         System.out.println("WANTS PRICE COMPARISON UNIT: " + Constants.wantsPriceComparisonUnit);
@@ -547,15 +551,19 @@ public class MainActivity extends AppCompatActivity {
                         String originalStoreName = selectedStore.getStoreName();
                         if(Constants.storeBeingShoppedIn.isEmpty()) {
                             Constants.storeBeingShoppedIn = originalStoreName; // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
-                            selectedStore.setIfHighlighted(true);
+                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("selectedStore", originalStoreName).apply();
+                            stores = refactorStoresOrder(stores, Constants.storeBeingShoppedIn);
+
                         } else{
                             if(Constants.storeBeingShoppedIn.equals(originalStoreName)){
                                 Constants.storeBeingShoppedIn = "";
-                                stores = setAllStoresToNotBeingShoppedInExcept(stores, Constants.storeBeingShoppedIn);
+                                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("selectedStore", "").apply();
+                                stores = refactorStoresOrder(stores, Constants.storeBeingShoppedIn);
                             }
                             else {
                                 Constants.storeBeingShoppedIn = originalStoreName;
-                                stores = setAllStoresToNotBeingShoppedInExcept(stores, originalStoreName);
+                                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("selectedStore", originalStoreName).apply();
+                                stores = refactorStoresOrder(stores, originalStoreName);
                             }
                         }
                         simpleStoreListAdapter  = new SimpleStoreListAdapter(MainActivity.this, stores);
@@ -621,7 +629,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 shoppingLists = QueryUtils.getShoppingLists();
-                stores = QueryUtils.getStores();
+
+                stores = QueryUtils.getStores(getApplicationContext());
             }
         }
         catch (Exception e) {
@@ -679,7 +688,8 @@ public class MainActivity extends AppCompatActivity {
                                                         ArrayList<Store> newStoreList = new ArrayList<>();
                                                         storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
                                                         try {
-                                                            stores = QueryUtils.getStores();
+
+                                                            stores = QueryUtils.getStores(getApplicationContext());
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
                                                         } catch (ParseException e) {
@@ -708,7 +718,8 @@ public class MainActivity extends AppCompatActivity {
                                                         ArrayList<Store> newStoreList = new ArrayList<Store>();
                                                         storeListAdapter = new StoreListAdapter(getApplicationContext(), newStoreList);
                                                         try {
-                                                            stores = QueryUtils.getStores();
+
+                                                            stores = QueryUtils.getStores(getApplicationContext());
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
                                                         } catch (ParseException e) {
@@ -954,9 +965,22 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    public ArrayList<Store> setAllStoresToNotBeingShoppedInExcept(ArrayList<Store> stores, String storeName) {
+    public ArrayList<Store> refactorStoresOrder(ArrayList<Store> stores, String storeName) {
+        int position = 0;
+        Store specifiedStore = null;
         for(Store store: stores){
-            store.setIfHighlighted(store.getStoreName().equals(storeName));
+            if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("selectedStore", "").equalsIgnoreCase(store.getStoreName())){
+                specifiedStore = store;
+                position = stores.indexOf(store);
+            }
+        }
+        if(!(specifiedStore == null)){
+            stores.remove(position);
+            stores.add(0, specifiedStore);
+        }
+        System.out.println("REFACTORED STORES");
+        for(Store store: stores){
+            System.out.println("NAME: " + store.getStoreName());
         }
         return stores;
     }

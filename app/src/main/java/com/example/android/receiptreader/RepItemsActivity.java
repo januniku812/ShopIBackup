@@ -158,7 +158,10 @@ public class RepItemsActivity extends AppCompatActivity {
                 if(finalJsonEditCode == JSONEditCodes.ADD_REP_ITEM){
                     try {
                         System.out.println("REP ITEMS ARRAY LIST: " + repItems.toArray().toString());
-                        QueryUtils.addRepItem(editText.getText().toString(), getApplicationContext());
+                        boolean worked = QueryUtils.addRepItem(editText.getText().toString(), getApplicationContext());
+                        if(!worked){
+                            Toast.makeText(getApplicationContext(), String.format(getString(R.string.rep_item_already_exists), repItemName), Toast.LENGTH_SHORT).show();
+                        }
                         update();
                         alertDialog.dismiss();
                     } catch (IOException | ParseException e) {

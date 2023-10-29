@@ -48,8 +48,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="10dp"
-            app:layout_constraintTop_toBottomOf="@id/textTitle"> <TextView
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/textTitle">
+            <TextView
             app:layout_constraintBottom_toTopOf="@id/unit_price_edit_text"
             app:layout_constraintStart_toStartOf="@id/unit_price_edit_text"
             android:id="@+id/unit_price_edit_text_label"
@@ -98,110 +101,15 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/within_package_item_count_ly"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="5dp"
-            app:layout_constraintTop_toBottomOf="@id/unit_price_detail_ly">
-
-            <EditText
-                android:id="@+id/within_package_item_count_edit_text"
-                style="@style/user_item_details_text_style"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:background="@drawable/grey_dialog_background"
-                android:inputType="text"
-                android:textColor="@color/black"
-                android:digits="0123456789."
-                android:textColorHint="@color/grey"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                app:layout_constraintBottom_toTopOf="@id/within_package_item_count_edit_text"
-                app:layout_constraintStart_toStartOf="@id/within_package_item_count_edit_text"
-                android:id="@+id/within_package_item_count_edit_text_label"
-                android:text="@string/item_count_in_package"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"/>
-
-            <ImageView
-                android:id="@+id/within_package_item_count_microphone"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/microphone_foreground"
-                android:tint="@color/grey"
-                app:layout_constraintBottom_toBottomOf="@id/within_package_item_count_edit_text"
-                app:layout_constraintEnd_toEndOf="@id/within_package_item_count_edit_text"
-                app:layout_constraintTop_toTopOf="@id/within_package_item_count_edit_text" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/additional_weight_cl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="5dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/within_package_item_count_ly">
-
-
-
-            <TextView
-                app:layout_constraintBottom_toTopOf="@id/additional_weight_edit_text"
-                app:layout_constraintStart_toStartOf="@id/additional_weight_edit_text"
-                android:id="@+id/additional_weight_edit_text_labeel"
-                android:text="@string/additional_weight"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"/>
-            <EditText
-                android:id="@+id/additional_weight_edit_text"
-                style="@style/user_item_details_text_style"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/grey_dialog_background"
-                android:digits="0123456789.abcdefghijklmnopqrstuvwxyz"
-                android:inputType="text"
-                android:layout_marginStart="4dp"
-                android:textColor="@color/black"
-                android:textColorHint="@color/grey"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <ImageView
-                android:id="@+id/additional_weight_microphone"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/microphone_foreground"
-                android:tint="@color/grey"
-                app:layout_constraintBottom_toBottomOf="@id/additional_weight_edit_text"
-                app:layout_constraintEnd_toEndOf="@id/additional_weight_edit_text"
-                app:layout_constraintTop_toTopOf="@id/additional_weight_edit_text" />
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/quantity_detail_ly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:orientation="horizontal"
             android:padding="10dp"
-            app:layout_constraintTop_toBottomOf="@id/additional_weight_cl"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/unit_price_detail_ly"
             tools:layout_editor_absoluteX="185dp">
 
             <EditText
@@ -241,10 +149,105 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/within_package_item_count_ly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintTop_toBottomOf="@id/quantity_detail_ly">
+
+            <EditText
+                android:id="@+id/within_package_item_count_edit_text"
+                style="@style/user_item_details_text_style"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/grey_dialog_background"
+                android:inputType="text"
+                android:textColor="@color/black"
+                android:digits="0123456789."
+                android:textColorHint="@color/grey"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                app:layout_constraintBottom_toTopOf="@id/within_package_item_count_edit_text"
+                app:layout_constraintStart_toStartOf="@id/within_package_item_count_edit_text"
+                android:id="@+id/within_package_item_count_edit_text_label"
+                android:text="@string/item_count_in_package"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+
+            <ImageView
+                android:id="@+id/within_package_item_count_microphone"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/microphone_foreground"
+                android:tint="@color/grey"
+                app:layout_constraintBottom_toBottomOf="@id/within_package_item_count_edit_text"
+                app:layout_constraintEnd_toEndOf="@id/within_package_item_count_edit_text"
+                app:layout_constraintTop_toTopOf="@id/within_package_item_count_edit_text" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/additional_weight_cl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/within_package_item_count_ly">
+
+
+
+            <TextView
+                app:layout_constraintBottom_toTopOf="@id/additional_weight_edit_text"
+                app:layout_constraintStart_toStartOf="@id/additional_weight_edit_text"
+                android:id="@+id/additional_weight_edit_text_labeel"
+                android:text="@string/additional_weight"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"/>
+            <EditText
+                android:id="@+id/additional_weight_edit_text"
+                style="@style/user_item_details_text_style"
+                android:layout_width="match_parent"
+                android:layout_marginBottom="15dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/grey_dialog_background"
+                android:digits="0123456789.abcdefghijklmnopqrstuvwxyz "
+                android:inputType="text"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/grey"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/additional_weight_microphone"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/microphone_foreground"
+                android:tint="@color/grey"
+                app:layout_constraintBottom_toBottomOf="@id/additional_weight_edit_text"
+                app:layout_constraintEnd_toEndOf="@id/additional_weight_edit_text"
+                app:layout_constraintTop_toTopOf="@id/additional_weight_edit_text" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
         <TextView
             android:id="@+id/chose_a_store_text_view"
-            app:layout_constraintTop_toBottomOf="@id/quantity_detail_ly"
+            app:layout_constraintTop_toBottomOf="@id/additional_weight_cl"
             android:layout_marginEnd="15dp"
+            android:layout_margin="15dp"
             android:textSize="12sp"
             android:layout_marginStart="15dp"
             style="@style/user_item_details_text_style"

@@ -2,6 +2,7 @@ package com.example.android.receiptreader;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,7 @@ public class StoreListAdapter extends ArrayAdapter<Store> {
         storeName.setText(store.getStoreName());
 
         View cardView = newItemView.findViewById(R.id.store_item_card_view);
-        if(store.isIfHighlighted()){ // set color to blue if it is the store being shopped in
+        if(PreferenceManager.getDefaultSharedPreferences(getContext()).getString("selectedStore", "").equalsIgnoreCase(store.getStoreName())){ // set color to blue if it is the store being shopped in
             cardView.setBackgroundResource(R.drawable.light_blue_card_view_bkg);
         }else{
             cardView.setBackgroundResource(R.drawable.white_background_card);

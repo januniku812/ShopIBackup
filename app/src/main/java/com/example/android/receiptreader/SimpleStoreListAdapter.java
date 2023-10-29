@@ -1,6 +1,7 @@
 package com.example.android.receiptreader;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,10 +33,13 @@ public class SimpleStoreListAdapter extends ArrayAdapter<Store> {
         //find the text view in the user item individual view and setting it with object name data
         TextView storeName = (TextView) newItemView.findViewById(R.id.store_item_name);
         storeName.setText(store.getStoreName());
+        ImageView blueCheckMark = newItemView.findViewById(R.id.simple_store_item_check_mark);
 
-        if(store.isIfHighlighted()){
-            ImageView blueCheckMark = newItemView.findViewById(R.id.simple_store_item_check_mark);
+        if(PreferenceManager.getDefaultSharedPreferences(getContext()).getString("selectedStore", "").equalsIgnoreCase(store.getStoreName())){
             blueCheckMark.setVisibility(View.VISIBLE);
+        } else{
+            blueCheckMark.setVisibility(View.GONE);
+
         }
 
         return newItemView;

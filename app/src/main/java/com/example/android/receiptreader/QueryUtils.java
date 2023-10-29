@@ -130,7 +130,7 @@ public class QueryUtils  {
                     } else{
                         storeUserItemToAdd.put("user_item_within_package_item_count", "1");
                     }
-                    DecimalFormat df = new DecimalFormat("#.#####");
+                    DecimalFormat df = new DecimalFormat("#.##");
                     if(!quantity.equals("not filled") && !unitPrice.equals("not filled")){
                         try {
                             int parsedInt = Integer.parseInt(quantity) * Integer.parseInt(unitPrice);
@@ -299,7 +299,7 @@ public class QueryUtils  {
                 JSONObject storeObject = (JSONObject) stores.get(i);
                 String store_name = (String) storeObject.get("store_name");
                 System.out.println("STORE NAME: " + store_name);
-                if(strip(store_name).equalsIgnoreCase(strip(storeName))){
+                if(store_name.replaceAll(" ", "").equalsIgnoreCase(storeName.replaceAll(" ", ""))){
                     System.out.println("IVE BEEN ACCESSED - ifStoreAlreadyExists: " + store_name);
                     return true;
                 }
@@ -766,7 +766,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static void addRepItem(String repItemName, Context context) throws IOException, ParseException {
+    public static boolean addRepItem(String repItemName, Context context) throws IOException, ParseException {
         String jsonData = Constants.json_data_str;
         JSONParser jsonParser = new JSONParser();
         Object object = jsonParser.parse(jsonData
@@ -782,9 +782,9 @@ public class QueryUtils  {
             boolean ifItemAlreadyExists = false;
             for(int i = 0; i < generalItemMaster.size(); i++){
                 JSONObject generalItemMasterItem = (JSONObject) generalItemMaster.get(i);
-                if(generalItemMasterItem.get("general_item_name").toString().equalsIgnoreCase(repItemName)){ // going through to check if the item we want to add to general item master is already there
+                if(generalItemMasterItem.get("general_item_name").toString().replaceAll(" ", "").equalsIgnoreCase(repItemName.replaceAll(" ", ""))){ // going through to check if the item we want to add to general item master is already there
                     ifItemAlreadyExists = true;
-                    break;
+                    return false;
                 }
             }
             if(!ifItemAlreadyExists){
@@ -795,10 +795,11 @@ public class QueryUtils  {
             Constants.json_data_str = jsonObject.toJSONString();
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                     .putString("jsonData",jsonObject.toString()).apply();
-
+            return true;
 
         }catch(Exception e){
             e.printStackTrace();
+            return false;
         }
 
     }
@@ -1114,7 +1115,7 @@ public class QueryUtils  {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static ArrayList<Store> getStores() throws IOException, ParseException {
+    public static ArrayList<Store> getStores(Context context) throws IOException, ParseException {
 
         String jsonData = Constants.json_data_str;
         Object object = new JSONParser().parse(jsonData
@@ -1165,15 +1166,31 @@ public class QueryUtils  {
                 }
             });
         }
-        return setAllStoresToNotBeingShoppedInExcept(storeArrayList, Constants.storeBeingShoppedIn);
+        return refactorStoresOrder(storeArrayList, Constants.storeBeingShoppedIn, context);
     }
 
-    public static ArrayList<Store> setAllStoresToNotBeingShoppedInExcept(ArrayList<Store> stores, String storeName) {
+
+    public static ArrayList<Store> refactorStoresOrder(ArrayList<Store> stores, String storeName, Context context) {
+
+        int position = 0;
+        Store specifiedStore = null;
         for(Store store: stores){
-            store.setIfHighlighted(store.getStoreName().equals(storeName));
+            if(PreferenceManager.getDefaultSharedPreferences(context).getString("selectedStore", "").equalsIgnoreCase(store.getStoreName())){
+                specifiedStore = store;
+                position = stores.indexOf(store);
+            }
+        }
+        if(!(specifiedStore == null)){
+            stores.remove(position);
+            stores.add(0, specifiedStore);
+        }
+        System.out.println("REFACTORED STORES");
+        for(Store store: stores){
+            System.out.println("NAME: " + store.getStoreName());
         }
         return stores;
     }
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static ArrayList<ShoppingList> getShoppingLists() throws IOException, ParseException {

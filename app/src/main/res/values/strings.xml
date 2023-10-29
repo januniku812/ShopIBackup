@@ -131,14 +131,32 @@
     <string name="package_price">Package Price*</string>
     <string name="unit_price_by_weight">Unit Price *(with /Unit - per lb, oz, kg, etc)</string>
     <string name="price_per_unit">Price Per Unit</string>
-    <string name="user_settings">User Settings</string>
+    <string name="user_settings">Menu &amp; User Settings</string>
     <string name="default_total_packages_and_items_within_package_purchased">1</string>
     <string name="no_measurement_unit_of_weight_needed_in_quantity_feild">For by weight items, only numeric values such as 1.0 are needed in the quantity feild</string>
     <string name="by_weight_items_unit_price_needs_to_have_measurement_unit">By weight item unit price needs to have a measurement unit such as \'per pound/lb\'</string>
     <string name="couldnt_rec_value_by_weight_item">Couldn\'t recognize %s as unit price with proper measurement unit</string>
-    <string name="add_up_by_weight">Please add a proper by unit price</string>
+    <string name="add_up_by_weight">Unit Price  is required to record purchase details for an item sold BY WEIGHT</string>
     <string name="is_not_proper_numeric_value">%s is not a proper numeric value</string>
     <string name="cant_change_quantity_of_purchased_item">Bought item quantity cannot be changed</string>
+    <string name="rep_item_already_exists">%s item already exists</string>
+    <string name="okay">Okay</string>
+    <string name="error">Error</string>
+    <string name="package_price_required_details">Package Price is required to record purchase details for an item sold BY PACKAGE</string>
+    <string name="unit_price_by_weight_guidelines">Only Number value greater than zero followed by  -/lb,/kg,/g,/fl oz,/oz,/pt,/gl,/ml,/l  allowed to be entered</string>
+    <string name="couldnt_rec_voice_input">Sorry ,couldn\'t recognize voice input. Please add .0 in the end for whole number voice input.Example, for 2 /lb to be recorded, you can say  two point zero per pound. You can provide Unit Price in following units - /lb,/kg,/g,/fl oz,/oz,/pt,/gl,/ml,/l . You can always make manual entry or edit entry recorded.</string>
+    <string name="manual_unit_price_guidelines">Only Number value greater than zero followed by  -/lb,/kg,/g,/fl oz,/oz,/pt,/gl,/ml,/l  allowed to be entered</string>
+    <string name="by_package_unit_price_couldnt_rec_value">Sorry, couldn\'t recognize voice input.Please add .0 in the end for whole number(1,2,3,..etc) voice input. Example, for 2 , say two point zero. Only number value greater than zero allowed. You can always make manual entry or edit entry recorded.</string>
+    <string name="only_number_value_more_than_0_by_package_item_unit_price">Only number value greater than zero allowed to be entered for the package price</string>
+    <string name="only_whole_numbers_total_package_purchased">"Only whole  Number(1,2,3,...etc) allowed to be entered for total packages purchased"</string>
+    <string name="by_package_item_total_package_purchased_couldnt_rec_val">" Sorry ,couldn't recognize voice input.Please add .0 in the end for whole number(1,2,3...etc) voice input. Example, for 2 , say two point zero. Only whole numbers allowed. You can always make manual entry or edit entry recorded."</string>
+    <string name="by_packge_couldnt_rec_value_additional_weight">Sorry, couldn\'t recognize voice input. Please add .0 in the end for whole number voice input.Example, for 2 lb to be recorded, you can say  two point zero pound. You can provide Unit Price in following units - lb,kg,g,fl oz,oz,pt,gl,ml,l . You can always make manual entry or edit entry recorded.</string>
+    <string name="only_whole_numbers_within_package_item_count_purchased">Sorry, couldn\'t recognize voice input.Please add .0 in the end for whole number(1,2,3...etc) voice input. Example, for 2 , say two point zero. Only whole numbers allowed. You can always make manual entry or edit entry recorded.</string>
+    <string name="by_package_item_count_couldnt_rec_value">Sorry, couldn\'t recognize voice input.Please add .0 in the end for whole number(1,2,3...etc) voice input. Example, for 2 , say two point zero. Only whole numbers allowed. You can always make manual entry or edit entry recorded.</string>
+    <string name="by_package_within_package_item_count_only_whole_numbers">Only whole numbers (1,2,3,...etc) allowed to be entered for within package item count</string>
+    <string name="by_weight_only_greater_than_0">Only Number value greater than zero allowed to be entered</string>
+    <string name="couldnt_rec_value_within_package_item">Sorry, couldn\'t recognize voice input.Please add .0 in the end for whole number(1,2,3...etc) voice input. Example, for 2 , say two point zero. Only whole numbers allowed. You can always make manual entry or edit entry recorded.</string>
+    <string name="by_package_weight_guidelines">Only Number value greater than zero followed by -lb,kg,g,fl oz,oz,pt,gl,ml,l  allowed to be entered for package weight field</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>

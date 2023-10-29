@@ -21,7 +21,7 @@
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
             <TextView
-                android:textSize="15sp"
+                android:textSize="20sp"
                 android:textColor="@color/white"
                 style="@style/user_item_details_text_style"
                 android:text="@string/item_repository_labeled"
