@@ -51,9 +51,11 @@ public class SimpleUserItemAdapter extends ArrayAdapter<StoreUserItem> {
                 System.out.println("CONTAINS");
                 includedInShoppingList.setVisibility(View.VISIBLE);
                 newItemView.findViewById(R.id.user_item_card_view).setBackgroundResource(R.drawable.light_blue_card_view_bkg);
+                return newItemView;
             }
         }
+        includedInShoppingList.setVisibility(View.INVISIBLE);
+        newItemView.findViewById(R.id.user_item_card_view).setBackgroundResource(R.drawable.white_background_card);
         return newItemView;
-
     }
 }

@@ -16,7 +16,6 @@ import org.json.simple.JSONArray;
 import android.content.Context;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.runner.manipulation.Ordering;
 
 import java.io.File;
 import java.io.IOException;
@@ -535,7 +534,7 @@ public class QueryUtils  {
             boolean ifItemAlreadyExists = false;
             for(int i = 0; i < generalItemMaster.size(); i++){
                 JSONObject generalItemMasterItem = (JSONObject) generalItemMaster.get(i);
-                if(generalItemMasterItem.get("general_item_name").toString().equalsIgnoreCase(shoppingListItemName)){ // going through to check if the item we want to add to general item master is already there
+                if(generalItemMasterItem.get("general_item_name").toString().replaceAll("\\s", "").equalsIgnoreCase(shoppingListItemName.replaceAll("\\s", ""))){ // going through to check if the item we want to add to general item master is already there
                     ifItemAlreadyExists = true;
                     break;
                 }
