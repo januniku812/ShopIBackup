@@ -106,8 +106,7 @@ public class QueryUtils  {
         System.out.println("ORIGINAL NAME PARAMETER saveDetailsOfShoppingListUserItem func @QueryUtils: " + storeName);
         String jsonData = Constants.json_data_str;
         JSONParser jsonParser = new JSONParser();
-        Object object = jsonParser.parse(jsonData
-        );
+        Object object = jsonParser.parse(jsonData);
         try{
             JSONObject jsonObject = (JSONObject) object;
             JSONArray stores = (JSONArray) jsonObject.get("stores");

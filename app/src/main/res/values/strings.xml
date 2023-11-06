@@ -103,7 +103,7 @@
     <string name="data_point_tapped">%s purchased from %s on %s for unit price of %f(unit price is averaged if more than one purchase under same day)</string>
     <string name="item_rep">Item Repository</string>
     <string name="item_repository_labeled">Items</string>
-    <string name="edit_rep_item">Edit \'%s\' Item</string>
+    <string name="edit_rep_item">Edit Item Name</string>
     <string name="delete_rep_item">Delete \'%s\' Item</string>
     <string name="add_rep_item">Add Item to Item Repository</string>
     <string name="rep_item_activity_label">Item Repository</string>

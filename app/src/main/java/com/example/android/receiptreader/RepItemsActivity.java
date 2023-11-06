@@ -119,6 +119,7 @@ public class RepItemsActivity extends AppCompatActivity {
         else if(finalJsonEditCode == JSONEditCodes.EDIT_REP_ITEM_NAME){
             icon.setMinimumHeight(25);
             icon.setMinimumWidth(25);
+            editText.setText(repItemName);
             icon.setImageResource(R.drawable.ic_baseline_edit_24); // making the pop up icon a edit symbol
             editText.setVisibility(View.VISIBLE);
             enterButton.setText(getString(R.string.enter));
@@ -235,7 +236,7 @@ public class RepItemsActivity extends AppCompatActivity {
                 editNameButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showDialog(String.format(getString(R.string.edit_rep_item), repItemName), JSONEditCodes.EDIT_REP_ITEM_NAME, repItemName);
+                        showDialog(getString(R.string.edit_rep_item), JSONEditCodes.EDIT_REP_ITEM_NAME, repItemName);
                     }
                 });
 

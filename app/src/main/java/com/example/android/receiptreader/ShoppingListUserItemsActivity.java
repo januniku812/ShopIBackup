@@ -2,6 +2,7 @@ package com.example.android.receiptreader;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 //import android.content.Intent;
 //import javax.measure.Measure;
@@ -108,6 +109,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     int withinPackageMicrophoneState = 0;
     int additionalWeightMicrophoneState = 0;
     ArrayList<ShoppingListUserItem> shoppingListUserItems;
+    private boolean occupied = false;
+
     //    static Thread updateRunnable =  new Thread(
 //            new Runnable() {
 //                @RequiresApi(api = O)
@@ -140,28 +143,38 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     }
 
     public void errorDialog(String message){
-        androidx.appcompat.app.AlertDialog.Builder errorBuilder =
-                new androidx.appcompat.app.AlertDialog.Builder
-                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
-        View errorView = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                R.layout.error_dialog,
-                (ConstraintLayout) findViewById(R.id.layoutDialogContainerVID)
-        );
-        errorBuilder.setView(errorView);
-        TextView errorMessage = errorView.findViewById(R.id.error_message);
-        errorMessage.setText(message);
-        Button okButton = errorView.findViewById(R.id.okButton);
-        final androidx.appcompat.app.AlertDialog errorAlertDialog = errorBuilder.create();
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                errorAlertDialog.dismiss();
+        if(!occupied) {
+            occupied = true;
+            androidx.appcompat.app.AlertDialog.Builder errorBuilder =
+                    new androidx.appcompat.app.AlertDialog.Builder
+                            (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+            View errorView = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
+                    R.layout.error_dialog,
+                    (ConstraintLayout) findViewById(R.id.layoutDialogContainerVID)
+            );
+            errorBuilder.setView(errorView);
+            TextView errorMessage = errorView.findViewById(R.id.error_message);
+            errorMessage.setText(message);
+            Button okButton = errorView.findViewById(R.id.okButton);
+            final androidx.appcompat.app.AlertDialog errorAlertDialog = errorBuilder.create();
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    errorAlertDialog.dismiss();
+                    occupied = false;
+                }
+            });
+            errorAlertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    occupied = false;
+                }
+            });
+            if (errorAlertDialog.getWindow() != null) {
+                errorAlertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
             }
-        });
-        if (errorAlertDialog.getWindow() != null) {
-            errorAlertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
-        }
         errorAlertDialog.show();
+        }
 
 
     }
@@ -192,7 +205,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 try {
                     differentStores.get(item.getStore()).add(item);
                 } catch(Exception e){
-                    
+
                 }
             }
         }
@@ -906,10 +919,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 .replaceAll("liters", "l").replaceAll("liter", "l")
                 .replaceAll(" /", "/")
                 .replaceAll("/", " /")
+                .replaceAll("profound", "per lb")
                 ;
 
     }
-    
+
     // method to remove leading zeros in a string of digits
     private String removeLeadingZeros(String str){
         String newstr = "";
@@ -1054,6 +1068,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             additionalWeightEditText.setText(result + " " + justAlpha);
                         }
                         catch(Exception e){
+                            e.printStackTrace();
                             errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
                         }
                     } else {
@@ -1094,7 +1109,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             justAlpha = "fl oz";
                         }
                         if (!isMeasurementUnit(justAlpha)){
-                            errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+//                            errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
                             justAlpha = "";
                         }
                         result = result.replaceAll("[a-zA-Z]", "");
@@ -1103,7 +1118,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             additionalWeightEditText.setText(result + " " + justAlpha);
                         }
                         catch(Exception e){
-                            errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                            e.printStackTrace();
+//                            errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
                         }
                     } else {
                         additionalWeightEditText.setText(result);
@@ -1113,7 +1129,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     System.out.println("EXCEPTION: " );
                     e.printStackTrace();
                     additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+//                    errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1144,7 +1160,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             justAlpha = "fl oz";
                         }
                         if (!isMeasurementUnit(justAlpha)){
-                            errorDialog(getString(R.string.by_packge_couldnt_rec_value_additional_weight));
+//                            errorDialog(getString(R.string.by_packge_couldnt_rec_value_additional_weight));
                             justAlpha = "";
                         }
                         result = result.replaceAll("[a-zA-Z]", "");
@@ -1153,7 +1169,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             additionalWeightEditText.setText(result + " " + justAlpha);
                         }
                         catch(Exception e){
-                            errorDialog(getString(R.string.by_packge_couldnt_rec_value_additional_weight));
+                            e.printStackTrace();
+//                            errorDialog(getString(R.string.by_packge_couldnt_rec_value_additional_weight));
                         }
                     } else {
                         additionalWeightEditText.setText(result);
@@ -1163,7 +1180,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     System.out.println("EXCEPTION: " );
                     e.printStackTrace();
                     additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1297,6 +1314,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         Double.parseDouble(result);
                                     }
                                     catch(Exception e){
+                                        e.printStackTrace();
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
                                         if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
@@ -1310,6 +1328,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
+                                e.printStackTrace();
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                                 errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
@@ -1342,6 +1361,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 }
                 catch (Exception e){
+                    e.printStackTrace();
+                    e.printStackTrace();
                     quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                     errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                     final Runnable stopListeningRunnable = new Runnable() {
@@ -1377,7 +1398,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     if (!justAlpha.replaceAll(" ", "").isEmpty()){
-                                        errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                        errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                         justAlpha = "";
                                     }
                                     try {
@@ -1388,7 +1409,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                         }
                                     }
                                     quantityEditText.setText(result.replaceAll(justAlpha, ""));
@@ -1414,14 +1435,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             String replaceNumbers = convertWithEnglishWordsToNumbers( result); // removing and converting any numeric values that were written in like 'three' and 'five' and if there are still alphanumeric values, telling the user that they should only put stand only values in individual pricing setting
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if(!justAlpha2.equals("")) {
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                             }
                             quantityEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if(Double.parseDouble(result) <= 0){
-                            errorDialog(getString(R.string.by_weight_only_greater_than_0));
+//                            errorDialog(getString(R.string.by_weight_only_greater_than_0));
                         } else {
                             quantityEditText.setText(result);
                         }
@@ -1429,8 +1450,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 }
                 catch (Exception e){
+                    e.printStackTrace();
                     quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                    errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1474,9 +1496,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
                                         if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
-                                        } else { // the only exception it will be catching is a double parsing exception
-                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
-                                        }
+                                        }  // the only exception it will be catching is a double parsing exception
+                                        //                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+
                                     }
                                     quantityEditText.setText(result.replaceAll(justAlpha, ""));
                                 } else {
@@ -1484,8 +1506,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
+                                e.printStackTrace();
                                 quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1508,7 +1531,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                     } else {
                         if(Double.parseDouble(result) <= 0){
-                            errorDialog(getString(R.string.by_weight_only_greater_than_0));
+//                            errorDialog(getString(R.string.by_weight_only_greater_than_0));
                         } else {
                             quantityEditText.setText(result);
                         }
@@ -1516,8 +1539,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 }
                 catch (Exception e){
+
+                    e.printStackTrace();
                     quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                    errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1621,10 +1646,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                             }
                         } else {
-                            if (Double.parseDouble(result) <= 0) {
+                            try {
+                                if (Double.parseDouble(result) <= 0) {
+                                    errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                                } else {
+                                    unitPriceEditText.setText(result);
+                                }
+                            } catch(Exception e){
                                 errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
-                            } else {
-                                unitPriceEditText.setText(result);
+
                             }
 
                         }
@@ -1636,6 +1666,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACE NUMBERS : " + replaceNumbers + " JUST ALPH: " + justAlpha);
                             String resultWithoutAlphaCharsOrSlash = result.replaceAll(justAlpha, "").replaceAll("/", "");
                             if(!isMeasurementUnit(justAlpha)){
+                                System.out.println("TRIGGERED 1");
                                 errorDialog(getString(R.string.unit_price_by_weight_guidelines));
                                 unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash);
                             } else{
@@ -1646,23 +1677,33 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 result = replaceNumbers;
                                 unitPriceEditText.setText(result);
                             }
-                            if (Double.parseDouble(resultWithoutAlphaCharsOrSlash) <= 0) {
-                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+                            try {
+                                if (Double.parseDouble(resultWithoutAlphaCharsOrSlash) <= 0) {
+                                    System.out.println("TRIGGERED 2");
+                                    errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+                                }
+                            } catch(Exception e){
+
                             }
                         } else {
-                            Toast.makeText(getApplicationContext(), getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit), Toast.LENGTH_LONG).show();
-                            wait(3500);
-                            if (Double.parseDouble(result) <= 0) {
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.unit_price_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
-                            }
+                           errorDialog(getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
+                           try {
+                               if (Double.parseDouble(result) <= 0) {
+                                   errorDialog(getString(R.string.unit_price_val_have_to_be_greater_than_0));
+                               }
+                           } catch(Exception e){
+
+                           }
 
                         }
 
                     }
                 }
                 catch (Exception e){
+                    System.out.println("EXCEPTION");
+                    e.printStackTrace();
                     unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.couldnt_rec_voice_input));
+//                    errorDialog(getString(R.string.couldnt_rec_voice_input));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1692,14 +1733,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 result = replaceNumbers;
                                 unitPriceEditText.setText(result);
                             } else {
-                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+//                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
                                 unitPriceEditText.setText(result.replaceAll(".*[a-z].*", ""));
 
                             }
                         } else {
-                            if (Double.parseDouble(result) <= 0) {
-                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
-                            } else {
+                            if (!(Double.parseDouble(result) <= 0)) {
                                 unitPriceEditText.setText(result);
                             }
 
@@ -1712,7 +1751,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACE NUMBERS : " + replaceNumbers + " JUST ALPH: " + justAlpha);
                             String resultWithoutAlphaCharsOrSlash = result.replaceAll(justAlpha, "").replaceAll("/", "");
                             if(!isMeasurementUnit(justAlpha)){
-                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+//                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
                                 unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash);
                             } else{
                                 unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash + " /" + justAlpha);
@@ -1722,23 +1761,21 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 result = replaceNumbers;
                                 unitPriceEditText.setText(result);
                             }
-                            if (Double.parseDouble(resultWithoutAlphaCharsOrSlash) <= 0) {
-                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
-                            }
+//                            if (Double.parseDouble(resultWithoutAlphaCharsOrSlash) <= 0) {
+////                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+//                            }
                         } else {
-                            Toast.makeText(getApplicationContext(), getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit), Toast.LENGTH_LONG).show();
-                            wait(3500);
-                            if (Double.parseDouble(result) <= 0) {
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.unit_price_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
-                            }
+//                            errorDialog(getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
 
                         }
 
                     }
                 }
                 catch (Exception e){
+                    System.out.println("EXCEPTION");
+                    e.printStackTrace();
                     unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.couldnt_rec_voice_input));
+//                    errorDialog(getString(R.string.couldnt_rec_voice_input));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1768,14 +1805,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 result = replaceNumbers;
                                 unitPriceEditText.setText(result);
                             } else {
-                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+//                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
                                 unitPriceEditText.setText(result.replaceAll(".*[a-z].*", ""));
 
                             }
                         } else {
-                            if (Double.parseDouble(result) <= 0) {
-                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
-                            } else {
+                            if (!(Double.parseDouble(result) <= 0)) {
                                 unitPriceEditText.setText(result);
                             }
 
@@ -1788,7 +1823,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACE NUMBERS : " + replaceNumbers + " JUST ALPH: " + justAlpha);
                             String resultWithoutAlphaCharsOrSlash = result.replaceAll(justAlpha, "").replaceAll("/", "");
                             if(!isMeasurementUnit(justAlpha)){
-                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+//                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
                                 unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash);
                             } else{
                                 unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash + " /" + justAlpha);
@@ -1799,22 +1834,21 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 unitPriceEditText.setText(result);
                             }
                             if (Double.parseDouble(resultWithoutAlphaCharsOrSlash) <= 0) {
-                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+//                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
                             }
-                        } else {
-                            Toast.makeText(getApplicationContext(), getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit), Toast.LENGTH_LONG).show();
-                            wait(3500);
-                            if (Double.parseDouble(result) <= 0) {
-                                Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.unit_price_val_have_to_be_greater_than_0), Toast.LENGTH_SHORT).show();
-                            }
+                        }  //                            errorDialog(getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
+                        //                            if (Double.parseDouble(result) <= 0) {
+                        ////                                errorDialog( getString(R.string.unit_price_val_have_to_be_greater_than_0));
+                        //                            }
 
-                        }
 
                     }
                 }
                 catch (Exception e){
+                    System.out.println("EXCEPTION");
+                    e.printStackTrace();
                     unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.couldnt_rec_voice_input));
+//                    errorDialog(getString(R.string.couldnt_rec_voice_input));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1948,6 +1982,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
+                                e.printStackTrace();
                                 withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                                 errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
@@ -1981,6 +2016,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 }
                 catch (Exception e){
+                    System.out.println("EXCEPTION");
                     withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                     errorDialog(getString(R.string.couldnt_rec_value_within_package_item));
                     final Runnable stopListeningRunnable = new Runnable() {
@@ -2026,7 +2062,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                         }
                                     }
                                     withinPackageItemCountEditText.setText(result + " " + justAlpha);
@@ -2035,8 +2071,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
+                                System.out.println("EXCEPTION");
                                 withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -2053,14 +2090,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if(!justAlpha2.equals("")) {
-                                errorDialog(getString(R.string.only_whole_numbers_within_package_item_count_purchased));
+//                                errorDialog(getString(R.string.only_whole_numbers_within_package_item_count_purchased));
                             }
                             withinPackageItemCountEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if(Double.parseDouble(result) <= 0){
-                            errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
+//                            errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
                         } else {
                             withinPackageItemCountEditText.setText(result);
                         }
@@ -2068,8 +2105,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 }
                 catch (Exception e){
+                    System.out.println("EXCEPTION");
                     withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.couldnt_rec_value_within_package_item));
+//                    errorDialog(getString(R.string.couldnt_rec_value_within_package_item));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -2108,11 +2146,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         Double.parseDouble(result);
                                     }
                                     catch(Exception e){
+                                        System.out.println("EXCEPTION");
                                         String replaceNumbers =EnglishWordsToNumbers.replaceNumbers(result.replaceAll(" ", ""));
                                         if(!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                         }
                                     }
                                     withinPackageItemCountEditText.setText(result + " " + justAlpha);
@@ -2121,8 +2160,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             }
                             catch (Exception e){
+                                System.out.println("EXCEPTION");
                                 withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -2139,14 +2179,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if(!justAlpha2.equals("")) {
-                                errorDialog(getString(R.string.only_whole_numbers_within_package_item_count_purchased));
+//                                errorDialog(getString(R.string.only_whole_numbers_within_package_item_count_purchased));
                             }
                             withinPackageItemCountEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if(Double.parseDouble(result) <= 0){
-                            errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
+//                            errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
                         } else {
                             withinPackageItemCountEditText.setText(result);
                         }
@@ -2155,7 +2195,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 }
                 catch (Exception e){
                     withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.couldnt_rec_value_within_package_item));
+//                    errorDialog(getString(R.string.couldnt_rec_value_within_package_item));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
