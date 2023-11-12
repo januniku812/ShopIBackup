@@ -2704,7 +2704,20 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         };
         actuallyNeedsToBeUpdated.observeForever(updateObserver);
-
+        ImageButton removeAllGreenTickMarksButton = findViewById(R.id.remove_check_marks_button);
+        removeAllGreenTickMarksButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for(ShoppingListUserItem item: shoppingListUserItems){
+                    try {
+                        QueryUtils.setItemNotGreenTickMarked(item.getName(), shoppingListName, getApplicationContext());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                update();
+            }
+        });
         toolBar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -2801,6 +2814,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                               newItems.add(item);
                                                           }
                                                       }
+                                                      else if(query.length() >= 3){
+                                                          if(item.getName().toLowerCase().contains(query.toLowerCase())){
+                                                              newItems.add(item);
+                                                          }
+                                                      }
                                                   }
                                                   shoppingListUserItems = newItems;
 
@@ -2829,6 +2847,12 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                   for(ShoppingListUserItem item: shoppingListUserItems){
                                                       if(!(query.length() > item.getName().length())){
                                                           if(item.getName().substring(0, searchQueryLength).equalsIgnoreCase(query)){
+                                                              newItems.add(item);
+                                                          }
+                                                      }
+                                                      else if(query.length() >= 3){
+                                                          if(item.getName().toLowerCase().contains(query.toLowerCase())){
+                                                              System.out.print("FOR QUERY : " + query + " ADDING ITEM: " + item.getName());
                                                               newItems.add(item);
                                                           }
                                                       }
@@ -2889,15 +2913,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             TextView name = (TextView) v.findViewById(R.id.shopping_list_item_name);
                             if (!shoppingListUserItem.isIfGreenMarked()) {
                                 QueryUtils.setItemGreenTickMarked(name.getText().toString(), shoppingListName, getApplicationContext());
+                                System.out.println("SET ITEM GREEN TICK MARKED: " + shoppingListUserItemName);
                             } else {
                                 QueryUtils.setItemNotGreenTickMarked(name.getText().toString(), shoppingListName, getApplicationContext());
-
-
+                                System.out.println("SET ITEM GREEN NOT TICK MARKED: " + shoppingListUserItemName);
                             }
                         }
                         catch (Exception e) {
                             e.printStackTrace();
                         }
+
                         ShoppingListUserItemsActivity.update();
                         return true;
                     }
@@ -2911,6 +2936,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         } catch(Exception e){
                             e.printStackTrace();
                         }
+                        try {
+                            updateUserItems();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         update();
 
                     }
@@ -2920,6 +2952,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         try {
                             QueryUtils.setItemGreenTickMarked(shoppingListUserItemName, shoppingListName, getApplicationContext());
                         } catch(Exception e){
+                            e.printStackTrace();
+                        }
+                        try {
+                            updateUserItems();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
                             e.printStackTrace();
                         }
                         update();
@@ -3175,6 +3214,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
+                        update();
                     }
                     if(clickNum[0] == 4){
                         try {

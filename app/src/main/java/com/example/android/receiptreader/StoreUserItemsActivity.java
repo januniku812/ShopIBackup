@@ -111,6 +111,11 @@ public class StoreUserItemsActivity extends AppCompatActivity {
                                                           || storeUserItem.getDateOfPurchase().substring(0,searchQueryLength).equalsIgnoreCase(query)){
                                                               newStoreUserItemList.add(storeUserItem);
                                                           }
+                                                          else if(query.length() >= 3 && (storeUserItem.getItemName().toLowerCase().contains(query.toLowerCase())
+                                                                  || storeUserItem.getDateOfPurchase().toLowerCase().contains(query))) {
+                                                              newStoreUserItemList.add(storeUserItem);
+
+                                                          }
                                                       }
                                                       catch (StringIndexOutOfBoundsException exception){
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
@@ -125,14 +130,20 @@ public class StoreUserItemsActivity extends AppCompatActivity {
                                               @Override
                                               public boolean onQueryTextChange(String newText) {
                                                   Integer searchQueryLength = newText.length();
-                                                  ArrayList<StoreUserItem> newMainGodList = new ArrayList<StoreUserItem>();
-                                                  StoreUserItemAdapter storeUserItemAdapter = new StoreUserItemAdapter(getApplicationContext(),newMainGodList);
+                                                  ArrayList<StoreUserItem> newStoreUserItemList = new ArrayList<StoreUserItem>();
+                                                  StoreUserItemAdapter storeUserItemAdapter = new StoreUserItemAdapter(getApplicationContext(),newStoreUserItemList);
                                                   for(int i = 0; i < finalStoreUserItems.size(); i++){
                                                       StoreUserItem storeUserItem = (StoreUserItem) finalStoreUserItems.get(i);
                                                       try{
-                                                          if(storeUserItem.getItemName().substring(0, searchQueryLength).equalsIgnoreCase(newText)
-                                                          || storeUserItem.getDateOfPurchase().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
-                                                              newMainGodList.add(storeUserItem);
+
+                                                          if(storeUserItem.getItemName().substring(0,searchQueryLength).equalsIgnoreCase(newText)
+                                                                  || storeUserItem.getDateOfPurchase().substring(0,searchQueryLength).equalsIgnoreCase(newText)){
+                                                              newStoreUserItemList.add(storeUserItem);
+                                                          }
+                                                          else if(newText.length() >= 3 && (storeUserItem.getItemName().toLowerCase().contains(newText.toLowerCase())
+                                                                  || storeUserItem.getDateOfPurchase().toLowerCase().contains(newText))) {
+                                                              newStoreUserItemList.add(storeUserItem);
+
                                                           }
                                                       }
                                                       catch(StringIndexOutOfBoundsException exception){

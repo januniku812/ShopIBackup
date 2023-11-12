@@ -99,7 +99,6 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                     System.out.println("MADE IT DOESNT HAVE LAST BOUGHT:" + shoppingListUserItemName);
                     if (shoppingListUserItem.isIfGreenMarked()) {
                         System.out.println("GREEN MARKED: " + shoppingListUserItemName);
-
                         check_mark.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.green)));
                         check_mark.setVisibility(View.VISIBLE);
                     } else {
@@ -126,6 +125,13 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             lastBoughtDate.setText(shoppingListUserItem.getLastBought());
             lastBoughtDate.setVisibility(View.VISIBLE);
             shoppingListName.setTextColor(getContext().getColor(R.color.blue));
+            if (shoppingListUserItem.isIfGreenMarked()) {
+                System.out.println("GREEN MARKED: " + shoppingListUserItemName);
+                check_mark.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.green)));
+                check_mark.setVisibility(View.VISIBLE);
+            } else{
+                check_mark.setVisibility(View.INVISIBLE);
+            }
         }
 //        try {
 //            ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
