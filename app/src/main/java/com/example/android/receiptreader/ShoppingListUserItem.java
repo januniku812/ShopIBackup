@@ -30,6 +30,30 @@ public class ShoppingListUserItem {
     String toRecordUnitPrice;
     String toRecordStore;
 
+    public boolean getIfSavedForLater() {
+        return ifSavedForLater;
+    }
+
+    public void setIfSavedForLater(boolean ifSavedForLater) {
+        this.ifSavedForLater = ifSavedForLater;
+    }
+
+    public ShoppingListUserItem(ArrayList<ShoppingList> otherShoppingListsExistingIn, ArrayList<StoreUserItem> storeUserItemsHistory, String name, String lastBought, String userQuantity, String toRecordPrice, String toRecordQuantity, String toRecordUnitPrice, String toRecordStore, boolean ifSavedForLater, boolean ifGreenMarked) {
+        this.otherShoppingListsExistingIn = otherShoppingListsExistingIn;
+        this.storeUserItemsHistory = storeUserItemsHistory;
+        this.lastBought = lastBought;
+        this.name = name;
+        this.userQuantity = userQuantity;
+        this.toRecordPrice = toRecordPrice;
+        this.toRecordQuantity = toRecordQuantity;
+        this.toRecordUnitPrice = toRecordUnitPrice;
+        this.toRecordStore = toRecordStore;
+        this.ifSavedForLater = ifSavedForLater;
+        this.ifGreenMarked = ifGreenMarked;
+    }
+
+    boolean ifSavedForLater;
+
     public boolean isIfGreenMarked() {
         return ifGreenMarked;
     }
@@ -40,11 +64,12 @@ public class ShoppingListUserItem {
 
     boolean ifGreenMarked;
 
-    public ShoppingListUserItem(String name, String lastBought, String userQuantity, boolean ifGreenMarked) {
+    public ShoppingListUserItem(String name, String lastBought, String userQuantity, boolean ifGreenMarked, boolean ifSavedForLater) {
         this.name = name;
         this.lastBought = lastBought;
         this.userQuantity = userQuantity;
         this.ifGreenMarked = ifGreenMarked;
+        this.ifSavedForLater = ifSavedForLater;
     }
 
     public ShoppingListUserItem(String name, String lastBought, String userQuantity, String toRecordPrice, String toRecordQuantity, String toRecordUnitPrice, String toRecordStore) {

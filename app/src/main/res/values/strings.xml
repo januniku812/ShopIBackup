@@ -157,7 +157,9 @@
     <string name="by_weight_only_greater_than_0">Only Number value greater than zero allowed to be entered</string>
     <string name="couldnt_rec_value_within_package_item">Sorry, couldn\'t recognize voice input.Please add .0 in the end for whole number(1,2,3...etc) voice input. Example, for 2 , say two point zero. Only whole numbers allowed. You can always make manual entry or edit entry recorded.</string>
     <string name="by_package_weight_guidelines">Only Number value greater than zero followed by -lb,kg,g,fl oz,oz,pt,gl,ml,l  allowed to be entered for Package Weight field</string>
-    <string name="edit_item_name_alert_message">Please note that item name change will not update item name in shopping list or Store Purchase History.Remove item from shopping list and add it from item repository to see the name change.</string>
+    <string name="edit_item_name_alert_message">Please note that item name change will not update item name in shopping list or Store Purchase History. \nRemove item from shopping list and add it from item repository to see the name change.</string>
+    <string name="message">Message</string>
+    <string name="purchase_date">Purchase Date</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>

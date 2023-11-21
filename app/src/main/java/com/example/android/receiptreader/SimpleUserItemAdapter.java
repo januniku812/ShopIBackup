@@ -1,6 +1,7 @@
 package com.example.android.receiptreader;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +51,7 @@ public class SimpleUserItemAdapter extends ArrayAdapter<StoreUserItem> {
             if(itemName.replaceAll(" ", "").trim().equalsIgnoreCase(name.replaceAll(" ", ""))){
                 System.out.println("CONTAINS");
                 includedInShoppingList.setVisibility(View.VISIBLE);
-                newItemView.findViewById(R.id.user_item_card_view).setBackgroundResource(R.drawable.light_blue_card_view_bkg);
+                newItemView.findViewById(R.id.user_item_card_view).setBackgroundTintList(ColorStateList.valueOf(getContext().getColor(R.color.light_blue_2)));
                 return newItemView;
             }
         }

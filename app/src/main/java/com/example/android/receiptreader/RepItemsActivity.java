@@ -95,7 +95,7 @@ public class RepItemsActivity extends AppCompatActivity {
         repItemsListView.setAdapter(repItemAdapter);
     }
 
-    public void errorDialog(String message){
+    public void messageDialog(String message){
         if(!occupied) {
             occupied = true;
             androidx.appcompat.app.AlertDialog.Builder errorBuilder =
@@ -108,6 +108,8 @@ public class RepItemsActivity extends AppCompatActivity {
             errorBuilder.setView(errorView);
             TextView errorMessage = errorView.findViewById(R.id.error_message);
             errorMessage.setText(message);
+            TextView textTile = errorView.findViewById(R.id.textTitle);
+            textTile.setText(getString(R.string.message));
             Button okButton = errorView.findViewById(R.id.okButton);
             final androidx.appcompat.app.AlertDialog errorAlertDialog = errorBuilder.create();
             okButton.setOnClickListener(new View.OnClickListener() {
@@ -194,7 +196,7 @@ public class RepItemsActivity extends AppCompatActivity {
                         QueryUtils.editRepItem(repItemName, editText.getText().toString(), getApplicationContext());
                         alertDialog.dismiss();
                         occupied = false;
-                        errorDialog(getString(R.string.edit_item_name_alert_message));
+                        messageDialog(getString(R.string.edit_item_name_alert_message));
                         update();
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();
@@ -309,7 +311,7 @@ public class RepItemsActivity extends AppCompatActivity {
                             Intent intent = new Intent(getApplicationContext(), ShoppingListUserItemHistoryActivity.class);
                             Bundle intentBundle = new Bundle();
                             intentBundle.putString("classComingFrom", "RepItemsActivity");
-                            intentBundle.putString("title", repItemName);
+                            intentBundle.putString("shoppingListItemName", repItemName);
                             intentBundle.putSerializable("storeUserItemsHistory", storeUserItemsHistory);
                             intent.putExtra("BUNDLE", intentBundle);
                             startActivity(intent);

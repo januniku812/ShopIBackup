@@ -51,7 +51,7 @@
             android:visibility="gone" />
 
 
-        <ListView
+        <com.baoyz.swipemenulistview.SwipeMenuListView
 
             tools:listitem="@layout/user_item"
             android:id="@+id/user_items_list_view"

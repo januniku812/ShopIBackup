@@ -2,9 +2,15 @@ package com.example.android.receiptreader;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.example.android.receiptreader.camera.SecondCameraActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -12,6 +18,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.view.MotionEvent;
 import android.view.View;
 
 import android.view.Menu;
@@ -21,6 +28,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import org.json.simple.parser.ParseException;
@@ -31,7 +40,7 @@ import java.util.ArrayList;
 public class StoreUserItemsActivity extends AppCompatActivity {
     StoreUserItemAdapter storeUserItemAdapter;
     TextView resultsForStoreUserItemsView;
-    ListView storeUserItemsListView;
+    SwipeMenuListView storeUserItemsListView;
     ArrayList<StoreUserItem> storeUserItems;
     String storeName;
     public void hideSoftKeyboard(Activity activity) {
@@ -58,6 +67,7 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         }
 
         storeUserItemAdapter = new StoreUserItemAdapter(getApplicationContext(), storeUserItems);
+        storeUserItemsListView.setAdapter(storeUserItemAdapter);
         storeUserItemsListView.setSelectionFromTop(index, top);
     }
 
@@ -71,10 +81,28 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         SearchView searchView = findViewById(R.id.search_bar);
 
         searchView.setQueryHint(getString(R.string.search_for_item));
+
         TextView titleTextView = findViewById(R.id.title);
          storeName = getIntent().getStringExtra("storeName");
         titleTextView.setText(String.format(getString(R.string.purchase_history_name), storeName));
         Toolbar toolbar = findViewById(R.id.my_toolbar);
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "delete" item
+                SwipeMenuItem deleteItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                deleteItem.setBackground(new ColorDrawable(Color.TRANSPARENT));
+                // set item width
+                deleteItem.setWidth(100);
+                // set a icon
+                deleteItem.setIcon(R.drawable.delete_foreground);
+                // add to menu
+                menu.addMenuItem(deleteItem);
+            }
+        };
+        storeUserItemsListView.setMenuCreator(creator);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,6 +122,22 @@ public class StoreUserItemsActivity extends AppCompatActivity {
         storeUserItemAdapter = new StoreUserItemAdapter(this, storeUserItems);
         storeUserItemsListView.setAdapter(storeUserItemAdapter);
 
+        storeUserItemsListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                StoreUserItem userItem = storeUserItemAdapter.getItem(position);
+                try {
+                    if (userItem.getId() != null) {
+                        System.out.println("ID: " + userItem.getId());
+                        QueryUtils.deleteStoreListItem(userItem.getId(), storeName, getApplicationContext());
+
+                    }} catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                update();
+                return true;
+            }
+        });
         hideSoftKeyboard(this);
 
         ArrayList<StoreUserItem> finalStoreUserItems = storeUserItems;
@@ -180,6 +224,7 @@ public class StoreUserItemsActivity extends AppCompatActivity {
                     StoreUserItem storeUserItem = (StoreUserItem) storeUserItemAdapter.getItem(i);
                     String nameToPass = storeUserItem.getItemName();
                     View selectedStoreView = storeUserItemAdapter.getView(i, view, adapterView);
+
                     ConstraintLayout storeUserItemNameCl = selectedStoreView.findViewById(R.id.item_name_cl);
 //                    storeUserItemNameCl.setOnClickListener(new View.OnClickListener() {
 //                        @Override

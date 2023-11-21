@@ -1,78 +1,76 @@
 package com.example.android.receiptreader;
 
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.content.Context;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
+import android.widget.ListView;
 
-import org.junit.runner.manipulation.Ordering;
+public class OnSwipeTouchListener implements OnTouchListener {
 
-public class OnSwipeTouchListener implements View.OnTouchListener {
+    ListView list;
+    private GestureDetector gestureDetector;
+    private Context context;
 
-    private final GestureDetector gestureDetector;
-
-    public OnSwipeTouchListener(Context context) {
-        gestureDetector = new GestureDetector(context, new GestureListener());
+    public OnSwipeTouchListener(Context ctx, ListView list) {
+        gestureDetector = new GestureDetector(ctx, new GestureListener());
+        context = ctx;
+        this.list = list;
     }
 
-    public void onSwipeLeft() {
+    public OnSwipeTouchListener() {
+        super();
     }
 
-    public void onSwipeRight() {
-    }
-
-    public void onSwipeBottom() {
-    }
-
-    public void onSwipeTop() {
-    }
-
-    public void onDownTouch() {
-
-    }
-
+    @Override
     public boolean onTouch(View v, MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
     }
 
-    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+    public void onSwipeRight(int pos) {
+        //Do what you want after swiping left to right
+        System.out.println("SWIPED RIGHT");
 
-        private static final int SWIPE_DISTANCE_THRESHOLD = 100;
+    }
+
+    public void onSwipeLeft(int pos) {
+
+        //Do what you want after swiping right to left
+        System.out.println("SWIPED LEFT");
+    }
+
+    private final class GestureListener extends SimpleOnGestureListener {
+
+        private static final int SWIPE_THRESHOLD = 100;
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
         @Override
         public boolean onDown(MotionEvent e) {
-            onDownTouch();
-            return false;
+            return true;
+        }
+
+        private int getPostion(MotionEvent e1) {
+            return list.pointToPosition((int) e1.getX(), (int) e1.getY());
         }
 
         @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            boolean result = false;
-            try {
-                float diffY = e2.getY() - e1.getY();
-                float diffX = e2.getX() - e1.getX();
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > SWIPE_DISTANCE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffX > 0) {
-                            onSwipeRight();
-                        } else {
-                            onSwipeLeft();
-                        }
-                        result = true;
-                    }
-                } else if (Math.abs(diffY) > SWIPE_DISTANCE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
-                    if (diffY > 0) {
-                        onSwipeBottom();
-                    } else {
-                        onSwipeTop();
-                    }
-                    result = true;
-                }
-            } catch (Exception exception) {
-                exception.printStackTrace();
+        public boolean onFling(MotionEvent e1, MotionEvent e2,
+                               float velocityX, float velocityY) {
+            float distanceX = e2.getX() - e1.getX();
+            float distanceY = e2.getY() - e1.getY();
+            if (Math.abs(distanceX) > Math.abs(distanceY)
+                    && Math.abs(distanceX) > SWIPE_THRESHOLD
+                    && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                if (distanceX > 0)
+                    onSwipeRight(getPostion(e1));
+                else
+                    onSwipeLeft(getPostion(e1));
+                return true;
             }
-            return result;
+            return false;
         }
+
     }
 }

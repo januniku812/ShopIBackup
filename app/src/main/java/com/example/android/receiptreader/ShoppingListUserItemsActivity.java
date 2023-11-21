@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -57,6 +58,10 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
@@ -74,6 +79,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -100,8 +106,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     View insightsView;
     AlertDialog insightViewAlertDialog;
     AlertDialog alertDialog;
+    Date date;
     ConstraintLayout viewInsightsCl;
-    ListView shoppingListUserItemsListView;
+    SwipeMenuListView shoppingListUserItemsListView;
     String shoppingListName;
     public static MutableLiveData<Boolean> actuallyNeedsToBeUpdated = new MutableLiveData<>();
     int quantityMicrophoneState = 0;
@@ -960,7 +967,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ListView choseStoreListView = view.findViewById(R.id.chose_stores_list_view);
         TextView recordDetailsTextView = (TextView) view.findViewById(R.id.textTitle);
         recordDetailsTextView.setText(String.format(getString(R.string.record_details_for_item), shoppingListUserItemName));
-
+        ImageView calendar =  view.findViewById(R.id.calendar_view);
+        calendar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calendarDialog();
+            }
+        });
         Display display = getWindowManager().getDefaultDisplay();
         ToggleButton toggleButton = view.findViewById(R.id.eachWeightToggleButton);
         int width = display.getWidth();
@@ -2319,7 +2332,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         errorDialog(getString(R.string.by_package_weight_guidelines));
                     }
                     else {
-                        Long date = System.currentTimeMillis();
+                        if(date == null){
+                            date = new Date();
+                        }
                         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
                         String dateStr = dateFormat.format(date);
                         if (!ifStoreProvided) {
@@ -2474,7 +2489,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         errorDialog(getString(R.string.add_up_by_weight));
                     }
                     else {
-                        Long date = System.currentTimeMillis();
+                        if(date == null){
+                            date = new Date();
+                        }
                         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
                         String dateStr = dateFormat.format(date);
                         if (!ifStoreProvided) {
@@ -2574,7 +2591,45 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
             }
         });
+        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                date = null;
+            }
+        });
         alertDialog.setCanceledOnTouchOutside(true);
+        if (alertDialog.getWindow() != null) {
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+
+        alertDialog.show();
+    }
+
+    private void calendarDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder
+                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+        View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
+                R.layout.calendar_layout,
+                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+        );
+        builder.setView(view);
+        androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        CalendarView calendarView = view.findViewById(R.id.calendar_view);
+        calendarView.setDate(System.currentTimeMillis(),false,true); // setting date to current day
+        alertDialog.setCanceledOnTouchOutside(true);
+        if(date != null){
+            calendarView.setDate(date.getTime());
+        }
+
+        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+
+            @Override
+            public void onSelectedDayChange(CalendarView view, int year, int month,
+                                            int dayOfMonth) {
+                date = new Date((year-1900), month, dayOfMonth);
+            }
+        });
         if (alertDialog.getWindow() != null) {
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         }
@@ -2776,8 +2831,51 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems,  shoppingListName);
         if(!(shoppingListUserItemAdapter.getCount() < 1)) {
             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
-        }
 
+        }
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "delete" item
+                SwipeMenuItem item = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                item.setBackground(new ColorDrawable(Color.TRANSPARENT));
+                // set item width
+                item.setWidth(100);
+                // set a icon
+                item.setIcon(R.drawable.ic_baseline_bookmark_border_24);
+                // add to menu
+                menu.addMenuItem(item);
+            }
+        };
+        shoppingListUserItemsListView.setMenuCreator(creator);
+
+        shoppingListUserItemsListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                ShoppingListUserItem shoppingListUserItem = shoppingListUserItemAdapter.getItem(position);
+                if(shoppingListUserItem.getIfSavedForLater()){
+                    try {
+                        QueryUtils.setShoppingListItemToNotSavedForLater(shoppingListUserItem.getName(), shoppingListName, getApplicationContext());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                } else{
+                    try {
+                        QueryUtils.setShoppingListItemToSavedForLater(shoppingListUserItem.getName(), shoppingListName, getApplicationContext());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                update();
+                return true;
+            }
+        });
 
         shoppingListUserItemAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -2928,54 +3026,6 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
 
                 });
-                selectedStoreView.setOnTouchListener(new OnSwipeTouchListener(ShoppingListUserItemsActivity.this) {
-                    public void onSwipeLeft() {
-                        System.out.println("SWIPED - LEFT");
-                        try {
-                            QueryUtils.setItemGreenTickMarked(shoppingListUserItemName, shoppingListName, getApplicationContext());
-                        } catch(Exception e){
-                            e.printStackTrace();
-                        }
-                        try {
-                            updateUserItems();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        update();
-
-                    }
-
-                    public void onSwipeRight() {
-                        System.out.println("SWIPED - RIGHT");
-                        try {
-                            QueryUtils.setItemGreenTickMarked(shoppingListUserItemName, shoppingListName, getApplicationContext());
-                        } catch(Exception e){
-                            e.printStackTrace();
-                        }
-                        try {
-                            updateUserItems();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        update();
-                    }
-
-                    public void onSwipeBottom() {
-
-                    }
-
-                    public void onSwipeTop() {
-
-                    }
-
-                    public void onDownTouch() {
-
-                    }
-                });
                 ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
                 ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(R.id.more_vert_actions_item_button);
                 eyeImageView.setOnClickListener(new View.OnClickListener() {
@@ -3071,7 +3121,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView recordPurchaseDetails = new GuideView.Builder(this)
                 .setTitle("Record Purchase Details")
-                .setContentText("The microphone button triggers the record purchase details pop-up of a item. This is where you record the purchase of your shopping list item. Purchases can either be by package or by weight, mainly for produce, based on the type of item you buy. If you are recording for a by purchase item then you need to fill the the unit price per package, note that the quantity and within item count fields are defaulted to 1.The additional weight detail is optional but is needed to create unit price per a measurement of weight for that item, later used in price analytics. For by weight items your quantity is the amount of the item in some weight measurement unit such as pounds (lb) but you don't need to add the unit of weight there as it is inferred from the unit price. The unit price field is mandatory and it is the price per the weight measurement unit for the item, an example input for by weight items would be 1.99/lb pronounced as 1.99 per pound. All fields can be filled using the voice functionality or typed and please note that if you use the voice functionality you must start your numbers with a zero, for example 1.99 will be said 01.99, and to indicate a decimal place say point.")
+                .setContentText("The microphone button triggers the record purchase details pop-up of a item. This is where you record the purchase of your shopping list item. Purchases can either be by package or by weight, mainly for produce, based on the type of item you buy. If you are recording for a by purchase item then you need to fill the the unit price per package, note that the quantity and within item count fields are defaulted to 1.The additional weight detail is optional but is needed to create unit price per a measurement of weight for that item, later used in price analytics. For by weight items your quantity is the amount of the item in some weight measurement unit such as pounds (lb) but you don't need to add the unit of weight there as it is inferred from the unit price. The unit price field is mandatory and it is the price per the weight measurement unit for the item, an example input for by weight items would be 1.99/lb pronounced as 1.99 per pound. All fields can be filled using the voice functionality or typed and please note that if you use the voice functionality you must start your numbers with a zero, for example 1.99 will be said 01.99, and to indicate a decimal place say point. You can set what date you are recording the purchase for by clicking the calendar icon defaulted to the current date.")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.record_details_button))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3083,6 +3133,28 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 .setTitle("Green Tick Mark")
                 .setContentText("A green tick mark appears next to any shopping list item you short-long double tap and is way to keep track of what you've bought without having to record purchase details")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.check_circle))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+
+        GuideView remove_all_green_tick_mark = new GuideView.Builder(this)
+                .setTitle("Remove All Green Tick Mark")
+                .setContentText("Clicking this button removes all green tick marks from all items that have a green tick mark in the shopping list.")
+                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.remove_check_marks_button))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+
+        GuideView bookmark_for_later = new GuideView.Builder(this)
+                .setTitle("Save For Later")
+                .setContentText("You can swipe right on any shopping list item and hit the bookmark icon to mark the item blue as saved for another trip or later.")
+                .setTargetView(exampleShoppingListUserItemView)
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
                 .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
@@ -3178,6 +3250,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         tourGuideViewArrayList.add(shoppingListUserItemQuantityGuideView);
         tourGuideViewArrayList.add(recordPurchaseDetails);
         tourGuideViewArrayList.add(greenTickMarkGuideView);
+        tourGuideViewArrayList.add(remove_all_green_tick_mark);
+        tourGuideViewArrayList.add(bookmark_for_later);
         tourGuideViewArrayList.add(blueTickMark);
         tourGuideViewArrayList.add(mostRecentPurchaseDateGuideView);
         tourGuideViewArrayList.add(moreOptionsGuideView);
@@ -3216,7 +3290,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         }
                         update();
                     }
-                    if(clickNum[0] == 4){
+                    if(clickNum[0] == 6){
                         try {
                             QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemExample.getName(), getString(R.string.empty_store), "10/7/2023", "1", "3.50", "ea", "50g", "1", getApplicationContext());
                         } catch (ParseException e) {
@@ -3235,13 +3309,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                    if(clickNum[0] == 5){
+                    if(clickNum[0] == 7){
                         last_bought_date.setVisibility(View.VISIBLE);
                         last_bought_date.setText(getString(R.string.placeholder_last_bought_date));
                     }
 
 
-                    if(clickNum[0] == 7){
+                    if(clickNum[0] == 9){
                         try {
                             moreVertActionsDialog(shoppingListUserItemExample);
                         } catch (IOException e) {
@@ -3263,7 +3337,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         alertDialog.getWindow().setDimAmount(0f);
                         tourGuideViewArrayList.set(clickNum[0], more_options_explained);
                     }
-                    if(clickNum[0] == 8){
+                    if(clickNum[0] == 10){
                         try {
                             moreVertActionsDialog(shoppingListUserItemExample);
                         } catch (IOException e) {
@@ -3285,7 +3359,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         alertDialog.getWindow().setDimAmount(0f);
                         tourGuideViewArrayList.set(clickNum[0], insights_graph_explained_new);
                     }
-                    if(clickNum[0] == 9){
+                    if(clickNum[0] == 11){
                         try {
                             insightsDialog(shoppingListUserItemExample.getName(), QueryUtils.getHistoryOfShoppingListItem(shoppingListUserItemExample.getName()));
                         } catch (Exception e)
@@ -3294,7 +3368,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         }
                     }
 
-                    if(clickNum[0] < tourGuideViewArrayList.size() && (clickNum[0] != 9)) {
+                    if(clickNum[0] < tourGuideViewArrayList.size() && (clickNum[0] != 11)) {
                         tourGuideViewArrayList.get(clickNum[0]).show();
                     }
                     if(clickNum[0] == tourGuideViewArrayList.size()){

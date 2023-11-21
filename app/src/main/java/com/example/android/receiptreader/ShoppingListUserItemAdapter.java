@@ -133,6 +133,11 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                 check_mark.setVisibility(View.INVISIBLE);
             }
         }
+        if(shoppingListUserItem.getIfSavedForLater()){
+            newItemView.findViewById(R.id.user_item_card_view).setBackgroundResource(R.drawable.light_blue_card_view_bkg);
+        } else{
+
+        }
 //        try {
 //            ArrayList<ShoppingList> otherShoppingListsSlExistsIn =  QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
 //

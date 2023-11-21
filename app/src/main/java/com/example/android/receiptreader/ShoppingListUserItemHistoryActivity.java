@@ -2,16 +2,28 @@ package com.example.android.receiptreader;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
+
+import org.json.simple.parser.ParseException;
 
 import java.util.ArrayList;
 
@@ -19,7 +31,8 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
     ArrayList<StoreUserItem> storeUserItems;
     StoreUserItemAdapter storeUserItemAdapter;
     TextView resultsForStoreUserItemsView;
-    ListView storeUserItemsListView;
+    String title;
+    SwipeMenuListView storeUserItemsListView;
 
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -33,12 +46,31 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
         System.out.println("made it hideSoftKeyboard");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void update(){
+        int index = storeUserItemsListView.getFirstVisiblePosition();
+        View v = storeUserItemsListView.getChildAt(0);
+        int top = (v == null) ? 0 : v.getTop();
+        try {
+            storeUserItems = QueryUtils.getHistoryOfShoppingListItem(title);
+        } catch (Exception  e) {
+            System.out.println("EXCEPTION: ");
+            e.printStackTrace();
+        }
+
+        storeUserItemAdapter = new StoreUserItemAdapter(getApplicationContext(), storeUserItems);
+        if(storeUserItems !=     null && storeUserItems.size()> 0) {
+            storeUserItemsListView.setAdapter(storeUserItemAdapter);
+            storeUserItemsListView.setSelectionFromTop(index, top);
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.store_user_items_layout);
         storeUserItems = (ArrayList<StoreUserItem>) getIntent().getBundleExtra("BUNDLE").getSerializable("storeUserItemsHistory");
-        String title = getIntent().getBundleExtra("BUNDLE").getString("title");
+        title = getIntent().getBundleExtra("BUNDLE").getString("title");
         String classComingFrom = getIntent().getBundleExtra("BUNDLE").getString("classComingFrom");
         storeUserItemAdapter = new StoreUserItemAdapter(this, storeUserItems);
         storeUserItemsListView = findViewById(R.id.user_items_list_view);
@@ -77,7 +109,41 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
         resultsForStoreUserItemsView = findViewById(R.id.results_for_user_item_text);
         hideSoftKeyboard(this);
         searchView.setIconified(false);
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "delete" item
+                SwipeMenuItem deleteItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                deleteItem.setBackground(new ColorDrawable(Color.TRANSPARENT));
+                // set item width
+                deleteItem.setWidth(100);
+                // set a icon
+                deleteItem.setIcon(R.drawable.delete_foreground);
+                // add to menu
+                menu.addMenuItem(deleteItem);
+            }
+        };
+        storeUserItemsListView.setMenuCreator(creator);
 
+        storeUserItemsListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                StoreUserItem userItem = storeUserItemAdapter.getItem(position);
+                try {
+                    if(userItem.getId() != null) {
+                        System.out.println("ID: " + userItem.getId());
+                        QueryUtils.deleteStoreListItem(userItem.getId(), userItem.getStore(), getApplicationContext());
+                    }
+                    } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                update();
+                return true;
+            }
+        });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
                                               @Override

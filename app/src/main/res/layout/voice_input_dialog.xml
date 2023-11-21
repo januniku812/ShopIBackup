@@ -98,6 +98,14 @@
                 android:button="@drawable/toggle_button_on_bkg"
                 android:textOff="@string/by_package"
                 android:textOn="@string/by_weight" />
+            <ImageView
+                android:id="@+id/calendar_view"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/eachWeightToggleButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_baseline_calendar_month_24"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

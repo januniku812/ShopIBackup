@@ -75,7 +75,7 @@
             android:visibility="gone" />
 
 
-        <ListView
+        <com.baoyz.swipemenulistview.SwipeMenuListView
             android:divider="@color/transparent"
             android:id="@+id/shopping_list_user_items_list_view"
             android:layout_width="match_parent"

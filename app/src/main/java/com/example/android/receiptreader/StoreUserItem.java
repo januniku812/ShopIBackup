@@ -11,6 +11,17 @@ public class StoreUserItem implements Serializable {
     String totalAmountPaid;
     String unitPrice;
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    String id;
+
+
     public String getWithinPackageItemCount() {
         return withinPackageItemCount;
     }
@@ -37,7 +48,7 @@ public class StoreUserItem implements Serializable {
         this.additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail;
     }
 
-    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String withinPackageItemCount) {
+    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String withinPackageItemCount, String id) {
         this.store = store;
         this.dateOfPurchase = dateOfPurchase;
         this.itemName = itemName;
@@ -45,18 +56,20 @@ public class StoreUserItem implements Serializable {
         this.totalAmountPaid = totalAmountPaid;
         this.unitPrice = unitPrice;
         this.withinPackageItemCount = withinPackageItemCount;
+        this.id = id;
     }
     // weight based item
-    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice) {
+    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String id) {
         this.store = store;
         this.dateOfPurchase = dateOfPurchase;
         this.itemName = itemName;
         this.quantity = quantity;
         this.totalAmountPaid = totalAmountPaid;
         this.unitPrice = unitPrice;
+        this.id = id;
     }
 
-    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String withinPackageItemCount, String additionalWeightUnitPriceDetail) {
+    public StoreUserItem(String store, String dateOfPurchase, String itemName, String quantity, String totalAmountPaid, String unitPrice, String withinPackageItemCount, String additionalWeightUnitPriceDetail, String id) {
         this.store = store;
         this.dateOfPurchase = dateOfPurchase;
         this.itemName = itemName;
@@ -65,6 +78,7 @@ public class StoreUserItem implements Serializable {
         this.unitPrice = unitPrice;
         this.withinPackageItemCount = withinPackageItemCount;
         this.additionalWeightUnitPriceDetail = additionalWeightUnitPriceDetail;
+        this.id = id;
     }
 
     public StoreUserItem(String dateOfPurchase, String unitPrice){
