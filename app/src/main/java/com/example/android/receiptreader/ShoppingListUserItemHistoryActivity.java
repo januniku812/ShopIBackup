@@ -59,10 +59,9 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
         }
 
         storeUserItemAdapter = new StoreUserItemAdapter(getApplicationContext(), storeUserItems);
-        if(storeUserItems !=     null && storeUserItems.size()> 0) {
-            storeUserItemsListView.setAdapter(storeUserItemAdapter);
-            storeUserItemsListView.setSelectionFromTop(index, top);
-        }
+        storeUserItemsListView.setAdapter(storeUserItemAdapter);
+        storeUserItemsListView.setSelectionFromTop(index, top);
+
     }
 
     @Override
@@ -131,9 +130,13 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-                StoreUserItem userItem = storeUserItemAdapter.getItem(position);
+                StoreUserItem userItem = null;
+                System.out.println("MENU ITEM SIZE: " + storeUserItems.size() + " POSITION: " + position);
+                if(storeUserItems != null && storeUserItems.size() > 0) {
+                     userItem = storeUserItemAdapter.getItem(position);
+                }
                 try {
-                    if(userItem.getId() != null) {
+                    if(userItem != null && userItem.getId() != null) {
                         System.out.println("ID: " + userItem.getId());
                         QueryUtils.deleteStoreListItem(userItem.getId(), userItem.getStore(), getApplicationContext());
                     }

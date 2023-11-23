@@ -73,6 +73,7 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
                 actualPrice = Double.parseDouble(f.format(actualPrice));
                 Integer sigFigs = 2;
                 if (ogActualPrice != 0) {
+                    System.out.println(storeUserItem.getItemName() + " PRICE: " + storeUserItem.getUnitPrice());
                     while(actualPrice == 0.0){
                         sigFigs++;
                         String formatExpression = "##.";

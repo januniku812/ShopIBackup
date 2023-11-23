@@ -107,6 +107,59 @@ public class QueryUtils  {
         return shoppingListUserItemsToReturn;
     }
 
+    public static Double round(String additionalWeightUnitPriceDetail, String ogMeasurementUnit, String currentMeasureUnit){
+        Double ogActualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
+        Double actualPrice = ogActualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
+        DecimalFormat f = new DecimalFormat("##.00");
+        actualPrice = Double.parseDouble(f.format(actualPrice));
+        Integer sigFigs = 2;
+        if (ogActualPrice != 0) {
+            while(actualPrice == 0.0){
+                sigFigs++;
+                String formatExpression = "##.";
+                for(int i = 0; i < sigFigs; i++) {
+                    formatExpression += "0";
+                }
+                DecimalFormat newFormatter = new DecimalFormat(formatExpression);
+                actualPrice = Double.parseDouble(newFormatter.format(ogActualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)))));
+                if(actualPrice != 0.0){
+                    return actualPrice;
+                }
+            }
+
+        }
+        else{
+            return 0.0;
+        }
+        return 0.0;
+    }
+
+    public static Double roundToFirstNonzero(Double ogActualPrice){
+        DecimalFormat f = new DecimalFormat("##.00");
+        Double actualPrice = Double.parseDouble(f.format(ogActualPrice));
+        Integer sigFigs = 2;
+        if (ogActualPrice != 0) {
+            while(actualPrice == 0.0){
+                sigFigs++;
+                String formatExpression = "##.";
+                for(int i = 0; i < sigFigs; i++) {
+                    formatExpression += "0";
+                }
+                DecimalFormat newFormatter = new DecimalFormat(formatExpression);
+                actualPrice = Double.parseDouble(newFormatter.format(ogActualPrice));
+                if(actualPrice != 0.0){
+                    return actualPrice;
+                }
+            }
+
+        }
+        else{
+            return 0.0;
+        }
+        return 0.0;
+    }
+
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void saveDetailsOfShoppingListUserItem(String shoppingListUserItemName, String storeName, String date, String quantity, String unitPrice, String measurementUnit, String additionalWeight, String withinPackageItemCount, android.content.Context context) throws ParseException {
         System.out.println("IVE BEEN ACCESSED - saveDetailsOfShoppingListUserItem func");
@@ -154,11 +207,12 @@ public class QueryUtils  {
                         storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", unitPrice + "/" + quantity.replaceAll("[^a-zA-Z\\s]","").trim());
                     }
                     if(additionalWeight != null && !additionalWeight.isEmpty()){
+                        double ogActualPrice = Double.parseDouble(unitPrice) / Double.parseDouble(additionalWeight.replaceAll("[a-z]", ""));
                         storeUserItemToAdd.put("user_item_additional_weight_pricing_detail",
-                                df.format(total / Double.parseDouble(
-                                        additionalWeight.replaceAll("[a-z]", "")))
-                                        + "/" + additionalWeight.replaceAll("[^a-z\\s]","").trim()
-                        );
+                                String.valueOf(roundToFirstNonzero(ogActualPrice)
+                                        + "/" + additionalWeight.replaceAll("[^a-z\\s]","").trim()));
+                        System.out.println("ADDITIONAL WEIGHT DETAIL: " + additionalWeight);
+                        System.out.println("ROUNDED TO FIRST NONZERO: " + String.valueOf(roundToFirstNonzero(ogActualPrice)));
                     }
                     storeUserItemToAdd.put("id", System.currentTimeMillis());
 
@@ -927,11 +981,8 @@ public class QueryUtils  {
         }catch(Exception e){
             e.printStackTrace();
         }
-        if(!storeUserItemsHistoryOfShoppingListItem.isEmpty()) {
-            return storeUserItemsHistoryOfShoppingListItem;
-        } else{
-            return null;
-        }
+        return storeUserItemsHistoryOfShoppingListItem;
+
 
     }
 
