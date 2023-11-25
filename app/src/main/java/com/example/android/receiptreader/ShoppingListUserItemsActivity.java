@@ -2751,7 +2751,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS AFTER: " + shoppingListUserItems.size());
 
                     shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
-                    resetAdapter();
+                    shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                     shoppingListUserItemsListView.setSelectionFromTop(index, top);
                     System.out.println("SET ADAPTER: " + shoppingListUserItemAdapter.getCount());
                     actuallyNeedsToBeUpdated.setValue(false);

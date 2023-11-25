@@ -78,10 +78,18 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
         TextView lastBoughtDate = (TextView) newItemView.findViewById(R.id.last_bought_date);
 //        ImageView historyButton = (ImageView) newItemView.findViewById(R.id.history_button_image_view);
         ImageView check_mark = (ImageView) newItemView.findViewById(R.id.check_circle);
+        String whenShoppingListUserItemLastBought = null;
+        try {
+            whenShoppingListUserItemLastBought = QueryUtils.getWhenShoppingListUserItemLastBought(shoppingListUserItemName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         check_mark.setVisibility(View.INVISIBLE);
         if (shoppingListUserItem.getLastBought().equals("")) { // sometimes the user might manually type a name of an item already bought and it will not have last bought saved in it
             try {
-                String whenShoppingListUserItemLastBought = QueryUtils.getWhenShoppingListUserItemLastBought(shoppingListUserItemName);
                 if (!whenShoppingListUserItemLastBought.equals("not previously bought")) {
                     shoppingListName.setTextColor(getContext().getColor(R.color.blue));
                     System.out.println("MADE IT DOES HAVE LAST BOUGHT :" + position + shoppingListUserItemName + " SET TEXT " + whenShoppingListUserItemLastBought);
@@ -114,7 +122,7 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
                     System.out.println("MADE IT DOESNT HAVE LAST BOUGHT 4:" + shoppingListUserItemName);
                 }
             }
-             catch (IOException | ParseException e) {
+             catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -122,7 +130,11 @@ public class ShoppingListUserItemAdapter extends ArrayAdapter<ShoppingListUserIt
             System.out.println("OTHER HAS BOUGHT: " + shoppingListUserItem.getName() + " " + shoppingListUserItem.getLastBought());
 
             System.out.println("SET BLUE CHEK MARK FOR " + shoppingListUserItemName);
-            lastBoughtDate.setText(shoppingListUserItem.getLastBought());
+            if(whenShoppingListUserItemLastBought.equals(shoppingListUserItem.getLastBought())) {
+                lastBoughtDate.setText(shoppingListUserItem.getLastBought());
+            } else{
+                lastBoughtDate.setText(whenShoppingListUserItemLastBought);
+            }
             lastBoughtDate.setVisibility(View.VISIBLE);
             shoppingListName.setTextColor(getContext().getColor(R.color.blue));
             if (shoppingListUserItem.isIfGreenMarked()) {
