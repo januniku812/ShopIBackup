@@ -47,6 +47,7 @@
                 android:id="@+id/new_item_edit_text"
                 android:layout_width="fill_parent"
                 android:layout_height="50dp"
+                android:maxLength="20e"
                 android:layout_weight="3"
                 android:hint="@string/new_item_name"
                 android:inputType="text" />

@@ -408,7 +408,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
 
         ArrayList<StoreUserItem> storeUserItemsHistory = QueryUtils.getHistoryOfShoppingListItem(itemName);
-        if(storeUserItemsHistory != null){
+        if(storeUserItemsHistory != null&& storeUserItemsHistory.size() > 0){
             System.out.println(itemName + " HAS  HISTORY");
             view_history_tv.setTextColor(getResources().getColor(R.color.grey));
             ImageViewCompat.setImageTintList(view_history_image,
@@ -2766,6 +2766,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 for(ShoppingListUserItem item: shoppingListUserItems){
                     try {
                         QueryUtils.setItemNotGreenTickMarked(item.getName(), shoppingListName, getApplicationContext());
+
+                        QueryUtils.setShoppingListItemToNotSavedForLater(item.getName(), shoppingListName, getApplicationContext());
+
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }

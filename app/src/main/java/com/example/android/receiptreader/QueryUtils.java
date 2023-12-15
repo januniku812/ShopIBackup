@@ -137,17 +137,22 @@ public class QueryUtils  {
     public static Double roundToFirstNonzero(Double ogActualPrice){
         DecimalFormat f = new DecimalFormat("##.00");
         Double actualPrice = Double.parseDouble(f.format(ogActualPrice));
+        if(actualPrice != 0.0){
+            return actualPrice;
+        }
         Integer sigFigs = 2;
+        System.out.println("OG ACTUAL PRICE: " + ogActualPrice);
         if (ogActualPrice != 0) {
             while(actualPrice == 0.0){
                 sigFigs++;
-                String formatExpression = "##.";
+                StringBuilder formatExpression = new StringBuilder("##.");
                 for(int i = 0; i < sigFigs; i++) {
-                    formatExpression += "0";
+                    formatExpression.append("0");
                 }
-                DecimalFormat newFormatter = new DecimalFormat(formatExpression);
+                DecimalFormat newFormatter = new DecimalFormat(formatExpression.toString());
                 actualPrice = Double.parseDouble(newFormatter.format(ogActualPrice));
-                if(actualPrice != 0.0){
+                System.out.println("ACTUAL PRICE NOW: " + actualPrice);
+                if(actualPrice - 0.0 != 0.0){
                     return actualPrice;
                 }
             }
@@ -1219,6 +1224,12 @@ public class QueryUtils  {
                     return object1.getName().toLowerCase().compareTo(object2.getName().toLowerCase());
                 }
             });
+        }
+        for(ShoppingListUserItem shoppingListUserItem: ShoppingListUserItemArraylist){
+            if(shoppingListUserItem.getIfSavedForLater()){
+                ShoppingListUserItemArraylist.remove(ShoppingListUserItemArraylist.indexOf(shoppingListUserItem));
+                ShoppingListUserItemArraylist.add(0, shoppingListUserItem);
+            }
         }
         return ShoppingListUserItemArraylist;
 

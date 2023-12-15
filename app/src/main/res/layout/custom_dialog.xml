@@ -54,6 +54,7 @@
             android:id="@+id/custom_dialog_edit_text"
             style="@style/user_item_details_text_style"
             android:layout_width="match_parent"
+            android:maxLength="20"
             android:layout_height="wrap_content"
             android:layout_marginTop="18sp"
             android:layout_marginBottom="40dp"
