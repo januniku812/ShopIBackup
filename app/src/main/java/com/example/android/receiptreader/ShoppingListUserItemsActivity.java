@@ -2737,23 +2737,29 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     int index = shoppingListUserItemsListView.getFirstVisiblePosition();
                     View v = shoppingListUserItemsListView.getChildAt(0);
                     int top = (v == null) ? 0 : v.getTop();
-                    System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS BEFORE: " + shoppingListUserItems.size());
-                    for (ShoppingListUserItem item: shoppingListUserItems
-                    ) {
-                        System.out.println(item.getName() + item.getUserQuantity() + item.getLastBought());
-                    }
-                    try {
-                        shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
-                    } catch (ParseException  e) {
-                        System.out.println("RUNNING ONCHANGED  EXCEPTION");
-                        e.printStackTrace();
-                    }
-                    System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS AFTER: " + shoppingListUserItems.size());
+                    if(shoppingListUserItems != null) {
+                        System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS BEFORE: " + shoppingListUserItems.size());
+                        for (ShoppingListUserItem item : shoppingListUserItems
+                        ) {
+                            System.out.println(item.getName() + item.getUserQuantity() + item.getLastBought());
+                        }
+                        try {
+                            shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
+                        } catch (ParseException e) {
+                            System.out.println("RUNNING ONCHANGED  EXCEPTION");
+                            e.printStackTrace();
+                        }
+                        System.out.println("RUNNING ONCHANGED SHOPPING LIST ITEMS AFTER: " + shoppingListUserItems.size());
 
-                    shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
-                    shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
-                    shoppingListUserItemsListView.setSelectionFromTop(index, top);
-                    System.out.println("SET ADAPTER: " + shoppingListUserItemAdapter.getCount());
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
+                        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                        shoppingListUserItemsListView.setSelectionFromTop(index, top);
+                        System.out.println("SET ADAPTER: " + shoppingListUserItemAdapter.getCount());
+                    } else {
+                        shoppingListUserItems = new ArrayList<ShoppingListUserItem>();
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
+                        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                    }
                     actuallyNeedsToBeUpdated.setValue(false);
                 }
             }
@@ -2765,14 +2771,21 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 for(ShoppingListUserItem item: shoppingListUserItems){
                     try {
-                        QueryUtils.setItemNotGreenTickMarked(item.getName(), shoppingListName, getApplicationContext());
-
-                        QueryUtils.setShoppingListItemToNotSavedForLater(item.getName(), shoppingListName, getApplicationContext());
-
+                        if(item.isIfGreenMarked()) {
+                            QueryUtils.setItemNotGreenTickMarked(item.getName(), shoppingListName, getApplicationContext());
+                            item.setIfGreenMarked(false);
+                        }
+                        if(item.getIfSavedForLater()) {
+                            QueryUtils.setShoppingListItemToNotSavedForLater(item.getName(), shoppingListName, getApplicationContext());
+                            item.setIfSavedForLater(false);
+                        }
+                        System.out.println("UPDATING GREEN AND BLUE TICKE MARKS DONE");
                     } catch (ParseException e) {
+                        System.out.println("EXCEPTION IN REMOVING GREEN AND BLUE MARKS");
                         e.printStackTrace();
                     }
                 }
+                System.out.println("UPDATE CALLED @setOnClickListener for removeAllGreenTickMarks");
                 update();
             }
         });

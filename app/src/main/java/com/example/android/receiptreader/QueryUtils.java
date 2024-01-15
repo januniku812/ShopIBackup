@@ -104,7 +104,15 @@ public class QueryUtils  {
                 }
             });
         }
-        return shoppingListUserItemsToReturn;
+
+        ArrayList<ShoppingListUserItem> shoppingListUserItemArrayListCopy = (ArrayList<ShoppingListUserItem>) shoppingListUserItemsToReturn.clone();
+        for(ShoppingListUserItem shoppingListUserItem: shoppingListUserItemsToReturn){
+            if(shoppingListUserItem.getIfSavedForLater()){
+                shoppingListUserItemArrayListCopy.remove(shoppingListUserItemArrayListCopy.indexOf(shoppingListUserItem));
+                shoppingListUserItemArrayListCopy.add(0, shoppingListUserItem);
+            }
+        }
+        return shoppingListUserItemArrayListCopy;
     }
 
     public static Double round(String additionalWeightUnitPriceDetail, String ogMeasurementUnit, String currentMeasureUnit){
@@ -1225,13 +1233,15 @@ public class QueryUtils  {
                 }
             });
         }
+        ArrayList<ShoppingListUserItem> shoppingListUserItemArrayListCopy = (ArrayList<ShoppingListUserItem>) ShoppingListUserItemArraylist.clone();
         for(ShoppingListUserItem shoppingListUserItem: ShoppingListUserItemArraylist){
             if(shoppingListUserItem.getIfSavedForLater()){
-                ShoppingListUserItemArraylist.remove(ShoppingListUserItemArraylist.indexOf(shoppingListUserItem));
-                ShoppingListUserItemArraylist.add(0, shoppingListUserItem);
+                shoppingListUserItemArrayListCopy.remove(shoppingListUserItemArrayListCopy.indexOf(shoppingListUserItem));
+                shoppingListUserItemArrayListCopy.add(0, shoppingListUserItem);
             }
         }
-        return ShoppingListUserItemArraylist;
+
+        return shoppingListUserItemArrayListCopy;
 
     }
 
