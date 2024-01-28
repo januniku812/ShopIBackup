@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         final int[] mainClick = new int[1];
         mainClick[0] = mainPageTourClickNum;
         // Check for first run or upgrade
-        if (isFirstTimeRun) {
+        if (true) {
             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
             Constants.wantsPriceComparisonUnit = true;
             Constants.currentMeasureUnit = "grams (g)";
@@ -698,7 +698,7 @@ public class MainActivity extends AppCompatActivity {
                                                         for(int i = 0; i < stores.size(); i++){
                                                             Store store =  stores.get(i);
                                                             try{
-                                                                if(store.getStoreName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                                                                if(store.getStoreName().toLowerCase().contains(query.toLowerCase())){
                                                                     newStoreList.add(store);
                                                                 }
                                                             }
@@ -728,7 +728,7 @@ public class MainActivity extends AppCompatActivity {
                                                         for(int i = 0; i < stores.size(); i++){
                                                             Store store = (Store) stores.get(i);
                                                             try{
-                                                                if(store.getStoreName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                                                if(store.getStoreName().toLowerCase().contains(newText.toLowerCase())){
                                                                     newStoreList.add(store);
                                                                 }
                                                             }
@@ -773,7 +773,7 @@ public class MainActivity extends AppCompatActivity {
                                                               for(int i = 0; i < shoppingLists.size(); i++){
                                                                   ShoppingList shoppingList =  shoppingLists.get(i);
                                                                   try{
-                                                                      if(shoppingList.getName().substring(0,searchQueryLength).equalsIgnoreCase(query)){
+                                                                      if(shoppingList.getName().toLowerCase().contains(query.toLowerCase())){
                                                                           newShoppingListList.add(shoppingList);
                                                                       }
                                                                   }
@@ -803,7 +803,7 @@ public class MainActivity extends AppCompatActivity {
                                                               for(int i = 0; i < shoppingLists.size(); i++){
                                                                   ShoppingList shoppingList = (ShoppingList) shoppingLists.get(i);
                                                                   try{
-                                                                      if(shoppingList.getName().substring(0, searchQueryLength).equalsIgnoreCase(newText)){
+                                                                      if(shoppingList.getName().toLowerCase().contains(newText.toLowerCase())){
                                                                           newShoppingListList.add(shoppingList);
                                                                       }
                                                                   }

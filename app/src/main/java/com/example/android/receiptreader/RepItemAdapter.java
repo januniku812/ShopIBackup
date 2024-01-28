@@ -1,6 +1,7 @@
 package com.example.android.receiptreader;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 
 import org.json.simple.parser.ParseException;
 
@@ -19,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class RepItemAdapter extends ArrayAdapter<RepItem> {
-    ArrayList<StoreUserItem> purchaseHistory;
     public RepItemAdapter(@NonNull Context context, ArrayList<RepItem> repItems) {
         super(context, 0, repItems);
     }
@@ -42,6 +43,7 @@ public class RepItemAdapter extends ArrayAdapter<RepItem> {
         repItemTv.setText(repItemName);
 
         ImageView viewPurchaseHistory = newItemView.findViewById(R.id.item_rep_purchase_history);
+        ArrayList<StoreUserItem> purchaseHistory = new ArrayList<>();
         try {
             purchaseHistory = QueryUtils.getHistoryOfShoppingListItem(repItemName);
         } catch (IOException e) {
@@ -49,11 +51,11 @@ public class RepItemAdapter extends ArrayAdapter<RepItem> {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if(purchaseHistory != null){
-            viewPurchaseHistory.setImageDrawable(getContext().getDrawable(R.drawable.ic_baseline_history_24));
+        if(!purchaseHistory.isEmpty()){
+            viewPurchaseHistory.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.light_blue)));
 
         } else{
-            viewPurchaseHistory.setImageDrawable(getContext().getDrawable(R.drawable.ic_baseline_lighter_grey_history_24));
+            viewPurchaseHistory.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.grey_four)));
         }
 
         return newItemView;

@@ -220,10 +220,10 @@ public class QueryUtils  {
                         storeUserItemToAdd.put("user_item_additional_weight_pricing_detail", unitPrice + "/" + quantity.replaceAll("[^a-zA-Z\\s]","").trim());
                     }
                     if(additionalWeight != null && !additionalWeight.isEmpty()){
-                        double ogActualPrice = Double.parseDouble(unitPrice) / Double.parseDouble(additionalWeight.replaceAll("[a-z]", ""));
+                        double ogActualPrice = Double.parseDouble(unitPrice) / Double.parseDouble(additionalWeight.replaceAll("[a-zA-Z]", ""));
                         storeUserItemToAdd.put("user_item_additional_weight_pricing_detail",
                                 String.valueOf(roundToFirstNonzero(ogActualPrice)
-                                        + "/" + additionalWeight.replaceAll("[^a-z\\s]","").trim()));
+                                        + "/" + additionalWeight.replaceAll("[^a-zA-Z\\s]","").trim()));
                         System.out.println("ADDITIONAL WEIGHT DETAIL: " + additionalWeight);
                         System.out.println("ROUNDED TO FIRST NONZERO: " + String.valueOf(roundToFirstNonzero(ogActualPrice)));
                     }
@@ -978,6 +978,7 @@ public class QueryUtils  {
                         String userItemUnitPrice = (String) userItemObject.get("user_item_unit_price");
                         String withinPackageItemCount = (String) userItemObject.get("within_package_item_count");
                         String userItemAdditionWeightPricingDetail = (String) userItemObject.get("user_item_additional_weight_pricing_detail");
+                        System.out.println("ADDITIONAL WEIGHT DETAIL: " + userItemAdditionWeightPricingDetail);
                         String id = String.valueOf(userItemObject.get(("id")));
                         if(userItemAdditionWeightPricingDetail != null){ // if the store user item json object has an additional weight pricing detail then use different constructor and save the detail
                             System.out.println("MADE ITTTTTTTTTTTTTT: " + userItemName + ": " + userItemAdditionWeightPricingDetail);

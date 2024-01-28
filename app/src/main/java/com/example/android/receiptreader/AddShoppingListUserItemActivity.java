@@ -38,6 +38,7 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_shopping_list_item_page);
+        String preexistingQuery = getIntent().getStringExtra("preexistingQuery");
         simplePastUserItemsListView = (ListView)findViewById(R.id.general_items_master);
         newItemEditText = (TextInputEditText) findViewById(R.id.new_item_edit_text);
         shoppingList = getIntent().getStringExtra("shoppingListName");
@@ -47,6 +48,9 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
             e.printStackTrace();
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+        if(preexistingQuery != null && !preexistingQuery.isEmpty()){
+            newItemEditText.setText(preexistingQuery);
         }
         Toolbar toolbar = findViewById(R.id.my_toolbar);
         TextView title = findViewById(R.id.title_shopping_list_name);

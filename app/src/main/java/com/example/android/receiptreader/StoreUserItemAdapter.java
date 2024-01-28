@@ -64,10 +64,14 @@ public class StoreUserItemAdapter extends ArrayAdapter<StoreUserItem> {
                 Double ogActualPrice = Double.parseDouble(additionalWeightUnitPriceDetail.replaceAll("[^\\d.]",""));
 
                 String ogMeasurementUnit = additionalWeightUnitPriceDetail.substring(additionalWeightUnitPriceDetail.indexOf("/")+1, additionalWeightUnitPriceDetail.length());
+                if(ogMeasurementUnit.toLowerCase().equals("z")){
+                    ogMeasurementUnit = "oz";
+                }
                 System.out.println(ogMeasurementUnit);
                 System.out.println(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit));
                 System.out.println("ACTUAL PRICE BEFORE:  " + ogActualPrice);
-                Double actualPrice = ogActualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit), ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
+                Double actualPrice = ogActualPrice / (ItemMeasurementUnits.findRatioBetweenOgMeasurementUnitAndConversionOutcomeUnit(ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(ogMeasurementUnit),
+                        ItemMeasurementUnits.returnItemMeasurementUnitClassVarForPriceComparisonUnit(currentMeasureUnit)));
                 System.out.println("ACTUAL PRICE: " + actualPrice);
                 DecimalFormat f = new DecimalFormat("##.00");
                 actualPrice = Double.parseDouble(f.format(actualPrice));

@@ -307,7 +307,7 @@ public class RepItemsActivity extends AppCompatActivity {
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
-                        if(storeUserItemsHistory != null) {
+                        if(!storeUserItemsHistory.isEmpty()) {
                             Intent intent = new Intent(getApplicationContext(), ShoppingListUserItemHistoryActivity.class);
                             Bundle intentBundle = new Bundle();
                             intentBundle.putString("classComingFrom", "RepItemsActivity");

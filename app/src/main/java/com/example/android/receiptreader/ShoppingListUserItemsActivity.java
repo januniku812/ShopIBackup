@@ -1696,6 +1696,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     errorDialog(getString(R.string.unit_price_by_weight_guidelines));
                                 }
                             } catch(Exception e){
+                                System.out.println("EXCEPTION in speech: " + e.getMessage());
 
                             }
                         } else {
@@ -1705,7 +1706,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                    errorDialog(getString(R.string.unit_price_val_have_to_be_greater_than_0));
                                }
                            } catch(Exception e){
-
+                               System.out.println("EXCEPTION in speech: " + e.getMessage());
                            }
 
                         }
@@ -2825,6 +2826,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(ShoppingListUserItemsActivity.this, AddShoppingListUserItemActivity.class);
                 intent.putExtra("shoppingListName", shoppingListName);
+                intent.putExtra("preexistingQuery", String.valueOf(searchView.getQuery()));
                 startActivity(intent);
                 actuallyNeedsToBeUpdated.removeObserver(updateObserver);
                 finish();
@@ -2924,7 +2926,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                   ArrayList<ShoppingListUserItem> newItems = new ArrayList<>();
                                                   for(ShoppingListUserItem item: shoppingListUserItems){
                                                       if(!(query.length() > item.getName().length())){
-                                                          if(item.getName().substring(0, searchQueryLength).equalsIgnoreCase(query)){
+                                                          if(item.getName().toLowerCase().contains(query.toLowerCase())){
                                                               newItems.add(item);
                                                           }
                                                       }
@@ -2960,7 +2962,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                   ArrayList<ShoppingListUserItem> newItems = new ArrayList<>();
                                                   for(ShoppingListUserItem item: shoppingListUserItems){
                                                       if(!(query.length() > item.getName().length())){
-                                                          if(item.getName().substring(0, searchQueryLength).equalsIgnoreCase(query)){
+                                                          if(item.getName().toLowerCase().contains(query.toLowerCase())){
                                                               newItems.add(item);
                                                           }
                                                       }
@@ -3085,6 +3087,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        else{
+            try {
+                firstRunTour();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
 
     }
@@ -3113,8 +3124,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         int[] point = new int[2];
         System.out.println("SHOPPING LIST USER VIEW: " + point);
         View exampleShoppingListUserItemView = getViewByPosition(shoppingListUserItemsListView.getFirstVisiblePosition(), shoppingListUserItemsListView);
-        System.out.println("EXAMPLE TIME X : " + exampleShoppingListUserItemView.getX());
         final int[] clickNum = {PreferenceManager.getDefaultSharedPreferences(this).getInt("shoppingListPageTourClickNum", 0)};
+        clickNum[0] = 0;
         GuideView shoppingListItemNameGuideView = new GuideView.Builder(this)
                 .setTitle("Shopping List User Item Name")
                 .setContentText("This is the unique name of your item that is saved in a larger items repository")
@@ -3157,7 +3168,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
 
         GuideView remove_all_green_tick_mark = new GuideView.Builder(this)
-                .setTitle("Remove All Green Tick Mark")
+                .setTitle("Remove All Green Tick Marks and Saved Items Button")
                 .setContentText("Clicking this button removes all green tick marks from all items that have a green tick mark in the shopping list.")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.remove_check_marks_button))
                 .setContentTextSize(12)//optional

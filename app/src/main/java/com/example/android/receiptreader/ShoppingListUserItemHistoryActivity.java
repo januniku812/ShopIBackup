@@ -69,7 +69,7 @@ public class ShoppingListUserItemHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.store_user_items_layout);
         storeUserItems = (ArrayList<StoreUserItem>) getIntent().getBundleExtra("BUNDLE").getSerializable("storeUserItemsHistory");
-        title = getIntent().getBundleExtra("BUNDLE").getString("title");
+        title = getIntent().getBundleExtra("BUNDLE").getString("shoppingListItemName");
         String classComingFrom = getIntent().getBundleExtra("BUNDLE").getString("classComingFrom");
         storeUserItemAdapter = new StoreUserItemAdapter(this, storeUserItems);
         storeUserItemsListView = findViewById(R.id.user_items_list_view);
