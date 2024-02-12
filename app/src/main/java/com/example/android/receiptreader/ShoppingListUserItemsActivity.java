@@ -3084,15 +3084,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             try {
                 firstRunTour();
             } catch (Exception e) {
+                System.out.println("EXCEPTION");
                 e.printStackTrace();
             }
         }
         else{
             try {
                 firstRunTour();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (Exception e){
+                System.out.println("EXCEPTION");
                 e.printStackTrace();
             }
         }
@@ -3126,9 +3126,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         View exampleShoppingListUserItemView = getViewByPosition(shoppingListUserItemsListView.getFirstVisiblePosition(), shoppingListUserItemsListView);
         final int[] clickNum = {PreferenceManager.getDefaultSharedPreferences(this).getInt("shoppingListPageTourClickNum", 0)};
         clickNum[0] = 0;
+        System.out.print("CLICK NUM:" + clickNum[0]);
         GuideView shoppingListItemNameGuideView = new GuideView.Builder(this)
                 .setTitle("Shopping List User Item Name")
-                .setContentText("This is the unique name of your item that is saved in a larger items repository")
+                .setContentText("Name of Item added to  shopping list")
                 .setTargetView(exampleShoppingListUserItemView.getRootView().findViewById(R.id.shopping_list_item_name))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3138,7 +3139,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView shoppingListUserItemQuantityGuideView = new GuideView.Builder(this)
                 .setTitle("Shopping List User Item Quantity")
-                .setContentText("This is the quantity of your shopping list item that you can toggle with the plus/minus buttons")
+                .setContentText("Quantity of item added to shopping list you can change with plus/minus buttons.")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.quantity_sl_item))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3148,7 +3149,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView recordPurchaseDetails = new GuideView.Builder(this)
                 .setTitle("Record Purchase Details")
-                .setContentText("The microphone button triggers the record purchase details pop-up of a item. This is where you record the purchase of your shopping list item. Purchases can either be by package or by weight, mainly for produce, based on the type of item you buy. If you are recording for a by purchase item then you need to fill the the unit price per package, note that the quantity and within item count fields are defaulted to 1.The additional weight detail is optional but is needed to create unit price per a measurement of weight for that item, later used in price analytics. For by weight items your quantity is the amount of the item in some weight measurement unit such as pounds (lb) but you don't need to add the unit of weight there as it is inferred from the unit price. The unit price field is mandatory and it is the price per the weight measurement unit for the item, an example input for by weight items would be 1.99/lb pronounced as 1.99 per pound. All fields can be filled using the voice functionality or typed and please note that if you use the voice functionality you must start your numbers with a zero, for example 1.99 will be said 01.99, and to indicate a decimal place say point. You can set what date you are recording the purchase for by clicking the calendar icon defaulted to the current date.")
+                .setContentText("Ability to record purchase details of item in shopping list")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.record_details_button))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3158,7 +3159,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView greenTickMarkGuideView = new GuideView.Builder(this)
                 .setTitle("Green Tick Mark")
-                .setContentText("A green tick mark appears next to any shopping list item you short-long double tap and is way to keep track of what you've bought without having to record purchase details")
+                .setContentText("Green Check Mark Ability to mark item in shopping list  as purchased with short-double long tap.")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.check_circle))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3169,18 +3170,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView remove_all_green_tick_mark = new GuideView.Builder(this)
                 .setTitle("Remove All Green Tick Marks and Saved Items Button")
-                .setContentText("Clicking this button removes all green tick marks from all items that have a green tick mark in the shopping list.")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.remove_check_marks_button))
+                .setContentText("Removes all green check marks from previous shopping trip and Save for Later.")
+                .setTargetView(findViewById(R.id.remove_check_marks_button))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
                 .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
                 .setDismissType(DismissType.outside)
                 .build(); //optional - default dismissible by TargetView
 
-
         GuideView bookmark_for_later = new GuideView.Builder(this)
                 .setTitle("Save For Later")
-                .setContentText("You can swipe right on any shopping list item and hit the bookmark icon to mark the item blue as saved for another trip or later.")
+                .setContentText("Swipe right on any shopping list item and hit the bookmark icon to mark the item in blue as saved for another trip or later.")
                 .setTargetView(exampleShoppingListUserItemView)
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3190,7 +3190,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView blueTickMark = new GuideView.Builder(this)
                 .setTitle("Blue Item Name")
-                .setContentText("The shopping list item name is written in blue if you have recorded purchase details for it at least once.")
+                .setContentText("Item name in blue color for items with recorded purchase history")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.shopping_list_item_name))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3201,7 +3201,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView mostRecentPurchaseDateGuideView = new GuideView.Builder(this)
                 .setTitle("Most Recent Purchase Date")
-                .setContentText("The most recent date you recorded purchase details for this item that appears alongside the blue item name.")
+                .setContentText("Most recent puchase date recorded for item")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.last_bought_date))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3211,7 +3211,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         GuideView moreOptionsGuideView = new GuideView.Builder(this)
                 .setTitle("More Options")
-                .setContentText("Here are other options, marked by 3 vertical dots,  such as the purchase history of the item, moving the item to another list, deleting item from list, and the insights graph. ")
+                .setContentText("More Options such as the purchase history of item, move item to another list, delete item from list, and the insights graph ")
                 .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.more_vert_actions_item_button))
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3222,7 +3222,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         insightsView = findViewById(R.id.search_bar);
         GuideView moreOptionsGuideViewExplained = new GuideView.Builder(this)
                 .setTitle("More Options Explained")
-                .setContentText("The item purchase history is the collection of all recorded purchases for this item across stores with the date, the amount you spent at the time for the whole purchase, and the price per your unit comparison unit if you have the option toggled on from the home page. You can move the item to another shopping list and delete it from your shopping list entirely. The insights graph helps compare price over time. Purchase history and insights graph options are greyed out if there is not enough data for the item.")
+                .setContentText("Insignt graph helps compare price over time. Purchase History and Insights grpah are greyed out if no recroded purchase history exists for item")
                 .setTargetView(moreVertActionsView)
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
@@ -3293,7 +3293,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         updateUserItems();
         TextView last_bought_date = exampleShoppingListUserItemView.findViewById(R.id.last_bought_date);
         ImageView check_mark = (ImageView) exampleShoppingListUserItemView.findViewById(R.id.check_mark);
+        System.out.print("MADE IT 1");
         tourGuideViewArrayList.get(clickNum[0]).show();
+        System.out.print("MADE IT 2!");
         tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
