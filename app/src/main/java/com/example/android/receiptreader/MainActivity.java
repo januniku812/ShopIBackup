@@ -1,7 +1,6 @@
 package com.example.android.receiptreader;
 
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
@@ -23,7 +22,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import android.os.Handler;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
@@ -84,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void checkFirstRun() throws InterruptedException, ParseException, IOException {
+    private void navigationTutorial(int guideViewNum) throws InterruptedException, ParseException, IOException {
 
         // Get current version code
 
@@ -95,30 +93,26 @@ public class MainActivity extends AppCompatActivity {
         final int[] mainClick = new int[1];
         mainClick[0] = mainPageTourClickNum;
         // Check for first run or upgrade
-        if (true) {
-            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
-            Constants.wantsPriceComparisonUnit = true;
-            Constants.currentMeasureUnit = "grams (g)";
-            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
+        Constants.wantsPriceComparisonUnit = true;
+        Constants.currentMeasureUnit = "grams (g)";
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                     .putString("measurementUnit", "grams (g)").apply();
-            System.out.println("APPLIED MEASUREMENT UNIT FIRST RUN: " + Constants.currentMeasureUnit);
-            if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
-                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
-            }
-            if(!QueryUtils.ifStoreAlreadyExists(getString(R.string.empty_store))) {
-                QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
-            }
-            shoppingLists = QueryUtils.getShoppingLists();
-            shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
-            shoppingListsView.setAdapter(shoppingListAdapter);
-            stores = QueryUtils.getStores(getApplicationContext());
-            storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
-            storesListView.setAdapter(storeListAdapter);
+        System.out.println("APPLIED MEASUREMENT UNIT FIRST RUN: " + Constants.currentMeasureUnit);
+
+        shoppingLists = QueryUtils.getShoppingLists();
+        shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
+        shoppingListsView.setAdapter(shoppingListAdapter);
+        stores = QueryUtils.getStores(getApplicationContext());
+        storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
+        storesListView.setAdapter(storeListAdapter);
+
 //            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstTimeRun", false).apply();
-            System.out.println("UPDATED PREF: "+PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true));
-            ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
-            View tourGuideNavButton = findViewById(R.id.tour_guide_nav_button);
-            tourGuideNavButton.setVisibility(View.VISIBLE);
+//        System.out.println("UPDATED PREF: "+PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true));
+//        ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
+//        View tourGuideNavButton = findViewById(R.id.tour_guide_nav_button);
+//        tourGuideNavButton.setVisibility(View.VISIBLE);
 //            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
@@ -127,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            });
             // This is just a normal run
-            GuideView shoppingListGuideView = new GuideView.Builder(this)
+        GuideView shoppingListGuideView = new GuideView.Builder(this)
                     .setTitle("Shopping Lists")
                     .setContentText("This is where your shopping lists are and you can edit names and delete them as needed")
                     .setTargetView(findViewById(R.id.shopping_list_items_list_view))
@@ -137,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                     .setDismissType(DismissType.outside)
                     .build(); //optional - default dismissible by TargetView
 
-            GuideView shoppingListAddButtonGuideView = new GuideView.Builder(this)
+        GuideView shoppingListAddButtonGuideView = new GuideView.Builder(this)
                     .setTitle("Shopping Lists Add Button")
                     .setContentText("This is where you add new shopping lists")
                     .setContentTextSize(12)//optional
@@ -147,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                     .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
                     .build();
 
-            GuideView storeListViewGuideView = new GuideView.Builder(this)
+        GuideView storeListViewGuideView = new GuideView.Builder(this)
                     .setTitle("Shopping Lists Search View")
                     .setContentText("This is where you can search within your shopping lists")
                     .setTargetView(findViewById(R.id.shopping_list_search_bar))
@@ -157,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                     .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
                     .build();
 
-            GuideView storesListGuideView = new GuideView.Builder(this)
+        GuideView storesListGuideView = new GuideView.Builder(this)
                     .setTitle("Store Lists")
                     .setContentText("This is where your stores are and you can edit names and delete them as needed")
                     .setTargetView(findViewById(R.id.stores_list_view))
@@ -167,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                     .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
                     .build();
 
-            GuideView storesAddListButtonGuide = new GuideView.Builder(this)
+        GuideView storesAddListButtonGuide = new GuideView.Builder(this)
                     .setTitle("Stores List Add Button")
                     .setContentText("This is where you add new stores")
                     .setContentTextSize(12)//optional
@@ -177,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                     .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
                     .build();
 
-            GuideView storesListSearchBarGuideView = new GuideView.Builder(this)
+        GuideView storesListSearchBarGuideView = new GuideView.Builder(this)
                     .setTitle("Stores List Search View")
                     .setContentText("This is where you can search within your stores ")
                     .setTargetView(findViewById(R.id.store_list_search_bars))
@@ -188,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
 
-            GuideView shoppingCartView = new GuideView.Builder(this)
+        GuideView shoppingCartView = new GuideView.Builder(this)
                     .setTitle("Shopping Cart")
                     .setContentText("This is where you can set where you are currently shopping for recorded purchases to be stored automatically. The store you chose here will be highlighted in blue below.")
                     .setTargetView(findViewById(R.id.shopping_list_icon))
@@ -198,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                     .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
                     .build();
 
-            GuideView itemsRepGuideView = new GuideView.Builder(this)
+        GuideView itemsRepGuideView = new GuideView.Builder(this)
                     .setTitle("Item Repository")
                     .setContentText("This is where your items that you add to shopping lists are stored. Adding an item to this repository adds it as an option as a possible item to add to shopping lists. Editing an item name here does not change any purchase details with the item's name it just updates it for future use in adding items to a shopping list. Deleting an item from the item repository does not delete history purchase details of the item, it will stop showing up as an option in adding items to shopping lists.")
                     .setTargetView(findViewById(R.id.item_repo_icon))
@@ -207,13 +201,12 @@ public class MainActivity extends AppCompatActivity {
                     .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
                     .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
                     .build();
-
-            DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-            NavigationView navigationView = findViewById(R.id.side_menu);
-            View priceComparisonUnitView =  navigationView.getMenu().findItem(R.id.measurement_units_menu_item).getActionView();
-            SwitchCompat mySwitch = (SwitchCompat) priceComparisonUnitView;
-            mySwitch.setChecked(true);
-            GuideView priceComparisonUnitGuideView = new GuideView.Builder(this)
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.side_menu);
+        View priceComparisonUnitView =  navigationView.getMenu().findItem(R.id.measurement_units_menu_item).getActionView();
+        SwitchCompat mySwitch = (SwitchCompat) priceComparisonUnitView;
+        mySwitch.setChecked(true);
+        GuideView priceComparisonUnitGuideView = new GuideView.Builder(this)
                     .setTitle("Price Comparison Unit Functionality")
                     .setContentText("This functionality allows you to compare all items with purchases that have weight details in different measurement units, such as lb or kg, against each other in a common unit. Currently we have it set to grams for tutorial demonstration and after tutorial it will be toggled off. Toggling this on converts weight details to a common unit and allows you to compare prices across items, stores, and over time. Toggling this option on allows you to have insight graphs(price over time graphs) for shopping list items - this is further explained later in the tutorial.")
                     .setTargetView(priceComparisonUnitView)
@@ -223,57 +216,95 @@ public class MainActivity extends AppCompatActivity {
                     .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
                     .build();
 
-
-
-            tourGuideViewArrayList.add(shoppingListGuideView);
-            tourGuideViewArrayList.add(shoppingListAddButtonGuideView);
-            tourGuideViewArrayList.add(storeListViewGuideView);
-            tourGuideViewArrayList.add(storesListGuideView);
-            tourGuideViewArrayList.add(storesAddListButtonGuide);
-            tourGuideViewArrayList.add(storesListSearchBarGuideView);
-            tourGuideViewArrayList.add(shoppingCartView);
-            tourGuideViewArrayList.add(itemsRepGuideView);
-            tourGuideViewArrayList.add(priceComparisonUnitGuideView);
-
-            if(mainClick[0] == 0) {
-                tourGuideViewArrayList.get(mainClick[0]).show();
-            }
-
-            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    System.out.println("MAIN CLICK RIGHT NOW: " + mainClick[0]);
-                    if(mainClick[0] < tourGuideViewArrayList.size()){
-                        tourGuideViewArrayList.get(mainClick[0]).dismiss();
-
-                        if(mainClick[0] == 8){
-                            drawerLayout.openDrawer(Gravity.RIGHT);
-                            navigationView.setVisibility(View.VISIBLE);
-
-
-                        }
-                        if(mainClick[0] < tourGuideViewArrayList.size()) {
-                            tourGuideViewArrayList.get(mainClick[0]).show();
-                        }
-                        mainClick[0]++;
-                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putInt("mainPageTourClickNum", mainClick[0]).apply();
-
-
-                    }
-                    else if(mainClick[0] == tourGuideViewArrayList.size()){
-                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
-                        intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
-                        intent.putExtra("isTour", true);
-                        startActivity(intent);
-                    }
-                }
-            });
-
-
+        if (guideViewNum == 1) {
+            itemsRepGuideView.show();
         }
+        else if(guideViewNum == 2){
+            storesAddListButtonGuide.show();
+        }
+
+        else if(guideViewNum == 3){
+            shoppingListAddButtonGuideView.show();
+        }
+        else if(guideViewNum == 4){
+            if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
+                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+            }
+            if(!QueryUtils.ifStoreAlreadyExists(getString(R.string.empty_store))) {
+                QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
+            }
+            Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+            intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+            intent.putExtra("isTour", true);
+            intent.putExtra("tourSection", "addItemsToShoppingList");
+            startActivity(intent);
+        }
+        else if(guideViewNum == 5){
+            shoppingCartView.show();
+        }
+        else if(guideViewNum == 6){
+            if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
+                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+            }
+            if(!QueryUtils.ifStoreAlreadyExists(getString(R.string.empty_store))) {
+                QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
+            }
+            Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+            intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+            intent.putExtra("isTour", true);
+            intent.putExtra("tourSection", "shopping");
+            startActivity(intent);
+        }
+        else if(guideViewNum == 7){
+            priceComparisonUnitGuideView.show();
+        }
+//
+//            tourGuideViewArrayList.add(shoppingListGuideView);
+//            tourGuideViewArrayList.add(shoppingListAddButtonGuideView);
+//            tourGuideViewArrayList.add(storeListViewGuideView);
+//            tourGuideViewArrayList.add(storesListGuideView);
+//            tourGuideViewArrayList.add(storesAddListButtonGuide);
+//            tourGuideViewArrayList.add(storesListSearchBarGuideView);
+//            tourGuideViewArrayList.add(shoppingCartView);
+//            tourGuideViewArrayList.add(itemsRepGuideView);
+//            tourGuideViewArrayList.add(priceComparisonUnitGuideView);
+//
+//            if(mainClick[0] == 0) {
+//                tourGuideViewArrayList.get(mainClick[0]).show();
+//            }
+
+//            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    System.out.println("MAIN CLICK RIGHT NOW: " + mainClick[0]);
+//                    if(mainClick[0] < tourGuideViewArrayList.size()){
+//                        tourGuideViewArrayList.get(mainClick[0]).dismiss();
+//
+//                        if(mainClick[0] == 8){
+//                            drawerLayout.openDrawer(Gravity.RIGHT);
+//                            navigationView.setVisibility(View.VISIBLE);
+//
+//
+//                        }
+//                        if(mainClick[0] < tourGuideViewArrayList.size()) {
+//                            tourGuideViewArrayList.get(mainClick[0]).show();
+//                        }
+//                        mainClick[0]++;
+//                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putInt("mainPageTourClickNum", mainClick[0]).apply();
+//
+//
+//                    }
+//                    else if(mainClick[0] == tourGuideViewArrayList.size()){
+//                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+//                        intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+//                        intent.putExtra("isTour", true);
+//                        startActivity(intent);
+//                    }
+//                }
+//            });
+
+
     }
-
-
 
     public void shoppingListLaunch(String originalShoppingListName) {
         Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
@@ -511,6 +542,13 @@ public class MainActivity extends AppCompatActivity {
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.side_menu);
         MenuItem checkable_measurement_item = navigationView.getMenu().findItem(R.id.measurement_units_menu_item);
+        MenuItem addItemsToItemRepository = navigationView.getMenu().findItem(R.id.add_items_to_item_repository);
+        MenuItem defineStore = navigationView.getMenu().findItem(R.id.define_store);
+        MenuItem defineShoppingList = navigationView.getMenu().findItem(R.id.define_shopping_list);
+        MenuItem addItemsToShoppingList = navigationView.getMenu().findItem(R.id.add_items_to_shopping_list);
+        MenuItem setStoreForShopping = navigationView.getMenu().findItem(R.id.set_store_for_shopping);
+        MenuItem shopping = navigationView.getMenu().findItem(R.id.shopping);
+        MenuItem priceComparisonUnit = navigationView.getMenu().findItem(R.id.price_comparison_unit);
         SwitchCompat mySwitch = (SwitchCompat) checkable_measurement_item.getActionView();
         mySwitch.setChecked(Constants.wantsPriceComparisonUnit);
         checkable_measurement_item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -522,6 +560,119 @@ public class MainActivity extends AppCompatActivity {
                 measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
                 System.out.println("MEASUREMENT UNITS: " +measurementUnitsArrayList);
                 measurementUnitsDialog(measurementUnitsArrayList);
+                return true;
+            }
+        });
+        addItemsToItemRepository.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                try {
+                    drawerLayout.closeDrawer(navigationView);
+                    navigationTutorial(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        });
+        defineStore.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                try {
+                    drawerLayout.closeDrawer(navigationView);
+                    navigationTutorial(2);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        });
+        defineShoppingList.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                try {
+                    drawerLayout.closeDrawer(navigationView);
+                    navigationTutorial(3);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        });
+        addItemsToShoppingList.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                try {
+                    drawerLayout.closeDrawer(navigationView);
+                    navigationTutorial(4);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        });
+        setStoreForShopping.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                try {
+                    drawerLayout.closeDrawer(navigationView);
+                    navigationTutorial(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        });
+
+        shopping.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                try {
+                    drawerLayout.closeDrawer(navigationView);
+                    navigationTutorial(6);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        });
+
+        priceComparisonUnit.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                try {
+                    navigationTutorial(7);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
         });
@@ -900,21 +1051,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    checkFirstRun();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     @Override
@@ -928,7 +1064,7 @@ public class MainActivity extends AppCompatActivity {
                         (MainActivity.this, R.style.AlertDialogCustom);
         View view = LayoutInflater.from(MainActivity.this).inflate(
                 R.layout.measurement_units_dialog,
-                (ConstraintLayout) findViewById(R.id.layoutDialog)
+                (ConstraintLayout) findViewById(R.id.moreVertActionsLayoutDialog)
         );
         builder.setView(view);
         ListView measurementUnitsListView = view.findViewById(R.id.simple_measurement_units_list_view);

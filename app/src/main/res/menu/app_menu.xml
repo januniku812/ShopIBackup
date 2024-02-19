@@ -7,5 +7,42 @@
         app:actionViewClass="androidx.appcompat.widget.SwitchCompat"
         android:id="@+id/measurement_units_menu_item"
         android:title="@string/measurement_unit" />
+    <item
+        app:showAsAction="never"
+        android:id="@+id/navigation_tutorial_menu"
+        android:title="@string/Navigation_Tutorial" >
+        <menu>
+            <item
+                app:showAsAction="always"
+                android:id="@+id/add_items_to_item_repository"
+                android:title="@string/add_items_to_item_repository" />
+            <item
+                app:showAsAction="always"
+                android:id="@+id/define_store"
+                android:title="@string/define_store" />
+            <item
+                app:showAsAction="always"
+                android:id="@+id/define_shopping_list"
+                android:title="@string/define_shopping_list" />
+            <item
+                app:showAsAction="always"
+                android:id="@+id/add_items_to_shopping_list"
+                android:title="@string/add_items_to_shopping_list" />
+            <item
+                app:showAsAction="always"
+                android:id="@+id/set_store_for_shopping"
+                android:title="@string/set_store_for_shopping" />
+            <item
+                app:showAsAction="always"
+                android:id="@+id/shopping"
+                android:title="@string/shopping" />
+            <item
+                app:showAsAction="always"
+                android:id="@+id/price_comparison_unit"
+                android:title="@string/price_comparison_unit" />
+
+        </menu>
+
+    </item>
 
 </menu>

@@ -160,6 +160,7 @@
     <string name="edit_item_name_alert_message">Please note that item name change will not update item name in shopping list or Store Purchase History. \nRemove item from shopping list and add it from item repository to see the name change.</string>
     <string name="message">Message</string>
     <string name="purchase_date">Purchase Date</string>
+    <string name="Navigation_Tutorial">Navigation Tutorial</string>
     <string-array name="measurement_units_array">
 
         <item>pounds (lb)</item>
@@ -174,5 +175,11 @@
 
 
     </string-array>
-
+    <string name="add_items_to_item_repository">Add Items to Item Repository</string>
+    <string name="define_store">Define Store</string>
+    <string name="define_shopping_list">Define Shopping Lists</string>
+    <string name="add_items_to_shopping_list">Add Items to Shopping List</string>
+    <string name="set_store_for_shopping">Set Store for Shopping</string>
+    <string name="shopping">Shopping</string>
+    <string name="price_comparison_unit">Price Comparison Unit</string>
 </resources>

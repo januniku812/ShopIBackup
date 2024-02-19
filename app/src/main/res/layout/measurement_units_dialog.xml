@@ -8,7 +8,7 @@
     android:layout_margin="20dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutDialog"
+        android:id="@+id/moreVertActionsLayoutDialog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
@@ -80,9 +80,9 @@
         android:textColor="@color/white"
         android:textSize="14sp"
         android:theme="@style/Button.White"
-        app:layout_constraintBottom_toBottomOf="@id/layoutDialog"
+        app:layout_constraintBottom_toBottomOf="@id/moreVertActionsLayoutDialog"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutDialog" />
+        app:layout_constraintTop_toBottomOf="@id/moreVertActionsLayoutDialog" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
