@@ -34,6 +34,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -541,6 +542,7 @@ public class MainActivity extends AppCompatActivity {
         ImageView shoppingCartIcon = findViewById(R.id.shopping_list_icon);
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.side_menu);
+        MenuItem navigationTutorial = navigationView.findViewById(R.id.navigation_tutorial_menu);
         MenuItem checkable_measurement_item = navigationView.getMenu().findItem(R.id.measurement_units_menu_item);
         MenuItem addItemsToItemRepository = navigationView.getMenu().findItem(R.id.add_items_to_item_repository);
         MenuItem defineStore = navigationView.getMenu().findItem(R.id.define_store);
@@ -1124,6 +1126,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.app_menu, menu);
         return true;
     }
 

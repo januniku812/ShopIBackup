@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -2793,6 +2794,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
+                if(getIntent().getBooleanExtra("isTour", false)){
+                    try {
+                        QueryUtils.deleteShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+                        QueryUtils.deleteStore(getString(R.string.empty_store), getApplicationContext());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
                 if(getIntent().getStringExtra("classComingFrom") != null && getIntent().getStringExtra("classComingFrom").equals("ShoppingListsHistoryActivity")){
                     intent =  new Intent(ShoppingListUserItemsActivity.this, ShoppingListsHistoryActivity.class);
                     Bundle args = new Bundle();
@@ -3126,17 +3135,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         updateUserItems();
         ImageButton tourGuideNavButton = findViewById(R.id.shopping_list_tour_guide_nav_button);
         tourGuideNavButton.setVisibility(View.VISIBLE);
-        shoppingListUserItemsListView.setSelection(0);
+        System.out.println("SHOPPING LIST USER VIEW: " + shoppingListUserItemsListView.getCount());
+        shoppingListUserItemsListView.setItemChecked(0, true);
         int[] point = new int[2];
-        System.out.println("SHOPPING LIST USER VIEW: " + point);
-        View exampleShoppingListUserItemView = getViewByPosition(shoppingListUserItemsListView.getFirstVisiblePosition(), shoppingListUserItemsListView);
+        View exampleShoppingListUserItemView = shoppingListUserItemAdapter.getView(0, null, shoppingListUserItemsListView);
         final int[] clickNum = {PreferenceManager.getDefaultSharedPreferences(this).getInt("shoppingListPageTourClickNum", 0)};
         clickNum[0] = 0;
         System.out.print("CLICK NUM:" + clickNum[0]);
         GuideView shoppingListItemNameGuideView = new GuideView.Builder(this)
                 .setTitle("Shopping List User Item Name")
                 .setContentText("Name of Item added to  shopping list")
-                .setTargetView(exampleShoppingListUserItemView.getRootView().findViewById(R.id.shopping_list_item_name))
+                .setTargetView(exampleShoppingListUserItemView)
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
                 .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
@@ -3146,7 +3155,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         GuideView shoppingListUserItemQuantityGuideView = new GuideView.Builder(this)
                 .setTitle("Shopping List User Item Quantity")
                 .setContentText("Quantity of item added to shopping list you can change with plus/minus buttons.")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.quantity_sl_item))
+                .setTargetView(exampleShoppingListUserItemView)
                 .setContentTextSize(12)//optional
                 .setTitleTextSize(14)//optional
                 .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
@@ -3198,6 +3207,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     clickNum[0]++;
                     if(clickNum[0] < tourGuideViewArrayList.size()) {
                         tourGuideViewArrayList.get(clickNum[0]).show();
+                        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     }
 
                 }
@@ -3227,10 +3237,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         System.out.println("size : " + shoppingListUserItems.size());
         ImageButton tourGuideNavButton = findViewById(R.id.shopping_list_tour_guide_nav_button);
         tourGuideNavButton.setVisibility(View.VISIBLE);
-        shoppingListUserItemsListView.setSelection(0);
+        shoppingListUserItemsListView.setItemChecked(0, true);
         int[] point = new int[2];
-        System.out.println("SHOPPING LIST USER VIEW: " + point);
-        View exampleShoppingListUserItemView = getViewByPosition(shoppingListUserItemsListView.getFirstVisiblePosition(), shoppingListUserItemsListView);
+        View exampleShoppingListUserItemView = shoppingListUserItemAdapter.getView(0, null, shoppingListUserItemsListView);
         final int[] clickNum = {PreferenceManager.getDefaultSharedPreferences(this).getInt("shoppingListPageTourClickNum", 0)};
         clickNum[0] = 0;
         System.out.print("CLICK NUM:" + clickNum[0]);
