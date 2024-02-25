@@ -113,7 +113,7 @@
     <string name="price_per_pound">Price per pound or preferred unit</string>
     <string name="price_per_package">Price Per Package</string>
     <string name="measurement_units">Set Weight Unit for Price Comparison</string>
-    <string name="chose_a_measurement_unit">Select a unit of weight to compare item prices</string>
+    <string name="chose_a_measurement_unit">Select a unit of weight to compare item prices\\nCurrent: %s</string>
     <string name="measurement_unit">Price Comparison Unit</string>
     <string name="by_package">By Package</string>
     <string name="by_weight">By Weight</string>

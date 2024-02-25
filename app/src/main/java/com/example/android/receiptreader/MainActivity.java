@@ -502,6 +502,7 @@ public class MainActivity extends AppCompatActivity {
         }
         alertDialog.show();
     }
+
     public void hideSoftKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
@@ -1090,6 +1091,10 @@ public class MainActivity extends AppCompatActivity {
                 measurementUnitsListView.setSelectionFromTop(index, top);
             }
         });
+        TextView measurementUnitsChoseText = findViewById(R.id.chose_a_measurement_unit_text_view);
+//        if(Constants.currentMeasureUnit != null && !Constants.currentMeasureUnit.isEmpty()) {
+//            measurementUnitsChoseText.setText(String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit));
+//        }
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

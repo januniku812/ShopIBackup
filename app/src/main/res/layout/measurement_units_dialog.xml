@@ -44,7 +44,7 @@
 
 
         <TextView
-            android:id="@+id/chose_a_store_text_view"
+            android:id="@+id/chose_a_measurement_unit_text_view"
             android:layout_marginTop="15dp"
             app:layout_constraintTop_toBottomOf="@id/textTitle"
             android:layout_marginEnd="15dp"
@@ -59,7 +59,7 @@
 
         <ListView
             android:id="@+id/simple_measurement_units_list_view"
-            app:layout_constraintTop_toBottomOf="@id/chose_a_store_text_view"
+            app:layout_constraintTop_toBottomOf="@id/chose_a_measurement_unit_text_view"
             android:padding="15dp"
             tools:listitem="@layout/simple_measurement_unit_item"
             android:visibility="visible"

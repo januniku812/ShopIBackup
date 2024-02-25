@@ -963,7 +963,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         // following layouts are for weight based purchase details and package based details
         ConstraintLayout quanity_detail_cl = view.findViewById(R.id.quantity_detail_ly);
         ConstraintLayout unit_price_detail_cl = view.findViewById(R.id.unit_price_detail_ly);
-        TextView choseStoreTextView = view.findViewById(R.id.chose_a_store_text_view);
+        TextView choseStoreTextView = view.findViewById(R.id.chose_a_measurement_unit_text_view);
         ListView choseStoreListView = view.findViewById(R.id.chose_stores_list_view);
         TextView recordDetailsTextView = (TextView) view.findViewById(R.id.textTitle);
         recordDetailsTextView.setText(String.format(getString(R.string.record_details_for_item), shoppingListUserItemName));
