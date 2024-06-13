@@ -75,7 +75,14 @@
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
-
+<!--            <ImageView-->
+<!--                android:id="@+id/gemini_camera_functionality"-->
+<!--                android:layout_width="40dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:src="@mipmap/geminiicon"-->
+<!--                app:layout_constraintBottom_toBottomOf="@id/unit_price_edit_text"-->
+<!--                app:layout_constraintEnd_toStartOf="@id/unit_price_microphone"-->
+<!--                app:layout_constraintTop_toTopOf="@id/unit_price_edit_text" />-->
             <ImageView
                 android:id="@+id/unit_price_microphone"
                 android:layout_width="40dp"

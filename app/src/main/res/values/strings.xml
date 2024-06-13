@@ -113,7 +113,7 @@
     <string name="price_per_pound">Price per pound or preferred unit</string>
     <string name="price_per_package">Price Per Package</string>
     <string name="measurement_units">Set Weight Unit for Price Comparison</string>
-    <string name="chose_a_measurement_unit">Select a unit of weight to compare item prices\\nCurrent: %s</string>
+    <string name="chose_a_measurement_unit">Select a unit of weight to compare item prices - Current: %s</string>
     <string name="measurement_unit">Price Comparison Unit</string>
     <string name="by_package">By Package</string>
     <string name="by_weight">By Weight</string>
@@ -182,4 +182,12 @@
     <string name="set_store_for_shopping">Set Store for Shopping</string>
     <string name="shopping">Shopping</string>
     <string name="price_comparison_unit">Price Comparison Unit</string>
+    <string name="chose_a_measurement_unit_2">Select a unit of weight to compare item prices</string>
+    <string name="gemini_price_tag_capture">Gemini Price Tag Capture</string>
+    <string name="camera_access_issue">Issue accessing camera</string>
+    <string name="cant_use_camera_feature">Gemini Camera feature can\'t be accessed</string>
+    <string name="processing_gemini_request">Sending image to Gemini</string>
+    <string name="tap_outside_to_dismiss">Tap outside to dismiss</string>
+    <string name="esnure_connection_and_tap_outside_to_dismiss">Ensure you have an internet connecion to connect to the Gemini API and tap outside of pop-up to dismiss</string>
+    <string name="gemini_ai_request_failure">Gemini API couldn\'t process request</string>
 </resources>

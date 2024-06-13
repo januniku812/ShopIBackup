@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -74,11 +75,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        System.out.println("DESTROYED");
         super.onDestroy();
     }
 
     @Override
+    protected void onPause() {
+        System.out.println("PAUSED");
+        super.onPause();
+    }
+
+    @Override
     protected void onStop() {
+        System.out.println("STOPPED");
         super.onStop();
     }
 
@@ -543,143 +552,154 @@ public class MainActivity extends AppCompatActivity {
         ImageView shoppingCartIcon = findViewById(R.id.shopping_list_icon);
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.side_menu);
-        MenuItem navigationTutorial = navigationView.findViewById(R.id.navigation_tutorial_menu);
+        MenuItem navigationTutorial = navigationView.getMenu().findItem(R.id.navigation_tutorial_menu);
+//        navigationTutorial.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+////                startActivity(Intent(Intent.ACTION_VIEW,Uri.parse(your link here in string format)))
+//            return true;
+//            }
+//        });
         MenuItem checkable_measurement_item = navigationView.getMenu().findItem(R.id.measurement_units_menu_item);
-        MenuItem addItemsToItemRepository = navigationView.getMenu().findItem(R.id.add_items_to_item_repository);
-        MenuItem defineStore = navigationView.getMenu().findItem(R.id.define_store);
-        MenuItem defineShoppingList = navigationView.getMenu().findItem(R.id.define_shopping_list);
-        MenuItem addItemsToShoppingList = navigationView.getMenu().findItem(R.id.add_items_to_shopping_list);
-        MenuItem setStoreForShopping = navigationView.getMenu().findItem(R.id.set_store_for_shopping);
-        MenuItem shopping = navigationView.getMenu().findItem(R.id.shopping);
-        MenuItem priceComparisonUnit = navigationView.getMenu().findItem(R.id.price_comparison_unit);
+//        MenuItem addItemsToItemRepository = navigationView.getMenu().findItem(R.id.add_items_to_item_repository);
+//        MenuItem defineStore = navigationView.getMenu().findItem(R.id.define_store);
+//        MenuItem defineShoppingList = navigationView.getMenu().findItem(R.id.define_shopping_list);
+//        MenuItem addItemsToShoppingList = navigationView.getMenu().findItem(R.id.add_items_to_shopping_list);
+//        MenuItem setStoreForShopping = navigationView.getMenu().findItem(R.id.set_store_for_shopping);
+//        MenuItem shopping = navigationView.getMenu().findItem(R.id.shopping);
+//        MenuItem priceComparisonUnit = navigationView.getMenu().findItem(R.id.price_comparison_unit);
         SwitchCompat mySwitch = (SwitchCompat) checkable_measurement_item.getActionView();
-        mySwitch.setChecked(Constants.wantsPriceComparisonUnit);
-        checkable_measurement_item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//        mySwitch.setChecked(Constants.wantsPriceComparisonUnit);
+//        checkable_measurement_item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+//                String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+//                System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray[1]);
+//                measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+//                System.out.println("MEASUREMENT UNITS: " +measurementUnitsArrayList);
+//                measurementUnitsDialog(measurementUnitsArrayList);
+//                return true;
+//            }
+//        });
+////        addItemsToItemRepository.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                try {
+//                    drawerLayout.closeDrawer(navigationView);
+//                    navigationTutorial(1);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }
+//        });
+//        defineStore.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                try {
+//                    drawerLayout.closeDrawer(navigationView);
+//                    navigationTutorial(2);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }
+//        });
+//        defineShoppingList.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                try {
+//                    drawerLayout.closeDrawer(navigationView);
+//                    navigationTutorial(3);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }
+//        });
+//        addItemsToShoppingList.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                try {
+//                    drawerLayout.closeDrawer(navigationView);
+//                    navigationTutorial(4);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }
+//        });
+//        setStoreForShopping.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                try {
+//                    drawerLayout.closeDrawer(navigationView);
+//                    navigationTutorial(5);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }
+//        });
+//        shopping.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                try {
+//                    drawerLayout.closeDrawer(navigationView);
+//                    navigationTutorial(6);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }
+//        });
+//        priceComparisonUnit.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                try {
+//                    navigationTutorial(7);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }
+//        });
+        navigationTutorial.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
-                String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
-                System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray[1]);
-                measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
-                System.out.println("MEASUREMENT UNITS: " +measurementUnitsArrayList);
-                measurementUnitsDialog(measurementUnitsArrayList);
-                return true;
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=1prweT95Mo0")));
+                return false;
             }
         });
-        addItemsToItemRepository.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                try {
-                    drawerLayout.closeDrawer(navigationView);
-                    navigationTutorial(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        });
-        defineStore.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                try {
-                    drawerLayout.closeDrawer(navigationView);
-                    navigationTutorial(2);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        });
-        defineShoppingList.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                try {
-                    drawerLayout.closeDrawer(navigationView);
-                    navigationTutorial(3);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        });
-        addItemsToShoppingList.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                try {
-                    drawerLayout.closeDrawer(navigationView);
-                    navigationTutorial(4);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        });
-        setStoreForShopping.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                try {
-                    drawerLayout.closeDrawer(navigationView);
-                    navigationTutorial(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        });
-
-        shopping.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                try {
-                    drawerLayout.closeDrawer(navigationView);
-                    navigationTutorial(6);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        });
-
-        priceComparisonUnit.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                try {
-                    navigationTutorial(7);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        });
-
         shoppingCartIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -738,7 +758,6 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.show();
             }
         });
-
         mySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){
                 if(!Constants.wantsPriceComparisonUnit){
@@ -767,6 +786,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.print("JSON DATA: " + Constants.json_data_str);
         shoppingListsView = (ListView) findViewById(R.id.shopping_list_items_list_view);
         storesListView = (ListView) findViewById(R.id.stores_list_view);
+
 /*
         TextView itemRepTv = (TextView) findViewById(R.id.item_repository_label);
 */
@@ -1091,10 +1111,17 @@ public class MainActivity extends AppCompatActivity {
                 measurementUnitsListView.setSelectionFromTop(index, top);
             }
         });
-        TextView measurementUnitsChoseText = findViewById(R.id.chose_a_measurement_unit_text_view);
-//        if(Constants.currentMeasureUnit != null && !Constants.currentMeasureUnit.isEmpty()) {
-//            measurementUnitsChoseText.setText(String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit));
-//        }
+        TextView measurementUnitsChoseText = view.findViewById(R.id.chose_a_measurement_unit_text_view);
+
+        if(Constants.currentMeasureUnit != null && !Constants.currentMeasureUnit.isEmpty()) {
+            System.out.println("TEXT: " + String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit));
+            System.out.println("format: " + String.valueOf(String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit)));
+            measurementUnitsChoseText.setText(String.valueOf(String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit)));
+        }
+        else{
+            measurementUnitsChoseText.setText(getString(R.string.chose_a_measurement_unit_2));
+        }
+
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

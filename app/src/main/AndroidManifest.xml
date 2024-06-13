@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.receiptreader">
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
+
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/shopilogo"
+        android:hardwareAccelerated="true"
         android:label="@string/app_name"
         android:configChanges="orientation|screenSize|keyboard"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -15,7 +19,6 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:keepScreenOn="true"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|screenSize|keyboard"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
@@ -28,7 +31,6 @@
         <activity
             android:windowSoftInputMode="stateHidden"
             android:name=".StoreUserItemsActivity"
-            android:keepScreenOn="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/store_user_items_activity"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
@@ -37,7 +39,6 @@
             android:windowSoftInputMode="stateHidden"
             android:name=".ShoppingListUserItemsActivity"
             android:label="@string/store_user_items_activity"
-            android:keepScreenOn="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
@@ -45,7 +46,6 @@
             android:windowSoftInputMode="stateHidden"
             android:name=".ShoppingListUserItemHistoryActivity"
             android:label="@string/shopping_list_user_item_history"
-            android:keepScreenOn="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
@@ -54,13 +54,11 @@
             android:name=".ShoppingListsHistoryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/shopping_lists_history"
-            android:keepScreenOn="true"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
         </activity>
         <activity
             android:windowSoftInputMode="stateHidden"
             android:name=".AddShoppingListUserItemActivity"
-            android:keepScreenOn="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/add_shopping_list_user_item_activity"
             android:theme="@style/Theme.ReceiptReader.ActionBar">
@@ -68,7 +66,6 @@
         <activity
             android:windowSoftInputMode="stateHidden"
             android:name=".RepItemsActivity"
-            android:keepScreenOn="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/rep_item_activity_label"
             android:theme="@style/Theme.ReceiptReader.ActionBar">

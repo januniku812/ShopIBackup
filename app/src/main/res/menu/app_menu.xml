@@ -14,32 +14,33 @@
             android:id="@+id/navigation_tutorial_menu"
             app:showAsAction="collapseActionView"
             android:title="@string/Navigation_Tutorial">
-            <menu>
-                <item
-                    android:id="@+id/add_items_to_item_repository"
-                    android:title="@string/add_items_to_item_repository" />
-                <item
-                    android:id="@+id/define_store"
-                    android:title="@string/define_store" />
-                <item
-                    android:id="@+id/define_shopping_list"
-                    android:title="@string/define_shopping_list" />
-                <item
-                    android:id="@+id/add_items_to_shopping_list"
-                    android:title="@string/add_items_to_shopping_list" />
-                <item
-                    android:id="@+id/set_store_for_shopping"
-                    android:title="@string/set_store_for_shopping" />
-                <item
-                    android:id="@+id/shopping"
-                    android:title="@string/shopping" />
-                <item
-                    android:id="@+id/price_comparison_unit"
-                    android:title="@string/price_comparison_unit" />
-
-            </menu>
-
         </item>
+<!--            <menu>-->
+<!--                <item-->
+<!--                    android:id="@+id/add_items_to_item_repository"-->
+<!--                    android:title="@string/add_items_to_item_repository" />-->
+<!--                <item-->
+<!--                    android:id="@+id/define_store"-->
+<!--                    android:title="@string/define_store" />-->
+<!--                <item-->
+<!--                    android:id="@+id/define_shopping_list"-->
+<!--                    android:title="@string/define_shopping_list" />-->
+<!--                <item-->
+<!--                    android:id="@+id/add_items_to_shopping_list"-->
+<!--                    android:title="@string/add_items_to_shopping_list" />-->
+<!--                <item-->
+<!--                    android:id="@+id/set_store_for_shopping"-->
+<!--                    android:title="@string/set_store_for_shopping" />-->
+<!--                <item-->
+<!--                    android:id="@+id/shopping"-->
+<!--                    android:title="@string/shopping" />-->
+<!--                <item-->
+<!--                    android:id="@+id/price_comparison_unit"-->
+<!--                    android:title="@string/price_comparison_unit" />-->
+
+<!--            </menu>-->
+
+<!--        </item>-->
     </group>
 
 </menu>
