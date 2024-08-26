@@ -99,6 +99,8 @@
     <string name="record_details_for_item">Record Purchase Details For %s</string>
     <string name="view_insights_for_item">View Insights For %s</string>
     <string name="exit">Exit</string>
+    <string name="purchase_message">Purchase</string>
+    <string name="trial_period_expired_message">Your trial period has expired. Please complete payment to continue using the app.</string>
     <string name="insights_for_itemI">Date-Price Insights for %s</string>
     <string name="data_point_tapped">%s purchased from %s on %s for unit price of %f(unit price is averaged if more than one purchase under same day)</string>
     <string name="item_rep">Item Repository</string>

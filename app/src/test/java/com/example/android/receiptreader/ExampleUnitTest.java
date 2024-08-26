@@ -1,4 +1,4 @@
-package com.example.android.receiptreader;
+package com.shopi.android.receiptreader;
 
 import org.junit.Test;
 
