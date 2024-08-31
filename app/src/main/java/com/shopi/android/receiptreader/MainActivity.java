@@ -1,7 +1,6 @@
 package com.shopi.android.receiptreader;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
@@ -16,6 +15,7 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                         (MainActivity.this, R.style.AlertDialogCustom);
         View view = LayoutInflater.from(MainActivity.this).inflate(
                 R.layout.purchase_dialog,
-                (ConstraintLayout) findViewById(R.id.layoutDialogContainer);
+                (ConstraintLayout) findViewById(R.id.layoutDialogContainer));
         Button purchaseButton = view.findViewById(R.id.purchaseButton);
         purchaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,7 +108,9 @@ public class MainActivity extends AppCompatActivity {
                 billingManager.launchBillingFlow(activity, Constants.skuId);
             }
         });
-
+        builder.setView(view);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(true);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -722,7 +724,7 @@ public class MainActivity extends AppCompatActivity {
         navigationTutorial.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=1prweT95Mo0")));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=t3D3zQTG4WA")));
                 return false;
             }
         });
