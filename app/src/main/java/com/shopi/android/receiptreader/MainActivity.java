@@ -9,6 +9,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesResponseListener;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
@@ -49,6 +55,7 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
@@ -61,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     Observer<View> itemRepLabelObserver;
     SimpleStoreListAdapter simpleStoreListAdapter;
     ArrayList<Store> stores;
+    private BillingClient billingClient;
     private BillingManager billingManager;
     private TrialManager trialManager;
     ArrayList<ShoppingList> shoppingLists;
@@ -102,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 R.layout.purchase_dialog,
                 (ConstraintLayout) findViewById(R.id.layoutDialogContainer));
         Button purchaseButton = view.findViewById(R.id.purchaseButton);
+        // query existing purchases
         purchaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -547,6 +556,33 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("made it hideSoftKeyboard");
     }
 
+    private void initializeBillingClient() {
+        billingClient = BillingClient.newBuilder(getApplicationContext()).setListener(new PurchasesUpdatedListener() {
+            @Override
+            public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> list) {
+                // handle purchases response if needed
+                if(list.get(0).getPurchaseState() == Purchase.PurchaseState.PURCHASED){
+                    Toast.makeText(getApplicationContext(), "Your purchase has been received", Toast.LENGTH_LONG).show();
+                }
+            }
+        }).enablePendingPurchases().build();
+        billingClient.startConnection(new BillingClientStateListener() {
+            @Override
+            public void onBillingServiceDisconnected() {
+                Toast.makeText(getApplicationContext(), "Your purchase was disconnected", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                    // Billing client setup succeeded
+                    // You can query purchases here if neede
+                }
+            }
+        });
+
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -558,15 +594,33 @@ public class MainActivity extends AppCompatActivity {
                 "  \"shopping_lists\":[],\n" +
                 "  \"general_items_master\": []\n" +
                 "}");
+        initializeBillingClient();
         Constants.storeBeingShoppedIn = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("selectedStore", "");
         Constants.currentMeasureUnit = PreferenceManager.getDefaultSharedPreferences(this).getString("measurementUnit", "");
         Constants.wantsPriceComparisonUnit = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("priceComparisonUnitOn", false);
         System.out.println("WANTS PRICE COMPARISON UNIT: " + Constants.wantsPriceComparisonUnit);
         trialManager = new TrialManager(getApplicationContext());
         billingManager = new BillingManager(getApplicationContext());
-
+        boolean hasPurchased = false;
         if(trialManager.isTrialExpired()){
-            showPurchaseDialog(this);
+            billingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP, new PurchasesResponseListener() {
+                @Override
+                public void onQueryPurchasesResponse(BillingResult billingResult, List<Purchase> purchasesList) {
+                    if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                        boolean hasPurchased = false;
+                        for (Purchase purchase : purchasesList) {
+                            if (purchase.getSkus().get(0).equals(Constants.skuId)) {
+                                hasPurchased = true;
+                                break;
+                            }
+                        }
+
+                    }
+                }
+            });
+            if(!hasPurchased) {
+                showPurchaseDialog(this);
+            }
         }
 
         if(Constants.currentMeasureUnit.isEmpty() && Constants.wantsPriceComparisonUnit ){

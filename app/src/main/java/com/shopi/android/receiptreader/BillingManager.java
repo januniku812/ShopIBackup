@@ -1,6 +1,8 @@
 package com.shopi.android.receiptreader;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.ViewManager;
 import android.widget.Toast;
 
@@ -127,7 +129,9 @@ public class BillingManager {
             public void onQueryPurchasesResponse(@NonNull BillingResult billingResult, @NonNull List<Purchase> purchases) {
                 if(billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && purchases != null){
                     for(Purchase purchase: purchases){
-                        handlePurchase(purchase);
+                        if(!purchase.getSkus().get(0).equals(Constants.skuId)) {
+                            handlePurchase(purchase);
+                        }
                     }
                 }
             }
@@ -145,11 +149,21 @@ public class BillingManager {
         }
     };
     private void handlePurchase(Purchase purchase){
-        if(purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED){
+        if(purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED ){
             AcknowledgePurchaseParams acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.getPurchaseToken())
                     .build();
             billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
         }
+    }
+    private boolean hasUserPurchasedSku() {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        return prefs.getBoolean("purchased_" + Constants.skuId, false);
+    }
+    private void savePurchaseState() {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("purchased_" + Constants.skuId, true);
+        editor.apply();
     }
 }
