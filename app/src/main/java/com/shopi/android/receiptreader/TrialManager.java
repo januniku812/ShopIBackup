@@ -9,6 +9,7 @@ public class TrialManager {
     private static final String PREFS_NAME = "TrialPRefs";
     private static final String KEY_INSTALL_DATE = "InstallDate";
     private static final long TRIAL_PERIOD_MS = 6*7*24*60*60*1000L;
+    private static final long SHORTENED_TRIAL_PERIOD_MS = 10*24*60*60*1000L;
     private SharedPreferences prefs;
     public TrialManager(Context context){
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -20,7 +21,7 @@ public class TrialManager {
             installDate = System.currentTimeMillis();
             prefs.edit().putLong(KEY_INSTALL_DATE, installDate).apply();
         }
-        return System.currentTimeMillis() > installDate + TRIAL_PERIOD_MS;
+        return System.currentTimeMillis() > installDate + SHORTENED_TRIAL_PERIOD_MS;
     }
     public void resetTrial(){
         prefs.edit().remove(KEY_INSTALL_DATE).apply();
