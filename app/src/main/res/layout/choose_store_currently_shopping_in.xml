@@ -26,7 +26,7 @@
             android:background="@drawable/dialog_background"
             android:padding="10dp"
             android:text="@string/record_details_for"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="17sp"
             android:textStyle="normal"
             app:layout_constraintTop_toTopOf="parent" />
@@ -76,7 +76,7 @@
         android:backgroundTint="@color/light_blue"
         android:elevation="10dp"
         android:text="@string/close"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="14sp"
         android:theme="@style/Button.White"
         app:layout_constraintBottom_toBottomOf="@id/moreVertActionsLayoutDialog"

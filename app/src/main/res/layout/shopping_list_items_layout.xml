@@ -22,7 +22,7 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
             <TextView
                 android:textSize="15sp"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 style="@style/user_item_details_text_style"
                 android:text="@string/walmart"
                 android:id="@+id/title"
@@ -58,10 +58,10 @@
                 android:id="@+id/remove_check_marks_button"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:tint="@color/white"
+                android:tint="@color/black"
+                android:src="@drawable/baseline_undo_24"
                 android:background="@drawable/grey_dialog_background"
-                android:backgroundTint="@color/light_blue"
-                android:src="@drawable/ic_baseline_check_circle_24" />
+                android:backgroundTint="@color/light_blue" />
         </LinearLayout>
         <TextView
             android:id="@+id/results_for_user_item_text"
@@ -82,8 +82,6 @@
             android:layout_height="match_parent"
             android:layout_marginTop="5dp"
             tools:listitem="@layout/shopping_list_item" />
-
-
 
     </LinearLayout>
     <ImageButton

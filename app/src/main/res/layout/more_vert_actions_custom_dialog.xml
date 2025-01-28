@@ -23,7 +23,7 @@
             android:id="@+id/textTitle"
             android:background="@drawable/dialog_background"
             android:padding="10dp"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="17sp"
             android:text="@string/actions_menu"
             android:textStyle="normal"

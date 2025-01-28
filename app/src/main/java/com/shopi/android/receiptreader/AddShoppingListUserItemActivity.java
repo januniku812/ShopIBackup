@@ -11,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.Nullable;
@@ -136,18 +138,23 @@ public class AddShoppingListUserItemActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    lastBought = QueryUtils.getWhenShoppingListUserItemLastBought(String.valueOf(newItemEditText.getText()));
-                    if(lastBought.equals("not previously bought")){
-                        lastBought = null;
+                String val = newItemEditText.getText().toString();
+                if(!val.isEmpty() && !val.isBlank()) {
+                    try {
+                        lastBought = QueryUtils.getWhenShoppingListUserItemLastBought(String.valueOf(newItemEditText.getText()));
+                        if (lastBought.equals("not previously bought")) {
+                            lastBought = null;
+                        }
+                        QueryUtils.addShoppingListItem(shoppingList, newItemEditText.getText().toString().trim(), lastBought, getApplicationContext());
+                    } catch (ParseException | IOException e) {
+                        e.printStackTrace();
                     }
-                    QueryUtils.addShoppingListItem(shoppingList,newItemEditText.getText().toString().trim(), lastBought, getApplicationContext());
-                } catch (ParseException | IOException e) {
-                    e.printStackTrace();
+                    Intent intent = new Intent(AddShoppingListUserItemActivity.this, ShoppingListUserItemsActivity.class);
+                    intent.putExtra("shoppingListName", shoppingList);
+                    startActivity(intent);
+                } else{
+                    Toast.makeText(getApplicationContext(), getString(R.string.no_empty_item_names), Toast.LENGTH_LONG);
                 }
-                Intent intent = new Intent(AddShoppingListUserItemActivity.this, ShoppingListUserItemsActivity.class);
-                intent.putExtra("shoppingListName", shoppingList);
-                startActivity(intent);
             }
         });
     }

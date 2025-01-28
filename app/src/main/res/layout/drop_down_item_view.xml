@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- custom_spinner_item.xml -->
+    <TextView
+        style="@style/user_item_details_text_style"
+        android:text="Navigation Tutorial Item"
+        android:id="@+id/custom_spinner_item_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:padding="10dp"
+        android:textSize="16sp"
+        android:gravity="center_vertical"
+        android:background="?android:attr/selectableItemBackground" />
+
+
+</LinearLayout>

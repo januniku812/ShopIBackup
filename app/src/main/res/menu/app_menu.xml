@@ -1,46 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Measurement Unit Item -->
     <group>
         <item
+
             app:showAsAction="ifRoom"
-            android:checkable="true"
-            app:actionViewClass="androidx.appcompat.widget.SwitchCompat"
             android:id="@+id/measurement_units_menu_item"
-            android:title="@string/measurement_unit" >
-
-        </item>
-        <item
-            android:id="@+id/navigation_tutorial_menu"
-            app:showAsAction="collapseActionView"
-            android:title="@string/Navigation_Tutorial">
-        </item>
-<!--            <menu>-->
-<!--                <item-->
-<!--                    android:id="@+id/add_items_to_item_repository"-->
-<!--                    android:title="@string/add_items_to_item_repository" />-->
-<!--                <item-->
-<!--                    android:id="@+id/define_store"-->
-<!--                    android:title="@string/define_store" />-->
-<!--                <item-->
-<!--                    android:id="@+id/define_shopping_list"-->
-<!--                    android:title="@string/define_shopping_list" />-->
-<!--                <item-->
-<!--                    android:id="@+id/add_items_to_shopping_list"-->
-<!--                    android:title="@string/add_items_to_shopping_list" />-->
-<!--                <item-->
-<!--                    android:id="@+id/set_store_for_shopping"-->
-<!--                    android:title="@string/set_store_for_shopping" />-->
-<!--                <item-->
-<!--                    android:id="@+id/shopping"-->
-<!--                    android:title="@string/shopping" />-->
-<!--                <item-->
-<!--                    android:id="@+id/price_comparison_unit"-->
-<!--                    android:title="@string/price_comparison_unit" />-->
-
-<!--            </menu>-->
-
-<!--        </item>-->
+            android:title="@string/measurement_unit" />
     </group>
+
+<!--    &lt;!&ndash; Navigation Tutorial Item with sub-items &ndash;&gt;-->
+<!--    <item-->
+<!--        android:id="@+id/navigation_tutorial_menu"-->
+<!--        android:title="@string/Navigation_Tutorial"-->
+<!--        app:showAsAction="ifRoom|withText">-->
+<!--        &lt;!&ndash; This item is just a title to open the dropdown &ndash;&gt;-->
+<!--    </item>-->
+
+<!--    &lt;!&ndash; The expandable sub-menu (hidden initially) &ndash;&gt;-->
+<!--    <item-->
+<!--        android:id="@+id/stores_set_up"-->
+<!--        android:title="@string/stores_set_up"-->
+<!--        android:visible="false" /> &lt;!&ndash; Hidden initially &ndash;&gt;-->
+<!--    <item-->
+<!--        android:id="@+id/shoppings_lists_set_up"-->
+<!--        android:title="@string/shopping_lists_set_up"-->
+<!--        android:visible="false" />-->
+<!--    <item-->
+<!--        android:id="@+id/items_set_up"-->
+<!--        android:title="@string/items_set_up_str"-->
+<!--        android:visible="false" />-->
+<!--    <item-->
+<!--        android:id="@+id/prepare_for_shopping"-->
+<!--        android:title="@string/prepare_for_shopping"-->
+<!--        android:visible="false" />-->
+<!--    <item-->
+<!--        android:id="@+id/select_shoping_list"-->
+<!--        android:title="@string/select_shopping_list"-->
+<!--        android:visible="false" />-->
+<!--    <item-->
+<!--        android:id="@+id/purchase_history"-->
+<!--        android:title="@string/purchase_history_item"-->
+<!--        android:visible="false" />-->
+<!--    <item-->
+<!--        android:id="@+id/price_analytics"-->
+<!--        android:title="@string/price_analytics"-->
+<!--        android:visible="false" />-->
 
 </menu>

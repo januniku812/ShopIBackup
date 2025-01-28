@@ -2,19 +2,26 @@ plugins {
     id 'com.android.application'
 }
 
+
 android {
-    compileSdkVersion 34
-    buildToolsVersion "30.0.3"
+    compileSdkVersion 35
+    buildToolsVersion "34.0.0"
+
+    namespace 'com.shopi.android.receiptreader'
 
     lintOptions {
         abortOnError false
     }
 
+    sourceSets {
+        main.java.srcDirs += 'src/main/java'
+    }
+
     defaultConfig {
         applicationId "com.shopi.android.receiptreader"
-        minSdkVersion 22
-        targetSdkVersion 34
-        versionCode 5
+        minSdkVersion 28
+        targetSdkVersion 35
+        versionCode 21
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -38,32 +45,41 @@ dependencies {
     implementation 'javax.measure:unit-api:2.2'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.8.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.5'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.8.5'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'junit:junit:4.13.2'
-    implementation 'androidx.activity:activity:1.9.2'
+    implementation 'androidx.activity:activity:1.10.0'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'org.apache.commons:commons-lang3:3.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.baoyz.swipemenulistview:library:1.3.0'
     //noinspection GradleCompatible
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.billingclient:billing:7.1.1'
-    implementation 'com.google.android.material:material:1.13.0-alpha06'
+    implementation 'com.google.android.material:material:1.13.0-alpha09'
     implementation 'com.jjoe64:graphview:4.2.2'
-//    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    implementation 'com.android.car.ui:car-ui-lib:2.6.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     implementation 'com.github.amlcurran.showcaseview:library:5.4.3'
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.2'
     implementation 'com.github.mreram:showcaseview:1.4.1'
-
+    implementation 'com.github.easilycoder:GuideView:0.0.1'
+    implementation 'com.github.amlcurran.showcaseview:library:5.4.3'
     // Required for one-shot operations (to use `ListenableFuture` from Guava Android)
     implementation 'com.google.guava:guava:31.0.1-android'
 
     // Required for streaming operations (to use `Publisher` from Reactive Streams)
     implementation 'org.reactivestreams:reactive-streams:1.0.4'
-
+    implementation project(':swipemenulistview')
 
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+}
+
+repositories {
+    google()
+    mavenCentral()
+    jcenter()
+    maven { url 'https://jitpack.io' }
 }

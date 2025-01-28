@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="options_list" >
+        <item>Stores Set-up</item>
+        <item>Shopping Lists Set-up</item>
+        <item>Items Set-up</item>
+        <item>Prepare for Shopping</item>
+        <item>Go Shopping</item>
+        <item>Go Shopping - Record Purchase Details (Optional)</item>
+        <item>Purchase History</item>
+        <item>Price Analytics - Set-up Price Comparison Unit (Optional)</item>
+        <item>Price Analytics - View Insights Graphs</item>
+    </string-array>
+</resources>

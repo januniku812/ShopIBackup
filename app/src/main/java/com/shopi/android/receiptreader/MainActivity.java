@@ -1,8 +1,25 @@
 package com.shopi.android.receiptreader;
 
+import static android.view.Gravity.CENTER;
+import static android.view.Gravity.LEFT;
+import static android.view.Gravity.TOP;
+import static androidx.core.app.PendingIntentCompat.getActivity;
+import static androidx.core.content.ContextCompat.startActivity;
+import static androidx.core.view.GravityCompat.*;
+import static java.security.AccessController.getContext;
+
+import static easily.tech.guideview.lib.GuideViewBundle.TransparentOutline.TYPE_OVAL;
+import static easily.tech.guideview.lib.GuideViewBundle.TransparentOutline.TYPE_RECT;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.LightingColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -15,38 +32,56 @@ import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,14 +90,25 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
+import easily.tech.guideview.lib.GuideViewBundle;
+import easily.tech.guideview.lib.GuideViewFragment;
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
 
 public class MainActivity extends AppCompatActivity {
     //    TextView resultsForStoresViews;
 //    TextView resultsForShoppingListsViews;
+    DrawerLayout drawerLayout;
+    ExpandableListView drawerList;
+    NavigationView navigationView;
+    Boolean isTutorialMenuExpanded;
+    Boolean itemRepSetUpSectionTour;
+    View tourGuideNavButton;
     ShoppingListAdapter shoppingListAdapter;
     StoreListAdapter storeListAdapter;
     Observer<View> itemRepLabelObserver;
@@ -79,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
     public static MutableLiveData<String> storeLaunchNeedsToBeUpdated = new MutableLiveData<>();
     ListView shoppingListsView;
     ListView storesListView;
+
+    ExpandableListAdapter expandableListAdapter;
 
     public static void updateShoppingListLaunch(String originalShoppingListName){
         shoppingListLaunchNeedsToBeUpdated.postValue(originalShoppingListName);
@@ -102,9 +150,10 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    @SuppressLint("ResourceAsColor")
     private void showPurchaseDialog(Activity activity){
-        androidx.appcompat.app.AlertDialog.Builder builder =
-                new androidx.appcompat.app.AlertDialog.Builder
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder
                         (MainActivity.this, R.style.AlertDialogCustom);
         View view = LayoutInflater.from(MainActivity.this).inflate(
                 R.layout.purchase_dialog,
@@ -119,230 +168,266 @@ public class MainActivity extends AppCompatActivity {
         });
         builder.setView(view);
         AlertDialog alertDialog = builder.create();
-        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.setContentView(R.layout.activity_main);
+        Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.show();
+        alertDialog.setCanceledOnTouchOutside(false);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void navigationTutorial(int guideViewNum) throws InterruptedException, ParseException, IOException {
+    private void navigationTutorial() throws InterruptedException, ParseException, IOException {
 
         // Get current version code
 
         // Get saved version code
+//        boolean isFirstTimeRun = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true);
+//        System.out.println("IS FIRST TIME RUN: " + isFirstTimeRun);
+//        int mainPageTourClickNum = PreferenceManager.getDefaultSharedPreferences(this).getInt("mainPageTourClickNum", 0);
+//        final int[] mainClick = new int[1];
+//        mainClick[0] = mainPageTourClickNum;
+//        // Check for first run or upgrade
+//
+//        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
+//        Constants.wantsPriceComparisonUnit = true;
+//        Constants.currentMeasureUnit = "grams (g)";
+//        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+//                .putString("measurementUnit", "grams (g)").apply();
+//        System.out.println("APPLIED MEASUREMENT UNIT FIRST RUN: " + Constants.currentMeasureUnit);
+//
+//        shoppingLists = QueryUtils.getShoppingLists();
+//        shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
+//        shoppingListsView.setAdapter(shoppingListAdapter);
+//        stores = QueryUtils.getStores(getApplicationContext());
+//        storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
+//        storesListView.setAdapter(storeListAdapter);
+//
         boolean isFirstTimeRun = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true);
-        System.out.println("IS FIRST TIME RUN: " + isFirstTimeRun);
-        int mainPageTourClickNum = PreferenceManager.getDefaultSharedPreferences(this).getInt("mainPageTourClickNum", 0);
-        final int[] mainClick = new int[1];
-        mainClick[0] = mainPageTourClickNum;
-        // Check for first run or upgrade
-
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
-        Constants.wantsPriceComparisonUnit = true;
-        Constants.currentMeasureUnit = "grams (g)";
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-                    .putString("measurementUnit", "grams (g)").apply();
-        System.out.println("APPLIED MEASUREMENT UNIT FIRST RUN: " + Constants.currentMeasureUnit);
-
-        shoppingLists = QueryUtils.getShoppingLists();
-        shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
-        shoppingListsView.setAdapter(shoppingListAdapter);
-        stores = QueryUtils.getStores(getApplicationContext());
-        storeListAdapter = new StoreListAdapter(getApplicationContext(), stores);
-        storesListView.setAdapter(storeListAdapter);
-
-//            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstTimeRun", false).apply();
-//        System.out.println("UPDATED PREF: "+PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstTimeRun", true));
 //        ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
-//        View tourGuideNavButton = findViewById(R.id.tour_guide_nav_button);
 //        tourGuideNavButton.setVisibility(View.VISIBLE);
-//            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    tourGuideNavButtonClicked[0] = true;
+//        boolean[] tourGuideNavButtonClicked = new boolean[]{false};
+//        tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                tourGuideNavButtonClicked[0] = true;
+//                synchronized (tourGuideNavButton) {
 //                    tourGuideNavButton.notify();
 //                }
-//            });
-            // This is just a normal run
-        GuideView shoppingListGuideView = new GuideView.Builder(this)
-                    .setTitle("Shopping Lists")
-                    .setContentText("This is where your shopping lists are and you can edit names and delete them as needed")
-                    .setTargetView(findViewById(R.id.shopping_list_items_list_view))
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional
+//            }
+//        });
+        // This is just a normal run
+
+        if(true) {
+            drawerLayout.openDrawer(Gravity.RIGHT);
+
+            GuideView menuItemGuideView = new GuideView.Builder(this)
+                    .setTitle("Navigation Tutorial")
+                    .setContentText("The navigation tutorial can be found in the settings menu, expand the menu and click on the section you want to view the tutorial video for")
+                    .setTargetView(drawerList)
+                    .setContentTextSize(16)//optional
+                    .setTitleTextSize(20)//optional
                     .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
                     .setDismissType(DismissType.outside)
                     .build(); //optional - default dismissible by TargetView
 
-        GuideView shoppingListAddButtonGuideView = new GuideView.Builder(this)
-                    .setTitle("Shopping Lists Add Button")
-                    .setContentText("This is where you add new shopping lists")
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional'
-                    .setTargetView(findViewById(R.id.shopping_list_fab))
-                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
-                    .build();
+            menuItemGuideView.show();
 
-        GuideView storeListViewGuideView = new GuideView.Builder(this)
-                    .setTitle("Shopping Lists Search View")
-                    .setContentText("This is where you can search within your shopping lists")
-                    .setTargetView(findViewById(R.id.shopping_list_search_bar))
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional
-                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
-                    .build();
-
-        GuideView storesListGuideView = new GuideView.Builder(this)
-                    .setTitle("Store Lists")
-                    .setContentText("This is where your stores are and you can edit names and delete them as needed")
-                    .setTargetView(findViewById(R.id.stores_list_view))
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional
-                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
-                    .build();
-
-        GuideView storesAddListButtonGuide = new GuideView.Builder(this)
-                    .setTitle("Stores List Add Button")
-                    .setContentText("This is where you add new stores")
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional'
-                    .setTargetView(findViewById(R.id.store_list_fab))
-                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
-                    .build();
-
-        GuideView storesListSearchBarGuideView = new GuideView.Builder(this)
-                    .setTitle("Stores List Search View")
-                    .setContentText("This is where you can search within your stores ")
-                    .setTargetView(findViewById(R.id.store_list_search_bars))
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional
-                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
-                    .build();
-
-
-        GuideView shoppingCartView = new GuideView.Builder(this)
-                    .setTitle("Shopping Cart")
-                    .setContentText("This is where you can set where you are currently shopping for recorded purchases to be stored automatically. The store you chose here will be highlighted in blue below.")
-                    .setTargetView(findViewById(R.id.shopping_list_icon))
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional
-                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
-                    .build();
-
-        GuideView itemsRepGuideView = new GuideView.Builder(this)
-                    .setTitle("Item Repository")
-                    .setContentText("This is where your items that you add to shopping lists are stored. Adding an item to this repository adds it as an option as a possible item to add to shopping lists. Editing an item name here does not change any purchase details with the item's name it just updates it for future use in adding items to a shopping list. Deleting an item from the item repository does not delete history purchase details of the item, it will stop showing up as an option in adding items to shopping lists.")
-                    .setTargetView(findViewById(R.id.item_repo_icon))
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional
-                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
-                    .build();
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.side_menu);
-        View priceComparisonUnitView =  navigationView.getMenu().findItem(R.id.measurement_units_menu_item).getActionView();
-        SwitchCompat mySwitch = (SwitchCompat) priceComparisonUnitView;
-        mySwitch.setChecked(true);
-        GuideView priceComparisonUnitGuideView = new GuideView.Builder(this)
-                    .setTitle("Price Comparison Unit Functionality")
-                    .setContentText("This functionality allows you to compare all items with purchases that have weight details in different measurement units, such as lb or kg, against each other in a common unit. Currently we have it set to grams for tutorial demonstration and after tutorial it will be toggled off. Toggling this on converts weight details to a common unit and allows you to compare prices across items, stores, and over time. Toggling this option on allows you to have insight graphs(price over time graphs) for shopping list items - this is further explained later in the tutorial.")
-                    .setTargetView(priceComparisonUnitView)
-                    .setContentTextSize(12)//optional
-                    .setTitleTextSize(14)//optional
-                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
-                    .build();
-
-        if (guideViewNum == 1) {
-            itemsRepGuideView.show();
-        }
-        else if(guideViewNum == 2){
-            storesAddListButtonGuide.show();
-        }
-
-        else if(guideViewNum == 3){
-            shoppingListAddButtonGuideView.show();
-        }
-        else if(guideViewNum == 4){
-            if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
-                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
-            }
-            if(!QueryUtils.ifStoreAlreadyExists(getString(R.string.empty_store))) {
-                QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
-            }
-            Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
-            intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
-            intent.putExtra("isTour", true);
-            intent.putExtra("tourSection", "addItemsToShoppingList");
-            startActivity(intent);
-        }
-        else if(guideViewNum == 5){
-            shoppingCartView.show();
-        }
-        else if(guideViewNum == 6){
-            if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
-                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
-            }
-            if(!QueryUtils.ifStoreAlreadyExists(getString(R.string.empty_store))) {
-                QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
-            }
-            Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
-            intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
-            intent.putExtra("isTour", true);
-            intent.putExtra("tourSection", "shopping");
-            startActivity(intent);
-        }
-        else if(guideViewNum == 7){
-            priceComparisonUnitGuideView.show();
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstTimeRun", false).apply();
+            isFirstTimeRun = false;
         }
 //
-//            tourGuideViewArrayList.add(shoppingListGuideView);
-//            tourGuideViewArrayList.add(shoppingListAddButtonGuideView);
-//            tourGuideViewArrayList.add(storeListViewGuideView);
-//            tourGuideViewArrayList.add(storesListGuideView);
-//            tourGuideViewArrayList.add(storesAddListButtonGuide);
-//            tourGuideViewArrayList.add(storesListSearchBarGuideView);
-//            tourGuideViewArrayList.add(shoppingCartView);
-//            tourGuideViewArrayList.add(itemsRepGuideView);
-//            tourGuideViewArrayList.add(priceComparisonUnitGuideView);
+//        GuideView shoppingListGuideView = new GuideView.Builder(this)
+//                .setTitle("Shopping Lists")
+//                .setContentText("This is where your shopping lists are and you can edit names and delete them as needed")
+//                .setTargetView(findViewById(R.id.shopping_list_items_list_view))
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside)
+//                .build(); //optional - default dismissible by TargetView
 //
-//            if(mainClick[0] == 0) {
-//                tourGuideViewArrayList.get(mainClick[0]).show();
+//        GuideView shoppingListAddButtonGuideView = new GuideView.Builder(this)
+//                .setTitle("Shopping Lists Set-up")
+//                .setContentText("Add Shopping Lists - Click on plus icon")
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional'
+//                .setTargetView(findViewById(R.id.shopping_list_fab))
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
+//                .build();
+//
+//        GuideView storeListViewGuideView = new GuideView.Builder(this)
+//                .setTitle("Shopping Lists Search View")
+//                .setContentText("This is where you can search within your shopping lists")
+//                .setTargetView(findViewById(R.id.shopping_list_search_bar))
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                .build();
+//
+//        GuideView storesListGuideView = new GuideView.Builder(this)
+//                .setTitle("Store Lists")
+//                .setContentText("This is where your stores are and you can edit names and delete them as needed")
+//                .setTargetView(findViewById(R.id.stores_list_view))
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                .build();
+//
+//        GuideView storesAddListButtonGuide = new GuideView.Builder(this)
+//                .setTitle("Stores List Add Button")
+//                .setContentText("This is where you add new stores")
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional'
+//                .setTargetView(findViewById(R.id.store_list_fab))
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
+//                .build();
+//
+//        GuideView storesListSearchBarGuideView = new GuideView.Builder(this)
+//                .setTitle("Stores Set-up")
+//                .setContentText("Search for Stores")
+//                .setTargetView(findViewById(R.id.store_list_search_bars))
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                .build();
+//
+//
+//        GuideView shoppingCartView = new GuideView.Builder(this)
+//                .setTitle("Shopping Cart")
+//                .setContentText("This is where you can set where you are currently shopping for recorded purchases to be stored automatically. The store you chose here will be highlighted in blue below.")
+//                .setTargetView(findViewById(R.id.shopping_list_icon))
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                .build();
+//
+//        GuideView itemsRepGuideView = new GuideView.Builder(this)
+//                .setTitle("Item Repository")
+//                .setContentText("This is where your items that you add to shopping lists are stored. Adding an item to this repository adds it as an option as a possible item to add to shopping lists. Editing an item name here does not change any purchase details with the item's name it just updates it for future use in adding items to a shopping list. Deleting an item from the item repository does not delete history purchase details of the item, it will stop showing up as an option in adding items to shopping lists.")
+//                .setTargetView(findViewById(R.id.item_repo_icon))
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                .build();
+//        drawerLayout = findViewById(R.id.drawer_layout);
+//        navigationView = findViewById(R.id.side_menu);
+//        View priceComparisonUnitView = drawerLayout.findViewById(R.id.measurement_units_menu_item);
+//
+//        GuideView priceComparisonUnitGuideView = new GuideView.Builder(this)
+//                .setTitle("Price Comparison Unit Functionality")
+//                .setContentText("This functionality allows you to compare all items with purchases that have weight details in different measurement units, such as lb or kg, against each other in a common unit. Currently we have it set to grams for tutorial demonstration and after tutorial it will be toggled off. Toggling this on converts weight details to a common unit and allows you to compare prices across items, stores, and over time. Toggling this option on allows you to have insight graphs(price over time graphs) for shopping list items - this is further explained later in the tutorial.")
+//                .setTargetView(priceComparisonUnitView)
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                .build();
+//
+//        if (guideViewNum == 1) {
+//            itemsRepGuideView.show();
+//        }
+//        else if(guideViewNum == 2){
+//            storesAddListButtonGuide.show();
+//        }
+//
+//        else if(guideViewNum == 3){
+//            shoppingListAddButtonGuideView.show();
+//        }
+//        else if(guideViewNum == 4){
+//            if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
+//                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+//                System.out.println("ADDED EMPTY SHOPPING LIST SINCE IT DOESN'T EXIST JSON STR: " + Constants.json_data_str);
 //            }
-
-//            tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    System.out.println("MAIN CLICK RIGHT NOW: " + mainClick[0]);
-//                    if(mainClick[0] < tourGuideViewArrayList.size()){
-//                        tourGuideViewArrayList.get(mainClick[0]).dismiss();
+//            if(!QueryUtils.ifStoreAlreadyExists(getString(R.string.empty_store))) {
+//                QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
+//                System.out.println("ADDED EMPTY SHOPPING LIST SINCE IT DOES EXIST JSON STR: " + Constants.json_data_str);
+//            }
+//            Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+//            intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+//            intent.putExtra("isTour", true);
+//            intent.putExtra("tourSection", "addItemsToShoppingList");
+//            startActivity(intent);
+//        }
+//        else if(guideViewNum == 5){
+//            shoppingCartView.show();
+//        }
+//        else if(guideViewNum == 6){
+//            if(!QueryUtils.ifShoppingListAlreadyExists(getString(R.string.empty_shoping_list))) {
+//                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+//                System.out.println("JSON REP STRING NOW: " + Constants.json_data_str);
+//            }
+//            if(!QueryUtils.ifStoreAlreadyExists(getString(R.string.empty_store))) {
+//                QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+//                QueryUtils.addNewStore(getString(R.string.empty_store), getApplicationContext());
+//            }
+//            Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+//            intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+//            intent.putExtra("isTour", true);
+//            intent.putExtra("tourSection", "shopping");
+//            startActivity(intent);
+//        }
+//        else if(guideViewNum == 7){
+//            priceComparisonUnitGuideView.show();
+//        }
 //
-//                        if(mainClick[0] == 8){
-//                            drawerLayout.openDrawer(Gravity.RIGHT);
-//                            navigationView.setVisibility(View.VISIBLE);
+//        tourGuideViewArrayList.add(shoppingListGuideView);
+//        tourGuideViewArrayList.add(shoppingListAddButtonGuideView);
+//        tourGuideViewArrayList.add(storeListViewGuideView);
+//        tourGuideViewArrayList.add(storesListGuideView);
+//        tourGuideViewArrayList.add(storesAddListButtonGuide);
+//        tourGuideViewArrayList.add(storesListSearchBarGuideView);
+//        tourGuideViewArrayList.add(shoppingCartView);
+//        tourGuideViewArrayList.add(itemsRepGuideView);
+//        tourGuideViewArrayList.add(priceComparisonUnitGuideView);
 //
+//        if(mainClick[0] == 0) {
+//            tourGuideViewArrayList.get(mainClick[0]).show();
+//        }
 //
-//                        }
-//                        if(mainClick[0] < tourGuideViewArrayList.size()) {
-//                            tourGuideViewArrayList.get(mainClick[0]).show();
-//                        }
-//                        mainClick[0]++;
-//                        PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putInt("mainPageTourClickNum", mainClick[0]).apply();
+//        tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                System.out.println("MAIN CLICK RIGHT NOW: " + mainClick[0]);
+//                if(mainClick[0] < tourGuideViewArrayList.size()){
+//                    tourGuideViewArrayList.get(mainClick[0]).dismiss();
+//
+//                    if(mainClick[0] == 8){
+//                        drawerLayout.openDrawer(Gravity.RIGHT);
+//                        navigationView.setVisibility(View.VISIBLE);
 //
 //
 //                    }
-//                    else if(mainClick[0] == tourGuideViewArrayList.size()){
-//                        Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
-//                        intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
-//                        intent.putExtra("isTour", true);
-//                        startActivity(intent);
+//                    if(mainClick[0] < tourGuideViewArrayList.size()) {
+//                        tourGuideViewArrayList.get(mainClick[0]).show();
 //                    }
+//                    mainClick[0]++;
+//                    PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putInt("mainPageTourClickNum", mainClick[0]).apply();
+//
+//
 //                }
-//            });
+//                else if(mainClick[0] == tourGuideViewArrayList.size()){
+//
+//                    PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putInt("mainPageTourClickNum", mainClick[0]).apply();
+//                    try {
+//                        QueryUtils.addShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
+//                    } catch (ParseException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//
+//                    Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+//                    intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+//                    intent.putExtra("isTour", true);
+//                    intent.putExtra("tourSection", "addItemsToShoppingList");
+//
+//                    startActivity(intent);
+//                }
+//            }
+//        });
 
 
     }
@@ -379,8 +464,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void showDialog(String title, int jsonEditCode, @Nullable String originalName) {
         final int finalJsonEditCode = jsonEditCode;
-        androidx.appcompat.app.AlertDialog.Builder builder =
-                new androidx.appcompat.app.AlertDialog.Builder
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder
                         (MainActivity.this, R.style.AlertDialogCustom);
         View view = LayoutInflater.from(MainActivity.this).inflate(
                 R.layout.custom_dialog,
@@ -405,6 +490,7 @@ public class MainActivity extends AppCompatActivity {
         else if(finalJsonEditCode == JSONEditCodes.ADD_NEW_STORE || finalJsonEditCode == JSONEditCodes.ADD_NEW_SHOPPING_LIST){
             icon.setMinimumHeight(25);
             icon.setMinimumWidth(25);
+            icon.setVisibility(View.INVISIBLE);
             icon.setImageResource(R.drawable.ic_baseline_add_24); // making the pop up icon a edit symbol
             editText.setVisibility(View.VISIBLE);
             enterButton.setText(getString(R.string.enter));
@@ -422,7 +508,7 @@ public class MainActivity extends AppCompatActivity {
             view.findViewById(R.id.delete_text).setVisibility(View.INVISIBLE); // making sure the are you sure you want to delete text is not going to show up from previous possible uses
 
         }
-        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        final AlertDialog alertDialog = builder.create();
         view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -460,7 +546,14 @@ public class MainActivity extends AppCompatActivity {
                 if(finalJsonEditCode == JSONEditCodes.ADD_NEW_STORE){ // should only be triggered by add fab button for stores
                     try {
                         String editTextVal =String.valueOf(editText.getText());
-                        if(!QueryUtils.ifStoreAlreadyExists(editTextVal)) {
+                        if(editTextVal.isBlank() && editTextVal.isEmpty()){
+                            Toast.makeText(MainActivity.this, getString(R.string.store_list_name_required), Toast.LENGTH_SHORT).show();
+                        }
+                        else if(QueryUtils.ifStoreAlreadyExists(editTextVal
+                        )){
+                            Toast.makeText(MainActivity.this, getString(R.string.store_list_name_already_exists), Toast.LENGTH_SHORT).show();
+                        }
+                        else{
                             QueryUtils.addNewStore(editTextVal, getApplicationContext());
 
                             stores = QueryUtils.getStores(getApplicationContext());
@@ -478,9 +571,8 @@ public class MainActivity extends AppCompatActivity {
 //
 //                            }
                             alertDialog.dismiss();
-                        } else {
-                            Toast.makeText(MainActivity.this, String.format(getString(R.string.store_already_exists), editTextVal), Toast.LENGTH_SHORT).show();
                         }
+
                     } catch (ParseException | IOException e) {
                         e.printStackTrace();
                     }
@@ -490,15 +582,21 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         String editTextVal =String.valueOf(editText.getText());
                         System.out.println("IM BEING ACCESSED @addNewShoppingList finalJsonEditCode in showDialog");
-                        if(!QueryUtils.ifShoppingListAlreadyExists(editTextVal)) {
+                        if (editTextVal.isEmpty() || editTextVal.isBlank()){
+                            Toast.makeText(MainActivity.this, getString(R.string.shopping_list_name_required), Toast.LENGTH_SHORT).show();
+                        }
+                        else if (QueryUtils.ifShoppingListAlreadyExists(editTextVal)){
+                            Toast.makeText(MainActivity.this, getString(R.string.shopping_list_name_already_exists), Toast.LENGTH_SHORT).show();
+                        }
+                        else{
                             QueryUtils.addShoppingList(String.valueOf(editText.getText()), getApplicationContext());
                             shoppingLists = QueryUtils.getShoppingLists();
                             shoppingListAdapter = new ShoppingListAdapter(getApplicationContext(), shoppingLists);
                             shoppingListsView.setAdapter(shoppingListAdapter);
                             alertDialog.dismiss();
-                        } else {
-                            Toast.makeText(MainActivity.this, String.format(getString(R.string.shopping_list_already_exists), editTextVal), Toast.LENGTH_SHORT).show();
+
                         }
+
                     } catch (ParseException | IOException e) {
                         e.printStackTrace();
                     }
@@ -587,28 +685,74 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        itemRepSetUpSectionTour = false;
+        isTutorialMenuExpanded = false;
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO); // forcefully make sure that there is no dark mode in the android app
         setContentView(R.layout.activity_main);
+
+//        String[] items = new String[]{"Stores Set-up", "Shopping Lists Set-up", "Items Set-up", "Prepare for Shopping", "Go Shopping", "Purchase History", "Price Analytics"};
+//
+
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.custom_spinner_item, items){
+//            @Override
+//            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+//                View view = super.getDropDownView(position, convertView, parent);
+//                TextView textView = view.findViewById(R.id.custom_spinner_item_name);
+//                textView.setText(items[position]);
+//                return view;
+//            };
+//        };
+//        adapter.setDropDownViewResource(R.layout.drop_down_item_view);
+//
+//        dropdown.setAdapter(adapter);
+//
+//        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                String selectedItem = parent.getItemAtPosition(position).toString();
+//
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//
+//        });
         Constants.json_data_str = PreferenceManager.
-                getDefaultSharedPreferences(this).getString("jsonData","{\n" +
-                "  \"stores\": [],\n" +
-                "  \"shopping_lists\":[],\n" +
-                "  \"general_items_master\": []\n" +
-                "}");
+                getDefaultSharedPreferences(this).getString("jsonData", "{\n" +
+                        "  \"stores\": [],\n" +
+                        "  \"shopping_lists\":[],\n" +
+                        "  \"general_items_master\": []\n" +
+                        "}");
         initializeBillingClient();
         Constants.storeBeingShoppedIn = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("selectedStore", "");
-        Constants.currentMeasureUnit = PreferenceManager.getDefaultSharedPreferences(this).getString("measurementUnit", "");
-        Constants.wantsPriceComparisonUnit = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("priceComparisonUnitOn", false);
+        Constants.currentMeasureUnit = PreferenceManager.getDefaultSharedPreferences(this).getString("measurementUnit", "grams (g)");
+        Constants.wantsPriceComparisonUnit = true;
         System.out.println("WANTS PRICE COMPARISON UNIT: " + Constants.wantsPriceComparisonUnit);
         trialManager = new TrialManager(getApplicationContext());
         billingManager = new BillingManager(getApplicationContext());
         boolean hasPurchased = false;
-        if(trialManager.isTrialExpired()){
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.shopi.android.receiptreader", MODE_PRIVATE);
+        long installDate = sharedPref.getLong("InstallDate", System.currentTimeMillis());
+        try {
+            TrialManager.KEY_INSTALL_DATE = String.valueOf(getPackageManager().getPackageInfo(getPackageName(), 0).firstInstallTime);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("TIME TRIAL EXPIRATION SHOULD BE TRIGGERED: " + (TrialManager.KEY_INSTALL_DATE) + " + " + TrialManager.SHORTENED_TRIAL_PERIOD_MS + " WHICH IS : " + ((TrialManager.KEY_INSTALL_DATE) + TrialManager.SHORTENED_TRIAL_PERIOD_MS) + " AND THE TIME RN IS: " + System.currentTimeMillis());
+        System.out.println("CURRENT TIME IN SYSTEM: " + System.currentTimeMillis() + " INSTALL DATE: " + installDate + " TIME ELAPSED: " + (System.currentTimeMillis() - installDate) + " IS TRIAL EXPIRED: " + trialManager.isTrialExpired());
+        if (trialManager.isTrialExpired()) {
+            System.out.println("TRIAL IS EXPIRED --> HAS PURCHASED IS: " + hasPurchased);
             billingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP, new PurchasesResponseListener() {
                 @Override
                 public void onQueryPurchasesResponse(BillingResult billingResult, List<Purchase> purchasesList) {
+                    System.out.println("reached @onQueryPurchasesResponse!: + " + billingResult.toString() + " PURCHASES LIST: " + purchasesList.toString());
                     if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                         boolean hasPurchased = false;
                         for (Purchase purchase : purchasesList) {
+                            System.out.println("PURCHASE SKU ID: " + purchase.getSkus());
                             if (purchase.getSkus().get(0).equals(Constants.skuId)) {
                                 hasPurchased = true;
                                 break;
@@ -618,12 +762,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-            if(!hasPurchased) {
+            if (!hasPurchased) {
                 showPurchaseDialog(this);
             }
         }
 
-        if(Constants.currentMeasureUnit.isEmpty() && Constants.wantsPriceComparisonUnit ){
+        if (Constants.currentMeasureUnit.isEmpty() && Constants.wantsPriceComparisonUnit) {
             ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
             String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
             System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
@@ -632,16 +776,322 @@ public class MainActivity extends AppCompatActivity {
 
         }
         ImageView shoppingCartIcon = findViewById(R.id.shopping_list_icon);
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerList = (ExpandableListView) findViewById(R.id.expandableNavTutorialDrawer);
+
+
+        List<String> parentList = new ArrayList<>();
+
+        parentList.add("Navigation Tutorial");
+
+        List<String> childItems = Arrays.asList(getResources().getStringArray(R.array.options_list));
+        ArrayList<String> childList = new ArrayList<String>(childItems);
+        System.out.println("CHILD ITEMS: " + childList);
+
+        expandableListAdapter = new MyExpandableListAdapter(this, parentList, childList);
+
+        drawerList.setAdapter(expandableListAdapter);
+
+        drawerList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                return false;
+            }
+        });
+
         NavigationView navigationView = findViewById(R.id.side_menu);
-        MenuItem navigationTutorial = navigationView.getMenu().findItem(R.id.navigation_tutorial_menu);
+
+//        MenuItem navigationTutorial = navigationView.getMenu().findItem(R.id.navigation_tutorial_menu);
+//        MenuItem tutorialMenuItem = navigationView.getMenu().findItem(R.id.navigation_tutorial_menu);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, R.string.open, R.string.close);
+
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        try {
+            navigationTutorial();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        Menu navMenu = navigationView.getMenu();
+
+
+//        navigationView.setNavigationItemSelectedListener(menuItem -> {
+//            System.out.println("IM CLICKED");
+//            if (menuItem.getItemId() == R.id.navigation_tutorial_menu){
+//                if(isTutorialMenuExpanded){
+//                    // Collapse the submenu
+//                    navigationView.getMenu().findItem(R.id.stores_set_up).setVisible(false);
+//                    navigationView.getMenu().findItem(R.id.shoppings_lists_set_up).setVisible(false);
+//                    navigationView.getMenu().findItem(R.id.items_set_up).setVisible(false);
+//                    navigationView.getMenu().findItem(R.id.prepare_for_shopping).setVisible(false);
+//                    navigationView.getMenu().findItem(R.id.select_shoping_list).setVisible(false);
+//                    navigationView.getMenu().findItem(R.id.purchase_history).setVisible(false);
+//                    navigationView.getMenu().findItem(R.id.price_analytics).setVisible(false);
+//
+//                    // Change the icon to indicate collapsed state (Arrow down)
+////                    tutorialMenuItem.setIcon(R.drawable.ic_arrow_down);
+//                }
+//                else{
+//                    // Expand the submenu
+//                    System.out.println("IM HIT");
+//                    navigationView.getMenu().findItem(R.id.stores_set_up).setVisible(true);
+//                    navigationView.getMenu().findItem(R.id.shoppings_lists_set_up).setVisible(true);
+//                    navigationView.getMenu().findItem(R.id.items_set_up).setVisible(true);
+//                    navigationView.getMenu().findItem(R.id.prepare_for_shopping).setVisible(true);
+//                    navigationView.getMenu().findItem(R.id.select_shoping_list).setVisible(true);
+//                    navigationView.getMenu().findItem(R.id.purchase_history).setVisible(true);
+//                    navigationView.getMenu().findItem(R.id.price_analytics).setVisible(true);
+//
+//                    // Change the icon to indicate expanded state (Arrow up)
+////                    tutorialMenuItem.setIcon(R.drawable.ic_arrow_up);
+//                }
+//            }
+//            return true;
+//        });
+
+        GuideView shoppingListGuideView = new GuideView.Builder(this)
+                .setTitle("Shopping Lists")
+                .setContentText("This is where your shopping lists are and you can edit names and delete them as needed")
+                .setTargetView(findViewById(R.id.shopping_list_items_list_view))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)
+                .build(); //optional - default dismissible by TargetView
+
+        GuideView shoppingListAddButtonGuideView = new GuideView.Builder(this)
+                .setTitle("Shopping Lists Add Button")
+                .setContentText("This is where you add new shopping lists")
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional'
+                .setTargetView(findViewById(R.id.shopping_list_fab))
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside)//optional - default dismissible by TargetView
+                .build();
+
+
+        GuideView storesListGuideView = new GuideView.Builder(this)
+                .setTitle("Store Lists")
+                .setContentText("This is where your stores are and you can edit names and delete them as needed")
+                .setTargetView(findViewById(R.id.stores_list_view))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                .build();
+
+
+        GuideView storesListSearchBarGuideView = new GuideView.Builder(this)
+                .setTitle("                    Stores Set Up                     ")
+                .setContentText("Search for Stores")
+                .setTargetView(findViewById(R.id.store_list_search_bars))
+                .setContentTextSize(12)//optional
+                .setTitleTextSize(14)//optional
+                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+                .build();
+
+        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+
+
+        View priceComparisonUnitView = drawerLayout.findViewById(R.id.measurement_units_menu_item);
+
+//        GuideView priceComparisonUnitGuideView = new GuideView.Builder(this)
+//                .setTitle("Price Comparison Unit Functionality")
+//                .setContentText("This functionality allows you to compare all items with purchases that have weight details in different measurement units, such as lb or kg, against each other in a common unit. Currently we have it set to grams for tutorial demonstration and after tutorial it will be toggled off. Toggling this on converts weight details to a common unit and allows you to compare prices across items, stores, and over time. Toggling this option on allows you to have insight graphs(price over time graphs) for shopping list items - this is further explained later in the tutorial.")
+//                .setTargetView(priceComparisonUnitView)
+//                .setContentTextSize(12)//optional
+//                .setTitleTextSize(14)//optional
+//                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                .build();
+
+//        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                drawerLayout.closeDrawer(GravityCompat.END);
+//
+//                if (item.getItemId() == R.id.stores_set_up) {
+//                    TapTargetView.showFor(MainActivity.this,
+//                            TapTarget.forView(findViewById(R.id.store_list_fab), "Stores Set-up", Html.fromHtml("Add Stores - Click on plus icon. <i>Click outside the circle to skip tutorial.</i>"))
+//                                    .outerCircleColorInt(getResources().getColor(R.color.light_blue))
+//                                    .targetCircleColorInt(getResources().getColor(R.color.white))
+//                                    .textColor(R.color.black)
+//                                    .titleTextSize(20)
+//                                    .descriptionTextSize(16)
+//                                    .cancelable(true)
+//                                    .drawShadow(true)
+//                                    .tintTarget(true)
+//                                    .transparentTarget(true)
+//                                    .dimColor(R.color.grey_four)
+//                                    .id(1) // Optional, helps to track which target is shown
+//                                    .targetRadius(60),
+//                            new TapTargetView.Listener() {
+//                                @Override
+//                                public void onTargetClick(TapTargetView view) {
+//                                    super.onTargetClick(view);
+//                                    // After the first target is clicked, show the second target (store_list_search_bars)
+//                                    TapTargetView.showFor(MainActivity.this,
+//                                            TapTarget.forView(findViewById(R.id.store_list_search_bars), "Shopping Lists Set-up", Html.fromHtml("Search for Shopping List. <i>Click outside the circle to skip tutorial.</i>"))
+//                                                    .outerCircleColorInt(getResources().getColor(R.color.light_blue))
+//                                                    .targetCircleColorInt(getResources().getColor(R.color.white))
+//                                                    .textColor(R.color.black)
+//                                                    .titleTextSize(20)
+//                                                    .descriptionTextSize(16)
+//                                                    .cancelable(true)
+//                                                    .drawShadow(true)
+//                                                    .tintTarget(true)
+//                                                    .transparentTarget(true)
+//                                                    .dimColor(R.color.grey_four)
+//                                                    .id(2) // Optional, helps to track which target is shown
+//                                                    .targetRadius(60),
+//                                            new TapTargetView.Listener() {
+//                                                @Override
+//                                                public void onTargetClick(TapTargetView view) {
+//                                                    super.onTargetClick(view);
+//                                                    // After the second target is clicked, move to next tutorial step or close
+//                                                }
+//                                            }
+//                                    );
+//                                }
+//                            }
+//                    );
+//                }
+//                if(item.getItemId() == R.id.shoppings_lists_set_up){
+//                    TapTargetView.showFor(MainActivity.this,
+//                            TapTarget.forView(findViewById(R.id.shopping_list_fab), "Shopping Lists Set-up", Html.fromHtml("Add Shopping List - Click on plus icon. <i>Click outside the circle to skip tutorial.</i>"))
+//                                    .outerCircleColorInt(getResources().getColor(R.color.light_blue))
+//                                    .targetCircleColorInt(getResources().getColor(R.color.white))
+//                                    .textColor(R.color.black)
+//                                    .titleTextSize(20)
+//                                    .descriptionTextSize(16)
+//                                    .cancelable(true)
+//                                    .drawShadow(true)
+//                                    .tintTarget(true)
+//                                    .transparentTarget(true)
+//                                    .dimColor(R.color.grey_four)
+//                                    .id(1) // Optional, helps to track which target is shown
+//                                    .targetRadius(60),
+//                            new TapTargetView.Listener() {
+//                                @Override
+//                                public void onTargetClick(TapTargetView view) {
+//                                    super.onTargetClick(view);
+//                                    // After the first target is clicked, show the second target (store_list_search_bars)
+//                                    TapTargetView.showFor(MainActivity.this,
+//                                            TapTarget.forView(findViewById(R.id.shopping_list_search_bar), "Shopping Lists Set-up", Html.fromHtml("Search for Shopping List. <i>Click outside the circle to skip tutorial.</i>"))
+//                                                    .outerCircleColorInt(getResources().getColor(R.color.light_blue))
+//                                                    .targetCircleColorInt(getResources().getColor(R.color.white))
+//                                                    .textColor(R.color.black)
+//                                                    .titleTextSize(20)
+//                                                    .descriptionTextSize(16)
+//                                                    .cancelable(true)
+//                                                    .drawShadow(true)
+//                                                    .tintTarget(true)
+//                                                    .transparentTarget(true)
+//                                                    .dimColor(R.color.grey_four)
+//                                                    .id(2) // Optional, helps to track which target is shown
+//                                                    .targetRadius(60),
+//                                            new TapTargetView.Listener() {
+//                                                @Override
+//                                                public void onTargetClick(TapTargetView view) {
+//                                                    super.onTargetClick(view);
+//                                                    // After the second target is clicked, move to next tutorial step or close
+//                                                }
+//                                            }
+//                                    );
+//                                }
+//                            }
+//                    );
+//                }
+//                if (item.getItemId() == R.id.items_set_up){
+//                    itemRepSetUpSectionTour = true;
+//                    TapTargetView.showFor(MainActivity.this,
+//                            TapTarget.forView(findViewById(R.id.item_repo_icon), "Items Lists Set-up", Html.fromHtml("Click on Basket icon to navigate to item repository. <i>Click outside the circle to skip tutorial</i>."))
+//                                    .outerCircleColorInt(getResources().getColor(R.color.light_blue))
+//                                    .targetCircleColorInt(getResources().getColor(R.color.white))
+//                                    .textColor(R.color.black)
+//                                    .titleTextSize(20)
+//                                    .descriptionTextSize(16)
+//                                    .cancelable(true)
+//                                    .drawShadow(true)
+//                                    .tintTarget(true)
+//                                    .transparentTarget(true)
+//                                    .dimColor(R.color.grey_four)
+//                                    .id(1) // Optional, helps to track which target is shown
+//                                    .targetRadius(60),
+//                            new TapTargetView.Listener(){
+//                                @Override
+//                                public void onTargetClick(TapTargetView view) {
+//                                    Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
+//                                    intent.putExtra("itemRepSetUpSectionTour", itemRepSetUpSectionTour);
+//                                    startActivity(intent);
+//                                    storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
+//                                    shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
+//                                }
+//                                @Override
+//                                public void onTargetLongClick(TapTargetView view) {
+//                                    Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
+//                                    intent.putExtra("itemRepSetUpSectionTour", itemRepSetUpSectionTour);
+//                                    startActivity(intent);
+//                                    storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
+//                                    shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
+//                                }
+//
+//                                @Override
+//                                public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
+//                                    itemRepSetUpSectionTour = false;
+//                                    super.onTargetDismissed(view, userInitiated);
+//                                }
+//                            });
+//                }
+//                if (item.getItemId() == R.id.prepare_for_shopping){
+//                    Intent intent = new Intent(MainActivity.this, ShoppingListUserItemsActivity.class);
+//                    intent.putExtra("shoppingListName",getString(R.string.empty_shoping_list));
+//                    intent.putExtra("isTour", true);
+//                    intent.putExtra("tourSection", "addItemsToShoppingList");
+//                    startActivity(intent);
+//                }
+//                navigationView.setVisibility(View.INVISIBLE);
+//                return true;
+//            }
+//        });
+
 //        navigationTutorial.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
 //            @Override
 //            public boolean onMenuItemClick(MenuItem item) {
-////                startActivity(Intent(Intent.ACTION_VIEW,Uri.parse(your link here in string format)))
-//            return true;
+//                if(!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("firstTimeRun", true) && PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("mainPageTourClickNum", 0) == 9){
+//                    try {
+//                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//                        SharedPreferences.Editor editor = prefs.edit();
+//                        editor.putInt("mainPageTourClickNum", 1).apply();
+//                        navigationTutorial(1);
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+//                    } catch (ParseException e) {
+//                        throw new RuntimeException(e);
+//                    } catch (IOException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+//                try {
+//                    navigationTutorial(1);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                } catch (ParseException e) {
+//                    throw new RuntimeException(e);
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                return true;
 //            }
 //        });
+
         MenuItem checkable_measurement_item = navigationView.getMenu().findItem(R.id.measurement_units_menu_item);
 //        MenuItem addItemsToItemRepository = navigationView.getMenu().findItem(R.id.add_items_to_item_repository);
 //        MenuItem defineStore = navigationView.getMenu().findItem(R.id.define_store);
@@ -650,7 +1100,8 @@ public class MainActivity extends AppCompatActivity {
 //        MenuItem setStoreForShopping = navigationView.getMenu().findItem(R.id.set_store_for_shopping);
 //        MenuItem shopping = navigationView.getMenu().findItem(R.id.shopping);
 //        MenuItem priceComparisonUnit = navigationView.getMenu().findItem(R.id.price_comparison_unit);
-        SwitchCompat mySwitch = (SwitchCompat) checkable_measurement_item.getActionView();
+//        SwitchCompat mySwitch = (SwitchCompat) checkable_measurement_item.getActionView();
+
 //        mySwitch.setChecked(Constants.wantsPriceComparisonUnit);
 //        checkable_measurement_item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
 //            @Override
@@ -775,18 +1226,29 @@ public class MainActivity extends AppCompatActivity {
 //                return true;
 //            }
 //        });
-        navigationTutorial.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//        navigationTutorial.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=t3D3zQTG4WA")));
+//                return false;
+//            }
+//        });
+        checkable_measurement_item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=t3D3zQTG4WA")));
+            public boolean onMenuItemClick(@NonNull MenuItem item) {
+                ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+                String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+                System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
+                measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+                measurementUnitsDialog(measurementUnitsArrayList);
                 return false;
             }
         });
         shoppingCartIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                androidx.appcompat.app.AlertDialog.Builder builder =
-                        new androidx.appcompat.app.AlertDialog.Builder
+                AlertDialog.Builder builder =
+                        new AlertDialog.Builder
                                 (MainActivity.this, R.style.AlertDialogCustom);
                 View view = LayoutInflater.from(MainActivity.this).inflate(
                         R.layout.choose_store_currently_shopping_in,
@@ -795,7 +1257,7 @@ public class MainActivity extends AppCompatActivity {
                 builder.setView(view);
                 ((TextView) view.findViewById(R.id.textTitle))
                         .setText(getString(R.string.choose_a_store_text_tile));
-                final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+                final AlertDialog alertDialog = builder.create();
                 alertDialog.setCanceledOnTouchOutside(true);
                 ListView chooseStoreListView = view.findViewById(R.id.chose_stores_list_view);
                 simpleStoreListAdapter = new SimpleStoreListAdapter(MainActivity.this, stores);
@@ -805,24 +1267,24 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Store selectedStore = (Store) parent.getItemAtPosition(position);
                         String originalStoreName = selectedStore.getStoreName();
-                        if(Constants.storeBeingShoppedIn.isEmpty()) {
+                        if (Constants.storeBeingShoppedIn.isEmpty()) {
                             Constants.storeBeingShoppedIn = originalStoreName; // set the store being shopped in the store selected, and all items whose voice details are there on recorded are saved under this store
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("selectedStore", originalStoreName).apply();
                             stores = refactorStoresOrder(stores, Constants.storeBeingShoppedIn);
 
-                        } else{
-                            if(Constants.storeBeingShoppedIn.equals(originalStoreName)){
+                        } else {
+                            if (Constants.storeBeingShoppedIn.equals(originalStoreName)) {
                                 Constants.storeBeingShoppedIn = "";
                                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("selectedStore", "").apply();
                                 stores = refactorStoresOrder(stores, Constants.storeBeingShoppedIn);
-                            }
-                            else {
+                            } else {
                                 Constants.storeBeingShoppedIn = originalStoreName;
                                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("selectedStore", originalStoreName).apply();
                                 stores = refactorStoresOrder(stores, originalStoreName);
+
                             }
                         }
-                        simpleStoreListAdapter  = new SimpleStoreListAdapter(MainActivity.this, stores);
+                        simpleStoreListAdapter = new SimpleStoreListAdapter(MainActivity.this, stores);
                         storeListAdapter = new StoreListAdapter(MainActivity.this, stores);
                         chooseStoreListView.setAdapter(simpleStoreListAdapter);
                         storesListView.setAdapter(storeListAdapter);
@@ -840,29 +1302,41 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.show();
             }
         });
-        mySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if(isChecked){
-                if(!Constants.wantsPriceComparisonUnit){
-                    ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
-                    String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
-                    System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
-                    measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
-                    measurementUnitsDialog(measurementUnitsArrayList);
-                }
-                Constants.wantsPriceComparisonUnit = true;
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
-            } else{
-                Constants.wantsPriceComparisonUnit = false;
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", false).apply();
-
-
-            }
-        });
+//        mySwitch.setChecked(Constants.wantsPriceComparisonUnit);
+//        mySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//            if(isChecked){
+//                if(!Constants.wantsPriceComparisonUnit){
+//                    ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+//                    String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+//                    System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
+//                    measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+//                    measurementUnitsDialog(measurementUnitsArrayList);
+//                }
+//                Constants.wantsPriceComparisonUnit = true;
+//                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
+//            } else{
+//                Constants.wantsPriceComparisonUnit = false;
+//                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", false).apply();
+//
+//
+//            }
+//        });
         ImageView menuImageView = (ImageView) findViewById(R.id.menu_image_view);
         menuImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawerLayout.openDrawer(Gravity.RIGHT);
+                if (!drawerLayout.isOpen()) {
+                    drawerLayout.openDrawer(Gravity.RIGHT);
+                    Menu menu = navigationView.getMenu();
+                    TextView priceComparisonUnitTV = (TextView) menu.getItem(0).getActionView();
+
+                    if(priceComparisonUnitTV != null) {
+                        priceComparisonUnitTV.setTextSize(16);
+                        priceComparisonUnitTV.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+                    }
+                } else {
+                    drawerLayout.closeDrawer(Gravity.RIGHT);
+                }
             }
         });
         System.out.print("JSON DATA: " + Constants.json_data_str);
@@ -876,6 +1350,8 @@ public class MainActivity extends AppCompatActivity {
         SearchView shoppingListSearchView = findViewById(R.id.shopping_list_search_bar);
         SearchView storesSearchView = findViewById(R.id.store_list_search_bars);
         storesSearchView.clearFocus();
+        storesSearchView.setIconifiedByDefault(false);
+        shoppingListSearchView.setIconifiedByDefault(false);
         shoppingListSearchView.clearFocus();
         FloatingActionButton addStoreFab = (FloatingActionButton) findViewById(R.id.store_list_fab);
         FloatingActionButton addShoppingListFab = (FloatingActionButton) findViewById(R.id.shopping_list_fab);
@@ -888,18 +1364,17 @@ public class MainActivity extends AppCompatActivity {
 
                 stores = QueryUtils.getStores(getApplicationContext());
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("EXCEPTION MAIN THREAD");
             e.printStackTrace();
         }
         shoppingListLaunchUpdatedObserver = new Observer<String>() {
             @Override
             public void onChanged(String newString) {
-                if(!newString.equals("")){
+                if (!newString.equals("")) {
                     shoppingListLaunchNeedsToBeUpdated.postValue("");
                     shoppingListLaunch(newString);
-                    
+
                 }
             }
         };
@@ -907,7 +1382,7 @@ public class MainActivity extends AppCompatActivity {
         storeLaunchUpdatedObserver = new Observer<String>() {
             @Override
             public void onChanged(String newString) {
-                if(!newString.equals("")){
+                if (!newString.equals("")) {
                     storeLaunchNeedsToBeUpdated.postValue("");
                     storeLaunch(newString);
 
@@ -921,6 +1396,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, RepItemsActivity.class);
+                intent.putExtra("itemRepSetUpSectionTour", itemRepSetUpSectionTour);
                 startActivity(intent);
                 storeLaunchNeedsToBeUpdated.removeObserver(storeLaunchUpdatedObserver);
                 shoppingListLaunchNeedsToBeUpdated.removeObserver(shoppingListLaunchUpdatedObserver);
@@ -951,14 +1427,13 @@ public class MainActivity extends AppCompatActivity {
                                                         } catch (ParseException e) {
                                                             e.printStackTrace();
                                                         }
-                                                        for(int i = 0; i < stores.size(); i++){
-                                                            Store store =  stores.get(i);
-                                                            try{
-                                                                if(store.getStoreName().toLowerCase().contains(query.toLowerCase())){
+                                                        for (int i = 0; i < stores.size(); i++) {
+                                                            Store store = stores.get(i);
+                                                            try {
+                                                                if (store.getStoreName().toLowerCase().contains(query.toLowerCase())) {
                                                                     newStoreList.add(store);
                                                                 }
-                                                            }
-                                                            catch (StringIndexOutOfBoundsException exception){
+                                                            } catch (StringIndexOutOfBoundsException exception) {
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
                                                             }
 
@@ -981,14 +1456,13 @@ public class MainActivity extends AppCompatActivity {
                                                         } catch (ParseException e) {
                                                             e.printStackTrace();
                                                         }
-                                                        for(int i = 0; i < stores.size(); i++){
+                                                        for (int i = 0; i < stores.size(); i++) {
                                                             Store store = (Store) stores.get(i);
-                                                            try{
-                                                                if(store.getStoreName().toLowerCase().contains(newText.toLowerCase())){
+                                                            try {
+                                                                if (store.getStoreName().toLowerCase().contains(newText.toLowerCase())) {
                                                                     newStoreList.add(store);
                                                                 }
-                                                            }
-                                                            catch(StringIndexOutOfBoundsException exception){
+                                                            } catch (StringIndexOutOfBoundsException exception) {
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
                                                             }
                                                         }
@@ -1001,12 +1475,12 @@ public class MainActivity extends AppCompatActivity {
 
         );
         // filter through user_items list with user items list adapter
-        storesSearchView.setOnCloseListener( new SearchView.OnCloseListener() {
-                                                 @Override
-                                                 public boolean onClose() {
-                                                     return false;
-                                                 }
-                                             }
+        storesSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+                                                @Override
+                                                public boolean onClose() {
+                                                    return false;
+                                                }
+                                            }
         );
 
 
@@ -1026,14 +1500,13 @@ public class MainActivity extends AppCompatActivity {
                                                               } catch (ParseException e) {
                                                                   e.printStackTrace();
                                                               }
-                                                              for(int i = 0; i < shoppingLists.size(); i++){
-                                                                  ShoppingList shoppingList =  shoppingLists.get(i);
-                                                                  try{
-                                                                      if(shoppingList.getName().toLowerCase().contains(query.toLowerCase())){
+                                                              for (int i = 0; i < shoppingLists.size(); i++) {
+                                                                  ShoppingList shoppingList = shoppingLists.get(i);
+                                                                  try {
+                                                                      if (shoppingList.getName().toLowerCase().contains(query.toLowerCase())) {
                                                                           newShoppingListList.add(shoppingList);
                                                                       }
-                                                                  }
-                                                                  catch (StringIndexOutOfBoundsException exception){
+                                                                  } catch (StringIndexOutOfBoundsException exception) {
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
                                                                   }
 
@@ -1056,14 +1529,13 @@ public class MainActivity extends AppCompatActivity {
                                                               } catch (ParseException e) {
                                                                   e.printStackTrace();
                                                               }
-                                                              for(int i = 0; i < shoppingLists.size(); i++){
+                                                              for (int i = 0; i < shoppingLists.size(); i++) {
                                                                   ShoppingList shoppingList = (ShoppingList) shoppingLists.get(i);
-                                                                  try{
-                                                                      if(shoppingList.getName().toLowerCase().contains(newText.toLowerCase())){
+                                                                  try {
+                                                                      if (shoppingList.getName().toLowerCase().contains(newText.toLowerCase())) {
                                                                           newShoppingListList.add(shoppingList);
                                                                       }
-                                                                  }
-                                                                  catch(StringIndexOutOfBoundsException exception){
+                                                                  } catch (StringIndexOutOfBoundsException exception) {
 //                        catching the StringIndexOutOfBounds exception when the user uses line/cross texting
                                                                   }
                                                               }
@@ -1076,12 +1548,12 @@ public class MainActivity extends AppCompatActivity {
 
         );
         // filter through user_items list with user items list adapter
-        shoppingListSearchView.setOnCloseListener( new SearchView.OnCloseListener() {
-                                                       @Override
-                                                       public boolean onClose() {
-                                                           return false;
-                                                       }
-                                                   }
+        shoppingListSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+                                                      @Override
+                                                      public boolean onClose() {
+                                                          return false;
+                                                      }
+                                                  }
         );
         // listener for editing a specific store name
         storesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1098,16 +1570,15 @@ public class MainActivity extends AppCompatActivity {
                 editViewIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        showDialog(getString(R.string.edit_store_name),JSONEditCodes.EDIT_STORE_NAME, originalStoreName);
+                        showDialog(getString(R.string.edit_store_name), JSONEditCodes.EDIT_STORE_NAME, originalStoreName);
                     }
                 });
                 deleteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        showDialog(getString(R.string.delete_store),  JSONEditCodes.DELETE_STORE, originalStoreName);
+                        showDialog(getString(R.string.delete_store), JSONEditCodes.DELETE_STORE, originalStoreName);
                     }
                 });
-
 
 
             }
@@ -1164,24 +1635,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void measurementUnitsDialog(ArrayList<String> measurementUnits) {
-        androidx.appcompat.app.AlertDialog.Builder builder =
-                new androidx.appcompat.app.AlertDialog.Builder
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder
                         (MainActivity.this, R.style.AlertDialogCustom);
         View view = LayoutInflater.from(MainActivity.this).inflate(
                 R.layout.measurement_units_dialog,
                 (ConstraintLayout) findViewById(R.id.moreVertActionsLayoutDialog)
         );
         builder.setView(view);
+
         ListView measurementUnitsListView = view.findViewById(R.id.simple_measurement_units_list_view);
         Button cancelButton = view.findViewById(R.id.close_button);
         SimpleMeasurementUnitItemAdapter simpleMeasurementUnitItemAdapter = new SimpleMeasurementUnitItemAdapter(getApplicationContext(), measurementUnits);
         measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter);
-        final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        final AlertDialog alertDialog = builder.create();
+        SimpleMeasurementUnitItemAdapter finalSimpleMeasurementUnitItemAdapter = simpleMeasurementUnitItemAdapter;
+        TextView measurementUnitsChoseText = view.findViewById(R.id.chose_a_measurement_unit_text_view);
         measurementUnitsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String measurementUnit =  simpleMeasurementUnitItemAdapter.getItem(position);
+                String measurementUnit =  finalSimpleMeasurementUnitItemAdapter.getItem(position);
                 int index = measurementUnitsListView.getFirstVisiblePosition();
                 View v = measurementUnitsListView.getChildAt(0);
                 int top = (v == null) ? 0 : v.getTop();
@@ -1189,13 +1663,49 @@ public class MainActivity extends AppCompatActivity {
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
                         .putString("measurementUnit", measurementUnit).apply();
                 System.out.println("APPLIED MEASUREMENT UNIT THROUGH CHOSEN MEANS: " + Constants.currentMeasureUnit);
-                measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter);
+                measurementUnitsListView.setAdapter(finalSimpleMeasurementUnitItemAdapter);
                 measurementUnitsListView.setSelectionFromTop(index, top);
+                if(Constants.currentMeasureUnit != null && !Constants.currentMeasureUnit.isEmpty()) {
+                    int position2 = 0;
+                    for(String measurementUnit2: measurementUnits){
+                        System.out.println("COMPARING MEASUREMENT UNIT: " + measurementUnit + " TO CONSTANTS MEASUREMENT UNIT: " + Constants.currentMeasureUnit);
+                        if(measurementUnit2.equals(Constants.currentMeasureUnit)){
+                            System.out.println("THEY ARE EQUAL!!");
+                            position = measurementUnits.indexOf(measurementUnit2);
+                        }
+                    }
+                    System.out.println("POSITION FOUND: " + position);
+                    if(position != -1){
+                        String item = measurementUnits.remove(position);
+                        measurementUnits.add(0, item);
+                        System.out.println("SUCCESSFULLY ADD " + item + " TO THE TOP!");
+                        SimpleMeasurementUnitItemAdapter simpleMeasurementUnitItemAdapter2 = new SimpleMeasurementUnitItemAdapter(getApplicationContext(), measurementUnits);
+                        measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter2);
+                    }
+                    System.out.println("TEXT: " + String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit));
+                    System.out.println("format: " + String.valueOf(String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit)));
+                    measurementUnitsChoseText.setText(String.valueOf(String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit)));
+                }
             }
         });
-        TextView measurementUnitsChoseText = view.findViewById(R.id.chose_a_measurement_unit_text_view);
-
+        System.out.println("CURRENT MEASUERMENT: " + Constants.currentMeasureUnit);
         if(Constants.currentMeasureUnit != null && !Constants.currentMeasureUnit.isEmpty()) {
+            int position = 0;
+            for(String measurementUnit: measurementUnits){
+                System.out.println("COMPARING MEASUREMENT UNIT: " + measurementUnit + " TO CONSTANTS MEASUREMENT UNIT: " + Constants.currentMeasureUnit);
+                if(measurementUnit.equals(Constants.currentMeasureUnit)){
+                    System.out.println("THEY ARE EQUAL!!");
+                    position = measurementUnits.indexOf(measurementUnit);
+                }
+            }
+            System.out.println("POSITION FOUND: " + position);
+            if(position != -1){
+                String item = measurementUnits.remove(position);
+                measurementUnits.add(0, item);
+                System.out.println("SUCCESSFULLY ADD " + item + " TO THE TOP!");
+                simpleMeasurementUnitItemAdapter = new SimpleMeasurementUnitItemAdapter(getApplicationContext(), measurementUnits);
+                measurementUnitsListView.setAdapter(simpleMeasurementUnitItemAdapter);
+            }
             System.out.println("TEXT: " + String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit));
             System.out.println("format: " + String.valueOf(String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit)));
             measurementUnitsChoseText.setText(String.valueOf(String.format(getString(R.string.chose_a_measurement_unit), Constants.currentMeasureUnit)));
@@ -1237,39 +1747,109 @@ public class MainActivity extends AppCompatActivity {
         return stores;
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        System.out.println("@onCreateOptionsMenu created!");
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.app_menu, menu);
+        MenuItem priceComparisonUnitItem = menu.getItem(0);
+        TextView priceTV = (TextView) priceComparisonUnitItem.getActionView();
+        assert priceTV != null;
+        priceTV.setTextSize(16);
+        priceTV.setTypeface(Typeface.DEFAULT_BOLD);
         return true;
     }
 
+
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//        System.out.println("ID: " + id);
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.measurement_units_menu_item) {
+////            if(item.isChecked()){
+////                if(!Constants.wantsPriceComparisonUnit){
+////                    ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+////                    String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+////                    System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
+////                    measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+////                    measurementUnitsDialog(measurementUnitsArrayList);
+////                }
+////                Constants.wantsPriceComparisonUnit = true;
+////                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
+////            } else{
+////                Constants.wantsPriceComparisonUnit = false;
+////                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", false).apply();
+////
+////
+////            }
+//
+//            ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
+//            String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+//            System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
+//            measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
+//            measurementUnitsDialog(measurementUnitsArrayList);
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        System.out.println("ID: " + id);
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.measurement_units_menu_item) {
-            if(item.isChecked()){
-                if(!Constants.wantsPriceComparisonUnit){
-                    ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
-                    String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
-                    System.out.println("MEASUREMENT UNITS: " + measurementUnitsArray.toString());
-                    measurementUnitsArrayList.addAll(Arrays.asList(measurementUnitsArray));
-                    measurementUnitsDialog(measurementUnitsArrayList);
-                }
-                Constants.wantsPriceComparisonUnit = true;
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", true).apply();
-            } else{
-                Constants.wantsPriceComparisonUnit = false;
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("priceComparisonUnitOn", false).apply();
 
-
-            }
-        }
+        // Check if the clicked item is the "Navigation Tutorial" menu item
+//        if (id == R.id.navigation_tutorial_menu) {
+//            // Find the view for the Navigation Tutorial item
+//            View view = findViewById(R.id.navigation_tutorial_menu);
+//
+//            // Create a PopupMenu to display the submenu items when clicked
+//            PopupMenu popupMenu = new PopupMenu(this, view);
+//
+//            // Inflate the menu items for the popup (same as your original menu)
+//            MenuInflater inflater = getMenuInflater();
+//            inflater.inflate(R.menu.app_menu, popupMenu.getMenu());
+//
+//            // Set listener for popup menu item clicks
+//            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                @Override
+//                public boolean onMenuItemClick(MenuItem item) {
+//                    // Handle the submenu item clicks here
+//                    return switch (item.getItemId()) {
+//                        case 1000015 ->
+//                            // Handle Stores Set-up action
+//                                true;
+//                        case 1000138 ->
+//                            // Handle Shopping Lists Set-up action
+//                                true;
+//                        case 1000129 ->
+//                            // Handle Items Set-up action
+//                                true;
+//                        case 1000083 ->
+//                            // Handle Prepare for Shopping action
+//                                true;
+//                        case 1000009 ->
+//                            // Handle Select Shopping List action
+//                                true;
+//                        case 1000070 ->
+//                            // Handle Purchase History action
+//                                true;
+//                        case 1000143 ->
+//                            // Handle Price Analytics action
+//                                true;
+//                        default -> false;
+//                    };
+//                }
+//            });
+//
+//            // Show the PopupMenu
+//            popupMenu.show();
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }

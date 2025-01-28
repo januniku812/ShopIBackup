@@ -1,0 +1,13 @@
+
+    <!-- custom_spinner_item.xml -->
+    <TextView style="@style/user_item_details_text_style"
+        android:text="@string/Navigation_Tutorial"
+        android:id="@+id/custom_spinner_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:padding="10dp"
+        android:textSize="16sp"
+        android:gravity="center_vertical"
+        android:background="?android:attr/selectableItemBackground"
+        xmlns:android="http://schemas.android.com/apk/res/android" />

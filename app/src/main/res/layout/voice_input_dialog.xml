@@ -26,7 +26,7 @@
             android:background="@drawable/dialog_background"
             android:padding="10dp"
             android:text="@string/record_details_for"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="17sp"
             android:textStyle="normal"
             app:layout_constraintTop_toTopOf="parent" />
@@ -88,10 +88,10 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/microphone_foreground"
-                android:tint="@color/grey"
                 app:layout_constraintBottom_toBottomOf="@id/unit_price_edit_text"
                 app:layout_constraintEnd_toEndOf="@id/unit_price_edit_text"
-                app:layout_constraintTop_toTopOf="@id/unit_price_edit_text" />
+                app:layout_constraintTop_toTopOf="@id/unit_price_edit_text"
+                app:tint="@color/grey" />
             <ToggleButton
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -295,7 +295,7 @@
         android:layout_marginBottom="20dp"
         android:elevation="10dp"
         android:text="@string/cancel"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="14sp"
         android:theme="@style/Button.White"
         app:layout_constraintTop_toBottomOf="@id/moreVertActionsLayoutDialog"
@@ -314,7 +314,7 @@
         android:backgroundTint="@color/light_blue"
         android:elevation="0dp"
         android:text="@string/enter"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:layout_marginBottom="20dp"
         android:textSize="14sp"
         app:layout_constraintTop_toBottomOf="@id/moreVertActionsLayoutDialog"

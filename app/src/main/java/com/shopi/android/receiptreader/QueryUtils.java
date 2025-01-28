@@ -534,6 +534,7 @@ public class QueryUtils  {
         );
         ArrayList<ShoppingList> shoppingListArray = new ArrayList<>();
         StoreUserItem userItem = new StoreUserItem();
+        System.out.println("HEREEEE");
         try{
             JSONObject jsonObject = (JSONObject) object;
             System.out.println("jsonObject @addshoppingListUserItem: " + jsonObject);
@@ -637,6 +638,25 @@ public class QueryUtils  {
         return true;
     }
 
+    public static boolean ifItemRepItemAlreadyExists(String itemName) throws ParseException {
+        String jsonData = Constants.json_data_str;
+        JSONParser jsonParser = new JSONParser();
+        Object object = jsonParser.parse(jsonData
+        );
+        JSONObject jsonObject = (JSONObject) object;
+        JSONArray generalItemMaster = (JSONArray) jsonObject.get("general_items_master");
+        JSONObject generalItemMasterToAdd = new JSONObject();
+
+        boolean ifItemAlreadyExists = false;
+        for(int i = 0; i < generalItemMaster.size(); i++){
+            JSONObject generalItemMasterItem = (JSONObject) generalItemMaster.get(i);
+            if(generalItemMasterItem.get("general_item_name").toString().replaceAll("\\s", "").equalsIgnoreCase(itemName.replaceAll("\\s", ""))){ // going through to check if the item we want to add to general item master is already there
+                ifItemAlreadyExists = true;
+                break;
+            }
+        }
+        return ifItemAlreadyExists;
+    }
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static boolean addShoppingListItemWithQuantity(String shoppingListName, String shoppingListItemName, String lastBoughtDate, String quantity, android.content.Context context) throws ParseException {
         String jsonData = Constants.json_data_str;
@@ -1182,6 +1202,7 @@ public class QueryUtils  {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static ArrayList<ShoppingListUserItem> getShoppingListUserItems(String shoppingListName) throws IOException, ParseException {
         String jsonData = Constants.json_data_str;
+        System.out.println("JSON STRING RIGHT NOW: " + Constants.json_data_str);
         JSONParser jsonParser = new JSONParser();
         Object object = new JSONParser().parse(jsonData
         );
@@ -1501,6 +1522,7 @@ public class QueryUtils  {
             Constants.json_data_str = jsonObject.toJSONString();
 
         }catch(Exception e){
+            System.out.println("EXCEPTION DURING ADDING SHOPPING LIST NAME " + shoppingListName);
             e.printStackTrace();
         }
     }

@@ -67,11 +67,13 @@ public class BillingManager {
     }
 
     private void startBillingClientConnection(){
+        System.out.println("BILLING CLIENT STARTED");
         billingClient.startConnection(new BillingClientStateListener() {
             @Override
             public void onBillingServiceDisconnected() {
                 // handle disconnect
                 //TO-DO: IMPLEMENT DISCONNECT HANDLE
+                System.out.println("BILLING SERVICE DISCONNECTED");
                 String string = "Purchased disconnected - check internet connection";
                 Toast toast = Toast.makeText(context, string, Toast.LENGTH_LONG);
                 toast.show();
@@ -79,6 +81,8 @@ public class BillingManager {
 
             @Override
             public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
+                System.out.println("BILLING SERVICE SET UP FINISHED");
+                System.out.println("BILLING RESPONSE CODE: " + billingResult.getResponseCode());
                 if(billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK){
                     queryPurchases();
                 }
@@ -97,6 +101,7 @@ public class BillingManager {
 
             @Override
             public void onSkuDetailsResponse(@NonNull BillingResult billingResult, @Nullable List<SkuDetails> list) {
+                System.out.println("on SkuDetailsResponse has been triggered: " + billingResult.toString());
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && list != null) {
                     if(!list.isEmpty()){
                         BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder()
@@ -124,12 +129,15 @@ public class BillingManager {
 
 
     public void queryPurchases() {
+        System.out.println("QUERY PURCHASES REACHED");
         billingClient.queryPurchasesAsync(String.valueOf(queryProductDetailsParams), new PurchasesResponseListener() {
             @Override
             public void onQueryPurchasesResponse(@NonNull BillingResult billingResult, @NonNull List<Purchase> purchases) {
                 if(billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && purchases != null){
+                    System.out.println("PURCHASES TO STRING: " + purchases.toString());
                     for(Purchase purchase: purchases){
                         if(!purchase.getSkus().get(0).equals(Constants.skuId)) {
+                            System.out.println("HANDLE PURCHASE TRIGGERED FOR : " + purchase.toString());
                             handlePurchase(purchase);
                         }
                     }
@@ -149,6 +157,7 @@ public class BillingManager {
         }
     };
     private void handlePurchase(Purchase purchase){
+        System.out.println("HANDLE PURCHASE REACHED");
         if(purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED ){
             AcknowledgePurchaseParams acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.getPurchaseToken())

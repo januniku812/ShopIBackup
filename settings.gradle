@@ -1,2 +1,3 @@
 include ':app', 'ShowcaseView'
 rootProject.name = "ReceiptReader"
+include ':swipemenulistview'

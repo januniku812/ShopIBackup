@@ -29,6 +29,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,7 +38,13 @@ import android.preference.PreferenceManager;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.text.Html;
 import android.util.DisplayMetrics;
+
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetSequence;
+import com.getkeepsafe.taptargetview.TapTargetView;
+import com.shopi.android.receiptreader.R;
 import android.util.Size;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -65,8 +72,10 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.res.Resources;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -122,6 +131,7 @@ import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.O;
+import static android.os.Build.VERSION_CODES.R;
 import static android.text.TextUtils.isEmpty;
 import static android.view.View.GONE;
 
@@ -199,15 +209,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             occupied = true;
             androidx.appcompat.app.AlertDialog.Builder errorBuilder =
                     new androidx.appcompat.app.AlertDialog.Builder
-                            (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+                            (ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.style.AlertDialogCustom);
             View errorView = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                    R.layout.error_dialog,
-                    (ConstraintLayout) findViewById(R.id.layoutDialogContainerVID)
+                    com.shopi.android.receiptreader.R.layout.error_dialog,
+                    (ConstraintLayout) findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainerVID)
             );
             errorBuilder.setView(errorView);
-            TextView errorMessage = errorView.findViewById(R.id.error_message);
+            TextView errorMessage = errorView.findViewById(com.shopi.android.receiptreader.R.id.error_message);
             errorMessage.setText(message);
-            Button okButton = errorView.findViewById(R.id.okButton);
+            Button okButton = errorView.findViewById(com.shopi.android.receiptreader.R.id.okButton);
             final androidx.appcompat.app.AlertDialog errorAlertDialog = errorBuilder.create();
             okButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -292,30 +302,30 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     private void actionsDialog(String title, String originalName, String shoppingListName, Integer jsonEditCode) throws IOException, ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
-                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+                        (ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.style.AlertDialogCustom);
         View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                R.layout.custom_dialog,
-                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+                com.shopi.android.receiptreader.R.layout.custom_dialog,
+                (ConstraintLayout) findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainer)
         );
         builder.setView(view);
-        ((TextView) view.findViewById(R.id.textTitle))
+        ((TextView) view.findViewById(com.shopi.android.receiptreader.R.id.textTitle))
                 .setText(title);
 
-        ImageView icon = (ImageView) view.findViewById(R.id.imageIcon);
-        TextView editText = view.findViewById(R.id.custom_dialog_edit_text);
-        Button enterButton = (Button) view.findViewById(R.id.enterButton);
+        ImageView icon = (ImageView) view.findViewById(com.shopi.android.receiptreader.R.id.imageIcon);
+        TextView editText = view.findViewById(com.shopi.android.receiptreader.R.id.custom_dialog_edit_text);
+        Button enterButton = (Button) view.findViewById(com.shopi.android.receiptreader.R.id.enterButton);
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
         if (jsonEditCode == JSONEditCodes.DELETE_SHOPPING_LIST_ITEM) {
             editText.setVisibility(View.INVISIBLE);
             icon.setMinimumHeight(50);
             icon.setMinimumWidth(50);
-            enterButton.setText(R.string.yes);
-            icon.setImageResource(R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
-            TextView delete_text = (TextView) view.findViewById(R.id.delete_text);
+            enterButton.setText(com.shopi.android.receiptreader.R.string.yes);
+            icon.setImageResource(com.shopi.android.receiptreader.R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
+            TextView delete_text = (TextView) view.findViewById(com.shopi.android.receiptreader.R.id.delete_text);
             delete_text.setVisibility(View.VISIBLE);
             delete_text.setText(String.format("Are you sure you want to delete %s, this action is permanent and cannot be undone", originalName));
 
-            view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            view.findViewById(com.shopi.android.receiptreader.R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     alertDialog.dismiss();
@@ -339,16 +349,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         } else if (jsonEditCode == JSONEditCodes.REORDER_SHOPPING_LIST_ITEM) {
             editText.setVisibility(View.INVISIBLE);
             enterButton.setVisibility(GONE);
-            ConstraintLayout constraintLayout = view.findViewById(R.id.layoutDialogContainer);
+            ConstraintLayout constraintLayout = view.findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainer);
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
-            constraintSet.connect(R.id.cancel_button, ConstraintSet.START, R.id.moreVertActionsLayoutDialog, ConstraintSet.START, 65);
-            constraintSet.connect(R.id.cancel_button, ConstraintSet.END, R.id.moreVertActionsLayoutDialog, ConstraintSet.END, 65);
+            constraintSet.connect(com.shopi.android.receiptreader.R.id.cancel_button, ConstraintSet.START, com.shopi.android.receiptreader.R.id.moreVertActionsLayoutDialog, ConstraintSet.START, 65);
+            constraintSet.connect(com.shopi.android.receiptreader.R.id.cancel_button, ConstraintSet.END, com.shopi.android.receiptreader.R.id.moreVertActionsLayoutDialog, ConstraintSet.END, 65);
             constraintLayout.setConstraintSet(constraintSet);
             icon.setMinimumHeight(50);
             icon.setMinimumWidth(50);
-            icon.setImageResource(R.drawable.ic_baseline_arrow_circle_right_24);
-            ListView shopping_list_reorder_lv = (ListView) view.findViewById(R.id.reorder_shopping_list_view);
+            icon.setImageResource(com.shopi.android.receiptreader.R.drawable.ic_baseline_arrow_circle_right_24);
+            ListView shopping_list_reorder_lv = (ListView) view.findViewById(com.shopi.android.receiptreader.R.id.reorder_shopping_list_view);
             ArrayList<ShoppingList> shoppingListsForMoving = QueryUtils.getShoppingLists();
             shopping_list_reorder_lv.setVisibility(View.VISIBLE);
             ReorderShoppingListAdapter reorderShoppingListAdapter = new ReorderShoppingListAdapter(this, shoppingListsForMoving);
@@ -373,7 +383,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                 }
             });
-            view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            view.findViewById(com.shopi.android.receiptreader.R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     alertDialog.dismiss();
@@ -392,39 +402,39 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     private void moreVertActionsDialog(ShoppingListUserItem shoppingListUserItem) throws IOException, ParseException, java.text.ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
-                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom2);
+                        (ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.style.AlertDialogCustom2);
         moreVertActionsView = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                R.layout.more_vert_actions_custom_dialog,
-                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+                com.shopi.android.receiptreader.R.layout.more_vert_actions_custom_dialog,
+                (ConstraintLayout) findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainer)
         );
         builder.setView(moreVertActionsView);
         String itemName = shoppingListUserItem.getName();
-        ((TextView) moreVertActionsView.findViewById(R.id.textTitle))
-                .setText(getString(R.string.actions_menu));
+        ((TextView) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.textTitle))
+                .setText(getString(com.shopi.android.receiptreader.R.string.actions_menu));
         alertDialog = builder.create();
         alertDialog.setCancelable(true);
         alertDialog.setCanceledOnTouchOutside(true);
         // extracting all the views and setting their text based on item we are running the actions for
-        ImageView historyButton = (ImageView) moreVertActionsView.findViewById(R.id.history_button_image_view);
-        ConstraintLayout view_history_cl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.view_history_cl);
-        TextView view_history_tv = (TextView) moreVertActionsView.findViewById(R.id.view_history_text_view);
-        ImageView view_history_image = (ImageView) view_history_cl.getViewById(R.id.history_button_image_view);
-        ConstraintLayout duplicate_indicator_cl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.duplicate_indicator_cl);
-        ConstraintLayout reorderCl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.reorder_item_cl);
-        TextView reorderItemTextView = (TextView) moreVertActionsView.findViewById(R.id.reorder_item_text_view);
-        reorderItemTextView.setText(String.format(getString(R.string.reorder_item), itemName));
-        ConstraintLayout deleteCl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.delete_item_cl);
-        TextView deleteItemTextView = (TextView) moreVertActionsView.findViewById(R.id.delete_item_text_view);
-        deleteItemTextView.setText(String.format(getString(R.string.delete_item), itemName));
-        viewInsightsCl = (ConstraintLayout) moreVertActionsView.findViewById(R.id.view_insights_of_item_cl);
-        TextView viewInsightsTextView = (TextView) moreVertActionsView.findViewById(R.id.view_insights_of_item_text_view);
-        ImageView viewInsightsImageView = viewInsightsCl.findViewById(R.id.view_insights_of_item_image_view);
+        ImageView historyButton = (ImageView) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.history_button_image_view);
+        ConstraintLayout view_history_cl = (ConstraintLayout) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.view_history_cl);
+        TextView view_history_tv = (TextView) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.view_history_text_view);
+        ImageView view_history_image = (ImageView) view_history_cl.getViewById(com.shopi.android.receiptreader.R.id.history_button_image_view);
+        ConstraintLayout duplicate_indicator_cl = (ConstraintLayout) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.duplicate_indicator_cl);
+        ConstraintLayout reorderCl = (ConstraintLayout) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.reorder_item_cl);
+        TextView reorderItemTextView = (TextView) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.reorder_item_text_view);
+        reorderItemTextView.setText(String.format(getString(com.shopi.android.receiptreader.R.string.reorder_item), itemName));
+        ConstraintLayout deleteCl = (ConstraintLayout) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.delete_item_cl);
+        TextView deleteItemTextView = (TextView) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.delete_item_text_view);
+        deleteItemTextView.setText(String.format(getString(com.shopi.android.receiptreader.R.string.delete_item), itemName));
+        viewInsightsCl = (ConstraintLayout) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.view_insights_of_item_cl);
+        TextView viewInsightsTextView = (TextView) moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.view_insights_of_item_text_view);
+        ImageView viewInsightsImageView = viewInsightsCl.findViewById(com.shopi.android.receiptreader.R.id.view_insights_of_item_image_view);
         ArrayList<ShoppingList> shoppingListsContainingSl = QueryUtils.ifShoppingListItemExistsInOtherShoppingLists(shoppingListUserItem.getName());
 
         if (shoppingListsContainingSl != null) {
             duplicate_indicator_cl.setVisibility(View.VISIBLE);
-            TextView duplicateIndicatorTextView = duplicate_indicator_cl.findViewById(R.id.view_other_sl_with_text_view);
-            duplicateIndicatorTextView.setText(String.format(getString(R.string.view_other_sl_with), itemName));
+            TextView duplicateIndicatorTextView = duplicate_indicator_cl.findViewById(com.shopi.android.receiptreader.R.id.view_other_sl_with_text_view);
+            duplicateIndicatorTextView.setText(String.format(getString(com.shopi.android.receiptreader.R.string.view_other_sl_with), itemName));
             duplicate_indicator_cl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -455,9 +465,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         ArrayList<StoreUserItem> storeUserItemsHistory = QueryUtils.getHistoryOfShoppingListItem(itemName);
         if (storeUserItemsHistory != null && storeUserItemsHistory.size() > 0) {
             System.out.println(itemName + " HAS  HISTORY");
-            view_history_tv.setTextColor(getResources().getColor(R.color.grey));
+            view_history_tv.setTextColor(getResources().getColor(com.shopi.android.receiptreader.R.color.grey));
             ImageViewCompat.setImageTintList(view_history_image,
-                    ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey)));
+                    ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), com.shopi.android.receiptreader.R.color.grey)));
             view_history_cl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -485,13 +495,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             });
 
         } else {
-            view_history_tv.setTextColor(getResources().getColor(R.color.grey_four));
+            view_history_tv.setTextColor(getResources().getColor(com.shopi.android.receiptreader.R.color.grey_four));
             ImageViewCompat.setImageTintList(view_history_image,
-                    ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey_four)));
+                    ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), com.shopi.android.receiptreader.R.color.grey_four)));
 
         }
 
-        viewInsightsTextView.setText(String.format(getString(R.string.view_insights_for_item), itemName));
+        viewInsightsTextView.setText(String.format(getString(com.shopi.android.receiptreader.R.string.view_insights_for_item), itemName));
         if (eligibleForInsights(QueryUtils.getHistoryOfShoppingListItem(itemName)) && (Constants.wantsPriceComparisonUnit && !Constants.currentMeasureUnit.isEmpty())) {
             viewInsightsCl.setVisibility(View.VISIBLE);
             viewInsightsCl.setOnClickListener(new View.OnClickListener() {
@@ -506,8 +516,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             });
         } else {
             ImageViewCompat.setImageTintList(viewInsightsImageView,
-                    ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey_four)));
-            viewInsightsTextView.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.grey_four)));
+                    ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), com.shopi.android.receiptreader.R.color.grey_four)));
+            viewInsightsTextView.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), com.shopi.android.receiptreader.R.color.grey_four)));
         }
 
         // functions that will always be given
@@ -515,7 +525,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    showDialog(getString(R.string.delete_shopping_list_item), itemName, shoppingListName, JSONEditCodes.DELETE_SHOPPING_LIST_ITEM);
+                    showDialog(getString(com.shopi.android.receiptreader.R.string.delete_shopping_list_item), itemName, shoppingListName, JSONEditCodes.DELETE_SHOPPING_LIST_ITEM);
                     alertDialog.dismiss();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -530,7 +540,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    showDialog(getString(R.string.reorder_shopping_list), itemName, shoppingListName, JSONEditCodes.REORDER_SHOPPING_LIST_ITEM);
+                    showDialog(getString(com.shopi.android.receiptreader.R.string.reorder_shopping_list), itemName, shoppingListName, JSONEditCodes.REORDER_SHOPPING_LIST_ITEM);
                     alertDialog.dismiss();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -542,7 +552,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         });
 
 
-        moreVertActionsView.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+        moreVertActionsView.findViewById(com.shopi.android.receiptreader.R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
@@ -559,20 +569,20 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     private void insightsDialog(String itemName, ArrayList<StoreUserItem> storeUserItemHistory) throws java.text.ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
-                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom2);
+                        (ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.style.AlertDialogCustom2);
         insightsView = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                R.layout.insight_graph_dialog,
-                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+                com.shopi.android.receiptreader.R.layout.insight_graph_dialog,
+                (ConstraintLayout) findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainer)
         );
         builder.setView(insightsView);
         insightViewAlertDialog = builder.create();
         insightViewAlertDialog.setCanceledOnTouchOutside(true);
         // on below line we are initializing our graph insightsView.
-        GraphView graphView = insightsView.findViewById(R.id.item_insights_graph);
-        ListView storeKeyListView = insightsView.findViewById(R.id.stores_key_list_view);
+        GraphView graphView = insightsView.findViewById(com.shopi.android.receiptreader.R.id.item_insights_graph);
+        ListView storeKeyListView = insightsView.findViewById(com.shopi.android.receiptreader.R.id.stores_key_list_view);
         ArrayList<String> storeKeyStringArrayList = new ArrayList<>();
-        Button exitButton = insightsView.findViewById(R.id.exit_button);
-        TextView unitPriceTextView = insightsView.findViewById(R.id.unit_price_date_tap_tv);
+        Button exitButton = insightsView.findViewById(com.shopi.android.receiptreader.R.id.exit_button);
+        TextView unitPriceTextView = insightsView.findViewById(com.shopi.android.receiptreader.R.id.unit_price_date_tap_tv);
         unitPriceTextView.setVisibility(GONE);
 
 
@@ -756,7 +766,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 public void onTap(Series series, DataPointInterface dataPoint) {
                     System.out.println("TAPPED");
                     SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-                    unitPriceTextView.setText(String.format(getString(R.string.data_point_tapped), itemName, key, format.format(new Date((long) dataPoint.getX())), dataPoint.getY()));
+                    unitPriceTextView.setText(String.format(getString(com.shopi.android.receiptreader.R.string.data_point_tapped), itemName, key, format.format(new Date((long) dataPoint.getX())), dataPoint.getY()));
                     unitPriceTextView.setVisibility(View.VISIBLE);
                 }
             });
@@ -793,7 +803,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         graphView.getViewport().setScalable(true);
 //        graphView.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
         graphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this));
-        TextView graphLabel = (TextView) insightsView.findViewById(R.id.graph_label);
+        TextView graphLabel = (TextView) insightsView.findViewById(com.shopi.android.receiptreader.R.id.graph_label);
         graphLabel.setText("Item price per " + Constants.currentMeasureUnit);
 //        graphView.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
         System.out.println("DATE X VALUES: " + datePointXValues.get(0));
@@ -818,17 +828,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         graphView.getViewport().setMaxX(latestDateFormated);
         graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getGridLabelRenderer().setHumanRounding(false, false);
-        graphView.setTitleColor(getResources().getColor(R.color.blue));
+        graphView.setTitleColor(getResources().getColor(com.shopi.android.receiptreader.R.color.blue));
 
         // after adding data to our line graph series.
         // on below line we are setting
         // title for our graph insightsView.
         graphView.setTitleTextSize(18);
-        graphView.setTitle(String.format(getString(R.string.insights_for_itemI), itemName));
+        graphView.setTitle(String.format(getString(com.shopi.android.receiptreader.R.string.insights_for_itemI), itemName));
 
         // on below line we are setting
         // text color to our graph insightsView.
-        graphView.setTitleColor(R.color.purple_200);
+        graphView.setTitleColor(com.shopi.android.receiptreader.R.color.purple_200);
 
         // on below line we are setting
         // our title text size.
@@ -845,29 +855,29 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     private void showDialog(String title, String originalName, String shoppingListName, Integer jsonEditCode) throws IOException, ParseException {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
-                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+                        (ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.style.AlertDialogCustom);
         View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                R.layout.custom_dialog,
-                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+                com.shopi.android.receiptreader.R.layout.custom_dialog,
+                (ConstraintLayout) findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainer)
         );
         builder.setView(view);
-        ((TextView) view.findViewById(R.id.textTitle))
+        ((TextView) view.findViewById(com.shopi.android.receiptreader.R.id.textTitle))
                 .setText(title);
-        ImageView icon = (ImageView) view.findViewById(R.id.imageIcon);
-        TextView editText = view.findViewById(R.id.custom_dialog_edit_text);
-        Button enterButton = (Button) view.findViewById(R.id.enterButton);
+        ImageView icon = (ImageView) view.findViewById(com.shopi.android.receiptreader.R.id.imageIcon);
+        TextView editText = view.findViewById(com.shopi.android.receiptreader.R.id.custom_dialog_edit_text);
+        Button enterButton = (Button) view.findViewById(com.shopi.android.receiptreader.R.id.enterButton);
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
         if (jsonEditCode == JSONEditCodes.DELETE_SHOPPING_LIST_ITEM) {
             editText.setVisibility(View.INVISIBLE);
             icon.setMinimumHeight(50);
             icon.setMinimumWidth(50);
-            enterButton.setText(R.string.yes);
-            icon.setImageResource(R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
-            TextView delete_text = (TextView) view.findViewById(R.id.delete_text);
+            enterButton.setText(com.shopi.android.receiptreader.R.string.yes);
+            icon.setImageResource(com.shopi.android.receiptreader.R.drawable.delete_foreground); // making the pop up icon a trash can since by default it is the edit icon
+            TextView delete_text = (TextView) view.findViewById(com.shopi.android.receiptreader.R.id.delete_text);
             delete_text.setVisibility(View.VISIBLE);
             delete_text.setText(String.format("Are you sure you want to delete %s, this action is permanent and cannot be undone", originalName));
 
-            view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            view.findViewById(com.shopi.android.receiptreader.R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     alertDialog.dismiss();
@@ -903,16 +913,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         } else if (jsonEditCode == JSONEditCodes.REORDER_SHOPPING_LIST_ITEM) {
             editText.setVisibility(View.INVISIBLE);
             enterButton.setVisibility(GONE);
-            ConstraintLayout constraintLayout = view.findViewById(R.id.layoutDialogContainer);
+            ConstraintLayout constraintLayout = view.findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainer);
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
-            constraintSet.connect(R.id.cancel_button, ConstraintSet.START, R.id.moreVertActionsLayoutDialog, ConstraintSet.START, 65);
-            constraintSet.connect(R.id.cancel_button, ConstraintSet.END, R.id.moreVertActionsLayoutDialog, ConstraintSet.END, 65);
+            constraintSet.connect(com.shopi.android.receiptreader.R.id.cancel_button, ConstraintSet.START, com.shopi.android.receiptreader.R.id.moreVertActionsLayoutDialog, ConstraintSet.START, 65);
+            constraintSet.connect(com.shopi.android.receiptreader.R.id.cancel_button, ConstraintSet.END, com.shopi.android.receiptreader.R.id.moreVertActionsLayoutDialog, ConstraintSet.END, 65);
             constraintLayout.setConstraintSet(constraintSet);
             icon.setMinimumHeight(50);
             icon.setMinimumWidth(50);
-            icon.setImageResource(R.drawable.ic_baseline_arrow_circle_right_24);
-            ListView shopping_list_reorder_lv = (ListView) view.findViewById(R.id.reorder_shopping_list_view);
+            icon.setImageResource(com.shopi.android.receiptreader.R.drawable.ic_baseline_arrow_circle_right_24);
+            ListView shopping_list_reorder_lv = (ListView) view.findViewById(com.shopi.android.receiptreader.R.id.reorder_shopping_list_view);
             ArrayList<ShoppingList> shoppingListsForMoving = QueryUtils.getShoppingLists();
             shopping_list_reorder_lv.setVisibility(View.VISIBLE);
             ReorderShoppingListAdapter reorderShoppingListAdapter = new ReorderShoppingListAdapter(this, shoppingListsForMoving);
@@ -937,7 +947,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
                 }
             });
-            view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            view.findViewById(com.shopi.android.receiptreader.R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     alertDialog.dismiss();
@@ -996,25 +1006,25 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         System.out.println("ACESSED");
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
-                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+                        (ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.style.AlertDialogCustom);
         View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                R.layout.voice_input_dialog,
-                (ConstraintLayout) findViewById(R.id.layoutDialogContainerVID)
+                com.shopi.android.receiptreader.R.layout.voice_input_dialog,
+                (ConstraintLayout) findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainerVID)
         );
         final boolean[] ifQuantityIsIndividualPackageBased = {true};
 
         // following layouts are for package based purchase details
-        ConstraintLayout additional_weight_cl = view.findViewById(R.id.additional_weight_cl);
-        ConstraintLayout within_package_item_count_cl = view.findViewById(R.id.within_package_item_count_ly);
+        ConstraintLayout additional_weight_cl = view.findViewById(com.shopi.android.receiptreader.R.id.additional_weight_cl);
+        ConstraintLayout within_package_item_count_cl = view.findViewById(com.shopi.android.receiptreader.R.id.within_package_item_count_ly);
         // following layouts are for weight based purchase details and package based details
-        ConstraintLayout quanity_detail_cl = view.findViewById(R.id.quantity_detail_ly);
-        unit_price_detail_cl = view.findViewById(R.id.unit_price_detail_ly);
-        TextView choseStoreTextView = view.findViewById(R.id.chose_a_measurement_unit_text_view);
-        ListView choseStoreListView = view.findViewById(R.id.chose_stores_list_view);
-        TextView recordDetailsTextView = (TextView) view.findViewById(R.id.textTitle);
-        recordDetailsTextView.setText(String.format(getString(R.string.record_details_for_item), shoppingListUserItemName));
-        ImageView calendar = view.findViewById(R.id.calendar_view);
-//        ImageView geminiApiIcon = view.findViewById(R.id.gemini_camera_functionality);
+        ConstraintLayout quanity_detail_cl = view.findViewById(com.shopi.android.receiptreader.R.id.quantity_detail_ly);
+        unit_price_detail_cl = view.findViewById(com.shopi.android.receiptreader.R.id.unit_price_detail_ly);
+        TextView choseStoreTextView = view.findViewById(com.shopi.android.receiptreader.R.id.chose_a_measurement_unit_text_view);
+        ListView choseStoreListView = view.findViewById(com.shopi.android.receiptreader.R.id.chose_stores_list_view);
+        TextView recordDetailsTextView = (TextView) view.findViewById(com.shopi.android.receiptreader.R.id.textTitle);
+        recordDetailsTextView.setText(String.format(getString(com.shopi.android.receiptreader.R.string.record_details_for_item), shoppingListUserItemName));
+        ImageView calendar = view.findViewById(com.shopi.android.receiptreader.R.id.calendar_view);
+//        ImageView geminiApiIcon = view.findViewById(com.shopi.android.receiptreader.R.id.gemini_camera_functionality);
         calendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1024,28 +1034,28 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         final androidx.appcompat.app.AlertDialog alertDialog = builder.create();
         alertDialog.setView(view);
         Display display = getWindowManager().getDefaultDisplay();
-        ToggleButton toggleButton = view.findViewById(R.id.eachWeightToggleButton);
+        ToggleButton toggleButton = view.findViewById(com.shopi.android.receiptreader.R.id.eachWeightToggleButton);
         int width = display.getWidth();
         view.setMinimumWidth(width / 2);
         choseStoreTextView.setVisibility(GONE);
         choseStoreListView.setVisibility(GONE); // by default the listview that will be populated should be gone
         builder.setView(view);
-        Button cancel_button = view.findViewById(R.id.cancel_button);
-        Button enter_button = view.findViewById(R.id.enterButton);
-        EditText withinPackageItemCountEditText = view.findViewById(R.id.within_package_item_count_edit_text);
-        EditText quantityEditText = view.findViewById(R.id.quantity_edit_text);
-        unitPriceEditText = view.findViewById(R.id.unit_price_edit_text);
+        Button cancel_button = view.findViewById(com.shopi.android.receiptreader.R.id.cancel_button);
+        Button enter_button = view.findViewById(com.shopi.android.receiptreader.R.id.enterButton);
+        EditText withinPackageItemCountEditText = view.findViewById(com.shopi.android.receiptreader.R.id.within_package_item_count_edit_text);
+        EditText quantityEditText = view.findViewById(com.shopi.android.receiptreader.R.id.quantity_edit_text);
+        unitPriceEditText = view.findViewById(com.shopi.android.receiptreader.R.id.unit_price_edit_text);
         // setting default values of quantity and within package item count ad 1
-        quantityEditText.setText(getString(R.string.default_total_packages_and_items_within_package_purchased));
-        withinPackageItemCountEditText.setText(getString(R.string.default_total_packages_and_items_within_package_purchased));
-        EditText additionalWeightEditText = view.findViewById(R.id.additional_weight_edit_text);
-        ImageView quantityMicrophone = view.findViewById(R.id.quantity_microphone);
-        ImageView unitPriceMicrophone = view.findViewById(R.id.unit_price_microphone);
-        ImageView additionalWeightMicrophone = view.findViewById(R.id.additional_weight_microphone);
-        ImageView withinPackageItemCountMicrophone = view.findViewById(R.id.within_package_item_count_microphone);
+        quantityEditText.setText(getString(com.shopi.android.receiptreader.R.string.default_total_packages_and_items_within_package_purchased));
+        withinPackageItemCountEditText.setText(getString(com.shopi.android.receiptreader.R.string.default_total_packages_and_items_within_package_purchased));
+        EditText additionalWeightEditText = view.findViewById(com.shopi.android.receiptreader.R.id.additional_weight_edit_text);
+        ImageView quantityMicrophone = view.findViewById(com.shopi.android.receiptreader.R.id.quantity_microphone);
+        ImageView unitPriceMicrophone = view.findViewById(com.shopi.android.receiptreader.R.id.unit_price_microphone);
+        ImageView additionalWeightMicrophone = view.findViewById(com.shopi.android.receiptreader.R.id.additional_weight_microphone);
+        ImageView withinPackageItemCountMicrophone = view.findViewById(com.shopi.android.receiptreader.R.id.within_package_item_count_microphone);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            TextView quantity_label = (TextView) quanity_detail_cl.findViewById(R.id.quantity_edit_text_label);
-            TextView unit_price_label = (TextView) unit_price_detail_cl.findViewById(R.id.unit_price_edit_text_label);
+            TextView quantity_label = (TextView) quanity_detail_cl.findViewById(com.shopi.android.receiptreader.R.id.quantity_edit_text_label);
+            TextView unit_price_label = (TextView) unit_price_detail_cl.findViewById(com.shopi.android.receiptreader.R.id.unit_price_edit_text_label);
 
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -1054,15 +1064,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     // The toggle is enabled
                     additional_weight_cl.setVisibility(View.VISIBLE);
                     within_package_item_count_cl.setVisibility(View.VISIBLE);
-                    quantity_label.setText(getString(R.string.total_packages_purchased));
-                    unit_price_label.setText(getString(R.string.package_price));
+                    quantity_label.setText(getString(com.shopi.android.receiptreader.R.string.total_packages_purchased));
+                    unit_price_label.setText(getString(com.shopi.android.receiptreader.R.string.package_price));
                 } else {
                     // The toggle is disabled
                     ifQuantityIsIndividualPackageBased[0] = false;
                     additional_weight_cl.setVisibility(GONE);
                     within_package_item_count_cl.setVisibility(GONE);
-                    quantity_label.setText(getString(R.string.quantity_unit));
-                    unit_price_label.setText(getString(R.string.unit_price_by_weight));
+                    quantity_label.setText(getString(com.shopi.android.receiptreader.R.string.quantity_unit));
+                    unit_price_label.setText(getString(com.shopi.android.receiptreader.R.string.unit_price_by_weight));
                 }
             }
 
@@ -1097,7 +1107,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onEndOfSpeech() {
                 System.out.println("@onEndOfSpeech - additionalWeight");
-                additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
             }
 
             @Override
@@ -1122,7 +1132,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             justAlpha = "fl oz";
                         }
                         if (!isMeasurementUnit(justAlpha)) {
-                            errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_weight_guidelines));
                             justAlpha = "";
                         }
                         result = result.replaceAll("[a-zA-Z]", "");
@@ -1131,16 +1141,18 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             additionalWeightEditText.setText(result + " " + justAlpha);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_weight_guidelines));
+                            additionalWeightEditText.setText("");
                         }
                     } else {
                         additionalWeightEditText.setText(result);
+
                     }
                 } catch (Exception e) {
                     System.out.println("EXCEPTION: ");
                     e.printStackTrace();
-                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_weight_guidelines));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1170,7 +1182,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             justAlpha = "fl oz";
                         }
                         if (!isMeasurementUnit(justAlpha)) {
-//                            errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_unit_price_couldnt_rec_value));
                             justAlpha = "";
                         }
                         result = result.replaceAll("[a-zA-Z]", "");
@@ -1179,7 +1191,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             additionalWeightEditText.setText(result + " " + justAlpha);
                         } catch (Exception e) {
                             e.printStackTrace();
-//                            errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_unit_price_couldnt_rec_value));
                         }
                     } else {
                         additionalWeightEditText.setText(result);
@@ -1187,8 +1199,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     System.out.println("EXCEPTION: ");
                     e.printStackTrace();
-                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_unit_price_couldnt_rec_value));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1218,7 +1230,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             justAlpha = "fl oz";
                         }
                         if (!isMeasurementUnit(justAlpha)) {
-//                            errorDialog(getString(R.string.by_packge_couldnt_rec_value_additional_weight));
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_packge_couldnt_rec_value_additional_weight));
                             justAlpha = "";
                         }
                         result = result.replaceAll("[a-zA-Z]", "");
@@ -1227,7 +1239,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             additionalWeightEditText.setText(result + " " + justAlpha);
                         } catch (Exception e) {
                             e.printStackTrace();
-//                            errorDialog(getString(R.string.by_packge_couldnt_rec_value_additional_weight));
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_packge_couldnt_rec_value_additional_weight));
                         }
                     } else {
                         additionalWeightEditText.setText(result);
@@ -1235,8 +1247,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     System.out.println("EXCEPTION: ");
                     e.printStackTrace();
-                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
+                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    Toast.makeText(ShoppingListUserItemsActivity.this, getString(com.shopi.android.receiptreader.R.string.no_proper_input_detected), Toast.LENGTH_SHORT).show();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1255,7 +1267,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (additionalWeightMicrophoneState == 0) {
                     if (quantityMicrophoneState == 1) { // if microphone for recording quantity details is on, then whe need to turn it off both in speech recognition service and color/state indication
-                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                         final Runnable stopListeningRunnable = new Runnable() {
                             @Override
                             public void run() {
@@ -1270,7 +1282,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         ActivityCompat.requestPermissions(ShoppingListUserItemsActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
 
                     } else {
-                        additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
+                        additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
                         final Runnable startListeningRunnable = new Runnable() {
                             @Override
                             public void run() {
@@ -1281,7 +1293,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         additionalWeightMicrophoneState = 1;
                     }
                 } else if (additionalWeightMicrophoneState == 1) {
-                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    additionalWeightMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1348,7 +1360,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onEndOfSpeech() {
                 System.out.println("@onEndOfSpeech - quantity");
-                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
             }
 
             @Override
@@ -1376,7 +1388,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     if (!justAlpha.replaceAll(" ", "").isEmpty()) {
-                                        errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                        errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_quantity_issue));
+                                        quantityEditText.setText("");
                                         justAlpha = "";
                                     }
                                     try {
@@ -1387,7 +1400,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if (!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_quantity_issue));
+                                            quantityEditText.setText("");
                                         }
                                     }
                                     quantityEditText.setText(result.replaceAll(justAlpha, ""));
@@ -1396,8 +1410,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_quantity_issue));
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1412,14 +1426,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             String replaceNumbers = convertWithEnglishWordsToNumbers(result); // removing and converting any numeric values that were written in like 'three' and 'five' and if there are still alphanumeric values, telling the user that they should only put stand only values in individual pricing setting
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if (!justAlpha2.equals("")) {
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.total_package_count_couldnt_rec_value));
+                                quantityEditText.setText("");
                             }
                             quantityEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if (Double.parseDouble(result) <= 0) {
-                            errorDialog(getString(R.string.by_weight_only_greater_than_0));
+                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_only_greater_than_0));
                         } else {
                             quantityEditText.setText(result);
                         }
@@ -1428,8 +1443,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                     e.printStackTrace();
-                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    errorDialog(getString(com.shopi.android.receiptreader.R.string.total_package_count_couldnt_rec_value));
+                    quantityEditText.setText("");
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1462,7 +1478,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     if (!justAlpha.replaceAll(" ", "").isEmpty()) {
-//                                        errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                        errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                         justAlpha = "";
                                     }
                                     try {
@@ -1472,7 +1488,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if (!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-//                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                         }
                                     }
                                     quantityEditText.setText(result.replaceAll(justAlpha, ""));
@@ -1480,8 +1496,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     quantityEditText.setText(result);
                                 }
                             } catch (Exception e) {
-                                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.total_package_count_couldnt_rec_value));
+                                quantityEditText.setText("");
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1496,14 +1513,14 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             String replaceNumbers = convertWithEnglishWordsToNumbers(result); // removing and converting any numeric values that were written in like 'three' and 'five' and if there are still alphanumeric values, telling the user that they should only put stand only values in individual pricing setting
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if (!justAlpha2.equals("")) {
-//                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                             }
                             quantityEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if (Double.parseDouble(result) <= 0) {
-//                            errorDialog(getString(R.string.by_weight_only_greater_than_0));
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_only_greater_than_0));
                         } else {
                             quantityEditText.setText(result);
                         }
@@ -1511,8 +1528,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1545,7 +1562,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 if (result.matches(".*[a-z].*")) {
                                     result = convertWithEnglishWordsToNumbers(result).replaceAll("[a-z]", "");
                                     if (!justAlpha.replaceAll(" ", "").isEmpty()) {
-                                        errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                        errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
+                                        quantityEditText.setText("");
                                         justAlpha = "";
                                     }
                                     try {
@@ -1555,7 +1573,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if (!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         }  // the only exception it will be catching is a double parsing exception
-                                        //                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                        //                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
 
                                     }
                                     quantityEditText.setText(result.replaceAll(justAlpha, ""));
@@ -1564,8 +1582,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -1580,14 +1598,15 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             String replaceNumbers = convertWithEnglishWordsToNumbers(result); // removing and converting any numeric values that were written in like 'three' and 'five' and if there are still alphanumeric values, telling the user that they should only put stand only values in individual pricing setting
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if (!justAlpha2.equals("")) {
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
+                                quantityEditText.setText("");
                             }
                             quantityEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if (Double.parseDouble(result) <= 0) {
-//                            errorDialog(getString(R.string.by_weight_only_greater_than_0));
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_only_greater_than_0));
                         } else {
                             quantityEditText.setText(result);
                         }
@@ -1596,8 +1615,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 } catch (Exception e) {
 
                     e.printStackTrace();
-                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1619,7 +1638,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         ActivityCompat.requestPermissions(ShoppingListUserItemsActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
 
                     } else {
-                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
+                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
                         final Runnable startListeningRunnable = new Runnable() {
                             @Override
                             public void run() {
@@ -1630,7 +1649,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         quantityMicrophoneState = 1;
                     }
                 } else if (quantityMicrophoneState == 1) {
-                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                     final Handler handler = new Handler();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
@@ -1670,7 +1689,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
             @Override
             public void onEndOfSpeech() {
-                unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
 
             }
 
@@ -1695,19 +1714,19 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 result = replaceNumbers;
                                 unitPriceEditText.setText(result);
                             } else {
-                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_unit_price_couldnt_rec_value));
                                 unitPriceEditText.setText(result.replaceAll(".*[a-z].*", ""));
 
                             }
                         } else {
                             try {
                                 if (Double.parseDouble(result) <= 0) {
-                                    errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                                    errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_unit_price_couldnt_rec_value));
                                 } else {
                                     unitPriceEditText.setText(result);
                                 }
                             } catch (Exception e) {
-                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_unit_price_couldnt_rec_value));
 
                             }
 
@@ -1720,8 +1739,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             String resultWithoutAlphaCharsOrSlash = result.replaceAll(justAlpha, "").replaceAll("/", "");
                             if (!isMeasurementUnit(justAlpha)) {
                                 System.out.println("TRIGGERED 1");
-                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
-                                unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash);
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.unit_price_by_weight_guidelines));
+                                unitPriceEditText.setText("");
                             } else {
                                 unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash + " /" + justAlpha);
                             }
@@ -1733,17 +1752,20 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             try {
                                 if (Double.parseDouble(resultWithoutAlphaCharsOrSlash) <= 0) {
                                     System.out.println("TRIGGERED 2");
-                                    errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+                                    errorDialog(getString(com.shopi.android.receiptreader.R.string.unit_price_by_weight_guidelines));
+                                    unitPriceEditText.setText("");
                                 }
                             } catch (Exception e) {
                                 System.out.println("EXCEPTION in speech: " + e.getMessage());
 
                             }
                         } else {
-                            errorDialog(getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
+                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
+                            unitPriceEditText.setText("");
                             try {
                                 if (Double.parseDouble(result) <= 0) {
-                                    errorDialog(getString(R.string.unit_price_val_have_to_be_greater_than_0));
+                                    errorDialog(getString(com.shopi.android.receiptreader.R.string.unit_price_val_have_to_be_greater_than_0));
+                                    unitPriceEditText.setText("");
                                 }
                             } catch (Exception e) {
                                 System.out.println("EXCEPTION in speech: " + e.getMessage());
@@ -1755,8 +1777,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     System.out.println("EXCEPTION");
                     e.printStackTrace();
-                    unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    errorDialog(getString(R.string.couldnt_rec_voice_input));
+                    unitPriceEditText.setText("");
+                    unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    errorDialog(getString(com.shopi.android.receiptreader.R.string.couldnt_rec_voice_input));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1786,7 +1809,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 result = replaceNumbers;
                                 unitPriceEditText.setText(result);
                             } else {
-//                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_unit_price_couldnt_rec_value));
                                 unitPriceEditText.setText(result.replaceAll(".*[a-z].*", ""));
 
                             }
@@ -1803,8 +1826,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACE NUMBERS : " + replaceNumbers + " JUST ALPH: " + justAlpha);
                             String resultWithoutAlphaCharsOrSlash = result.replaceAll(justAlpha, "").replaceAll("/", "");
                             if (!isMeasurementUnit(justAlpha)) {
-//                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
-                                unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash);
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.unit_price_by_weight_guidelines));
+                                unitPriceEditText.setText("");
                             } else {
                                 unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash + " /" + justAlpha);
                             }
@@ -1814,10 +1837,10 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 unitPriceEditText.setText(result);
                             }
 //                            if (Double.parseDouble(resultWithoutAlphaCharsOrSlash) <= 0) {
-////                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+////                                errorDialog(getString(com.shopi.android.receiptreader.R.string.unit_price_by_weight_guidelines));
 //                            }
                         } else {
-//                            errorDialog(getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
 
                         }
 
@@ -1825,8 +1848,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     System.out.println("EXCEPTION");
                     e.printStackTrace();
-                    unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    errorDialog(getString(R.string.couldnt_rec_voice_input));
+                    unitPriceEditText.setText("");
+                    unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    errorDialog(getString(com.shopi.android.receiptreader.R.string.couldnt_rec_voice_input));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1856,7 +1880,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 result = replaceNumbers;
                                 unitPriceEditText.setText(result);
                             } else {
-//                                errorDialog(getString(R.string.by_package_unit_price_couldnt_rec_value));
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_unit_price_couldnt_rec_value));
                                 unitPriceEditText.setText(result.replaceAll(".*[a-z].*", ""));
 
                             }
@@ -1873,8 +1897,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACE NUMBERS : " + replaceNumbers + " JUST ALPH: " + justAlpha);
                             String resultWithoutAlphaCharsOrSlash = result.replaceAll(justAlpha, "").replaceAll("/", "");
                             if (!isMeasurementUnit(justAlpha)) {
-//                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
-                                unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash);
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.unit_price_by_weight_guidelines));
+                                unitPriceEditText.setText("");
                             } else {
                                 unitPriceEditText.setText(resultWithoutAlphaCharsOrSlash + " /" + justAlpha);
                             }
@@ -1884,11 +1908,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 unitPriceEditText.setText(result);
                             }
                             if (Double.parseDouble(resultWithoutAlphaCharsOrSlash) <= 0) {
-//                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.unit_price_by_weight_guidelines));
                             }
-                        }  //                            errorDialog(getString(R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
+                        }  //                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_weight_items_unit_price_needs_to_have_measurement_unit));
                         //                            if (Double.parseDouble(result) <= 0) {
-                        ////                                errorDialog( getString(R.string.unit_price_val_have_to_be_greater_than_0));
+                        ////                                errorDialog( getString(com.shopi.android.receiptreader.R.string.unit_price_val_have_to_be_greater_than_0));
                         //                            }
 
 
@@ -1896,8 +1920,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     System.out.println("EXCEPTION");
                     e.printStackTrace();
-                    unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    errorDialog(getString(R.string.couldnt_rec_voice_input));
+                    unitPriceEditText.setText("");
+                    unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    errorDialog(getString(com.shopi.android.receiptreader.R.string.couldnt_rec_voice_input));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1917,7 +1942,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (unitPriceMicrophoneState == 0) {
                     if (quantityMicrophoneState == 1) { // if microphone for recording quantity details is on, then whe need to turn it off both in speech recognition service and color/state indication
-                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                        quantityMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                         final Runnable stopListeningRunnable = new Runnable() {
                             @Override
                             public void run() {
@@ -1932,7 +1957,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         ActivityCompat.requestPermissions(ShoppingListUserItemsActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
 
                     } else {
-                        unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
+                        unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
                         final Runnable startListeningRunnable = new Runnable() {
                             @Override
                             public void run() {
@@ -1943,7 +1968,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         unitPriceMicrophoneState = 1;
                     }
                 } else if (unitPriceMicrophoneState == 1) {
-                    unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    unitPriceMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1983,7 +2008,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public void onEndOfSpeech() {
                 System.out.println("@onEndOfSpeech - quantity");
-                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
             }
 
             @Override
@@ -2007,7 +2032,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)) {
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(com.shopi.android.receiptreader.R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
@@ -2020,7 +2045,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if (!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                         }
                                     }
                                     withinPackageItemCountEditText.setText(result + " " + justAlpha);
@@ -2029,8 +2054,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -2046,14 +2071,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if (!justAlpha2.equals("")) {
-                                errorDialog(getString(R.string.only_whole_numbers_within_package_item_count_purchased));
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.only_whole_numbers_within_package_item_count_purchased));
+                                withinPackageItemCountEditText.setText("");
                             }
                             withinPackageItemCountEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if (Double.parseDouble(result) <= 0) {
-                            errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
+                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_within_package_item_count_only_whole_numbers));
+                            withinPackageItemCountEditText.setText("");
                         } else {
                             withinPackageItemCountEditText.setText(result);
                         }
@@ -2061,8 +2088,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     System.out.println("EXCEPTION");
-                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-                    errorDialog(getString(R.string.couldnt_rec_value_within_package_item));
+                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    errorDialog(getString(com.shopi.android.receiptreader.R.string.couldnt_rec_value_within_package_item));
+                    withinPackageItemCountEditText.setText("");
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -2092,7 +2120,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)) {
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(com.shopi.android.receiptreader.R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
@@ -2105,7 +2133,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if (!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-//                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                         }
                                     }
                                     withinPackageItemCountEditText.setText(result + " " + justAlpha);
@@ -2114,8 +2142,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             } catch (Exception e) {
                                 System.out.println("EXCEPTION");
-                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                withinPackageItemCountEditText.setText("");
+                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -2131,14 +2160,16 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if (!justAlpha2.equals("")) {
-//                                errorDialog(getString(R.string.only_whole_numbers_within_package_item_count_purchased));
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.only_whole_numbers_within_package_item_count_purchased));
                             }
                             withinPackageItemCountEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if (Double.parseDouble(result) <= 0) {
-//                            errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
+                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_within_package_item_count_only_whole_numbers));
+                            withinPackageItemCountEditText.setText("");
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_within_package_item_count_only_whole_numbers));
                         } else {
                             withinPackageItemCountEditText.setText(result);
                         }
@@ -2146,8 +2177,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     System.out.println("EXCEPTION");
-                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    errorDialog(getString(R.string.couldnt_rec_value_within_package_item));
+                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    errorDialog(getString(com.shopi.android.receiptreader.R.string.couldnt_rec_value_within_package_item));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -2176,7 +2207,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     System.out.println("A_Z CONTIANING ONEc234325315131351353: " + result);
                                     System.out.println("JUST ALPHA: " + justAlpha);
                                     if (!isMeasurementUnit(justAlpha)) {
-                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ShoppingListUserItemsActivity.this, getString(com.shopi.android.receiptreader.R.string.add_proper_unit_of_weight_after_numeric_value_2), Toast.LENGTH_SHORT).show();
                                         justAlpha = "";
                                         System.out.println("JUST ALPHA 2: " + result);
                                     }
@@ -2190,7 +2221,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                         if (!(Double.parseDouble(replaceNumbers) == 0.0)) {
                                             result = replaceNumbers;
                                         } else { // the only exception it will be catching is a double parsing exception
-//                                            errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+//                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                         }
                                     }
                                     withinPackageItemCountEditText.setText(result + " " + justAlpha);
@@ -2199,8 +2230,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 }
                             } catch (Exception e) {
                                 System.out.println("EXCEPTION");
-                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                                errorDialog(getString(R.string.by_package_item_count_couldnt_rec_value));
+                                withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_item_count_couldnt_rec_value));
                                 final Runnable stopListeningRunnable = new Runnable() {
                                     @Override
                                     public void run() {
@@ -2216,22 +2247,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             System.out.println("REPLACED PFJDAOFDA:  " + replaceNumbers);
                             String justAlpha2 = replaceNumbers.toLowerCase().replaceAll("[^a-z]", "");
                             if (!justAlpha2.equals("")) {
-//                                errorDialog(getString(R.string.only_whole_numbers_within_package_item_count_purchased));
+//                                errorDialog(getString(com.shopi.android.receiptreader.R.string.only_whole_numbers_within_package_item_count_purchased));
                             }
                             withinPackageItemCountEditText.setText(replaceNumbers.replaceAll("[a-z]", ""));
                         }
 
                     } else {
                         if (Double.parseDouble(result) <= 0) {
-//                            errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
+//                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_within_package_item_count_only_whole_numbers));
                         } else {
                             withinPackageItemCountEditText.setText(result);
                         }
 
                     }
                 } catch (Exception e) {
-                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
-//                    errorDialog(getString(R.string.couldnt_rec_value_within_package_item));
+                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+//                    errorDialog(getString(com.shopi.android.receiptreader.R.string.couldnt_rec_value_within_package_item));
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -2254,7 +2285,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         ActivityCompat.requestPermissions(ShoppingListUserItemsActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
 
                     } else {
-                        withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
+                        withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.green), android.graphics.PorterDuff.Mode.SRC_IN);
                         final Runnable startListeningRunnable = new Runnable() {
                             @Override
                             public void run() {
@@ -2265,7 +2296,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         withinPackageMicrophoneState = 1;
                     }
                 } else if (withinPackageMicrophoneState == 1) {
-                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
+                    withinPackageItemCountMicrophone.setColorFilter(ContextCompat.getColor(ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.color.grey), android.graphics.PorterDuff.Mode.SRC_IN);
                     final Handler handler = new Handler();
                     final Runnable stopListeningRunnable = new Runnable() {
                         @Override
@@ -2336,17 +2367,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         doubleParsedAdditionalWeight = null;
                     }
                     if (unitPriceToPass.isEmpty()) {
-                        errorDialog(getString(R.string.package_price_required_details));
+                        errorDialog(getString(com.shopi.android.receiptreader.R.string.package_price_required_details));
                     } else if (doubleParsedUnitPrice <= 0) { //
-                        errorDialog(getString(R.string.only_number_value_more_than_0_by_package_item_unit_price));
+                        errorDialog(getString(com.shopi.android.receiptreader.R.string.only_number_value_more_than_0_by_package_item_unit_price));
 
                     } else if (Math.floor(doubleParsedPackageQuantity) != doubleParsedPackageQuantity) {
-                        errorDialog(getString(R.string.only_whole_numbers_total_package_purchased));
+                        errorDialog(getString(com.shopi.android.receiptreader.R.string.only_whole_numbers_total_package_purchased));
                     } else if (Math.floor(doubleParsedPackageWithinPackageItemCount) != doubleParsedPackageWithinPackageItemCount) {
-                        errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
+                        errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_within_package_item_count_only_whole_numbers));
                     } else if (!additionalWeightToPass.replaceAll("\\s+", "").isEmpty() && doubleParsedAdditionalWeight == null) {
                         System.out.println("TRIGGERED HERE 4");
-                        errorDialog(getString(R.string.by_package_weight_guidelines));
+                        errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_weight_guidelines));
                     } else {
                         if (date == null) {
                             date = new Date();
@@ -2367,7 +2398,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             }
                             SimpleStoreListAdapter simpleStoreListAdapter = new SimpleStoreListAdapter(ShoppingListUserItemsActivity.this, storesForChosing);
                             choseStoreListView.setAdapter(simpleStoreListAdapter);
-                            choseStoreTextView.setText(String.format(getString(R.string.chose_a_store), shoppingListUserItemName));
+                            choseStoreTextView.setText(String.format(getString(com.shopi.android.receiptreader.R.string.chose_a_store), shoppingListUserItemName));
                             choseStoreTextView.setVisibility(View.VISIBLE);
                             choseStoreListView.setVisibility(View.VISIBLE);
                             view.setVisibility(View.VISIBLE);
@@ -2418,22 +2449,22 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                             doubleParsedAdditionalWeight = null;
                                         }
                                         if (unitPriceToPass.isEmpty()) {
-                                            errorDialog(getString(R.string.package_price_required_details));
+                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.package_price_required_details));
                                         } else if (doubleParsedUnitPrice <= 0) { //
-                                            errorDialog(getString(R.string.only_number_value_more_than_0_by_package_item_unit_price));
+                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.only_number_value_more_than_0_by_package_item_unit_price));
 
                                         } else if (Math.floor(doubleParsedPackageQuantity) != doubleParsedPackageQuantity) {
-                                            errorDialog(getString(R.string.only_whole_numbers_total_package_purchased));
+                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.only_whole_numbers_total_package_purchased));
                                         } else if (!additionalWeightToPass.replaceAll("\\s+", "").isEmpty() && doubleParsedAdditionalWeight == null) {
                                             System.out.println("TRIGGERED HERE 1");
-                                            errorDialog(getString(R.string.by_package_weight_guidelines));
+                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_weight_guidelines));
                                         } else if (Math.floor(doubleParsedPackageWithinPackageItemCount) != doubleParsedPackageWithinPackageItemCount) {
-                                            errorDialog(getString(R.string.by_package_within_package_item_count_only_whole_numbers));
+                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_within_package_item_count_only_whole_numbers));
                                         } else {
 
                                             if (!additionalWeightToPass.replaceAll("\\s+", "").isEmpty() && !containsMeasurementUnit(finalAdditionalWeightToPass[0])) {
                                                 System.out.println("TRIGGERED HERE 2");
-                                                errorDialog(getString(R.string.by_package_weight_guidelines));
+                                                errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_weight_guidelines));
                                             } else {
                                                 System.out.println("CALLED CHOSE STORE LIST VIEW QUANTITY IS INDIVIDUAL + FINAL WEIGHT: " + finalAdditionalWeightToPass[0]);
                                                 QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, selectedStore.getStoreName(), dateStr,
@@ -2460,7 +2491,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                 String finalAdditionalWeightToPass = additionalWeightEditText.getText().toString();
                                 if (!finalAdditionalWeightToPass.replaceAll("\\s+", "").isEmpty() && !containsMeasurementUnit(finalAdditionalWeightToPass)) {
                                     System.out.println("TRIGGERED HERE 3: " + finalAdditionalWeightToPass);
-                                    errorDialog(getString(R.string.by_package_weight_guidelines));
+                                    errorDialog(getString(com.shopi.android.receiptreader.R.string.by_package_weight_guidelines));
                                 } else if (finalAdditionalWeightToPass.isEmpty()) {
                                     System.out.println("CALLED LIST VIEW QUANTITY IS INDIVIDUAL NO ADDITIONAL WEIGHT DETAIL");
                                     QueryUtils.saveDetailsOfShoppingListUserItem(shoppingListUserItemName, Constants.storeBeingShoppedIn, dateStr,
@@ -2494,7 +2525,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                         quantityToPass = "1";
                     }
                     if (unitPriceToPass.isEmpty()) {
-                        errorDialog(getString(R.string.add_up_by_weight));
+                        errorDialog(getString(com.shopi.android.receiptreader.R.string.add_up_by_weight));
                     } else {
                         if (date == null) {
                             date = new Date();
@@ -2515,7 +2546,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                             }
                             SimpleStoreListAdapter simpleStoreListAdapter = new SimpleStoreListAdapter(ShoppingListUserItemsActivity.this, storesForChosing);
                             choseStoreListView.setAdapter(simpleStoreListAdapter);
-                            choseStoreTextView.setText(String.format(getString(R.string.chose_a_store), shoppingListUserItemName));
+                            choseStoreTextView.setText(String.format(getString(com.shopi.android.receiptreader.R.string.chose_a_store), shoppingListUserItemName));
                             choseStoreTextView.setVisibility(View.VISIBLE);
                             choseStoreListView.setVisibility(View.VISIBLE);
                             view.setVisibility(View.VISIBLE);
@@ -2545,7 +2576,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                         unitPriceToPass.replaceAll(numberRelatedRemoved, ""), numberRelatedRemovedWithoutSlash, null, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                                 alertDialog.dismiss();
                                             } else {
-                                                errorDialog(getString(R.string.manual_unit_price_guidelines));
+                                                errorDialog(getString(com.shopi.android.receiptreader.R.string.manual_unit_price_guidelines));
 
                                             }
                                             shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
@@ -2553,13 +2584,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                             shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
                                             shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                                         } else {
-                                            errorDialog(getString(R.string.add_up_by_weight));
+                                            errorDialog(getString(com.shopi.android.receiptreader.R.string.add_up_by_weight));
 
                                         }
 
                                     } catch (Exception e) {
                                         e.printStackTrace();
-                                        errorDialog(getString(R.string.manual_unit_price_guidelines));
+                                        errorDialog(getString(com.shopi.android.receiptreader.R.string.manual_unit_price_guidelines));
                                     }
 
                                 }
@@ -2577,7 +2608,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                                 unitPriceToPass.replaceAll(numberRelatedRemoved, ""), numberRelatedRemovedWithoutSlash, null, null, getApplicationContext()); // getting the unit price text input again just in case they changed it before selecting a store for the json func to occur and alert dialog to dismiss
                                         alertDialog.dismiss();
                                     } else {
-                                        errorDialog(getString(R.string.manual_unit_price_guidelines));
+                                        errorDialog(getString(com.shopi.android.receiptreader.R.string.manual_unit_price_guidelines));
 
                                     }
                                     shoppingListUserItems = QueryUtils.updateShoppingListUserItems(shoppingListUserItems, shoppingListName);
@@ -2585,10 +2616,11 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                                     shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
                                     shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
                                 } else {
-                                    errorDialog(getString(R.string.add_up_by_weight));
+                                    errorDialog(getString(com.shopi.android.receiptreader.R.string.add_up_by_weight));
                                 }
                             } catch (Exception e) {
-                                errorDialog(getString(R.string.unit_price_by_weight_guidelines));
+                                errorDialog(getString(com.shopi.android.receiptreader.R.string.unit_price_by_weight_guidelines));
+                                unitPriceEditText.setText("");
                             }
                         }
                     }
@@ -2612,20 +2644,20 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-//    @RequiresApi(23)
+    //    @RequiresApi(23)
 //    private void camera_capture_functionality(ConstraintLayout unit_price_detail_cl) {
 //        System.out.println("CAMERA CAPTURE");
 //        androidx.appcompat.app.AlertDialog.Builder builder =
 //                new androidx.appcompat.app.AlertDialog.Builder
-//                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+//                        (ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.style.AlertDialogCustom);
 //        View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-//                R.layout.camera_capture_popup,
-//                (ConstraintLayout) findViewById(R.id.layoutDialogContainerVID)
+//                com.shopi.android.receiptreader.R.layout.camera_capture_popup,
+//                (ConstraintLayout) findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainerVID)
 //        );
 //        final AlertDialog alertDialog = builder.create();
-//        cameraView = view.findViewById(R.id.camera_view);
+//        cameraView = view.findViewById(com.shopi.android.receiptreader.R.id.camera_view);
 //
-//        Button captureButton = view.findViewById(R.id.capture_button);
+//        Button captureButton = view.findViewById(com.shopi.android.receiptreader.R.id.capture_button);
 //        captureButton.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -2663,7 +2695,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //        } catch (CameraAccessException e) {
 //            e.printStackTrace();
 //            Toast.makeText(getApplicationContext(),
-//                    getResources().getString(R.string.camera_access_issue), Toast.LENGTH_SHORT).show();
+//                    getResources().getString(com.shopi.android.receiptreader.R.string.camera_access_issue), Toast.LENGTH_SHORT).show();
 //        }
 //    }
 //
@@ -2689,7 +2721,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //        } catch (CameraAccessException e) {
 //            e.printStackTrace();
 //            Toast.makeText(getApplicationContext(),
-//                    getResources().getString(R.string.camera_access_issue), Toast.LENGTH_SHORT).show();
+//                    getResources().getString(com.shopi.android.receiptreader.R.string.camera_access_issue), Toast.LENGTH_SHORT).show();
 //        }
 //    }
 //
@@ -2701,7 +2733,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 200);
 //        } else {
 //            // Camera permission granted, proceed with camera initialization
-//            if(getWindow().findViewById(R.id.camera_view) != null) {
+//            if(getWindow().findViewById(com.shopi.android.receiptreader.R.id.camera_view) != null) {
 //                System.out.println("TRIGGERING CAMERA EVENTS!");
 //                try {
 //                    cameraManager.openCamera(cameraId, cameraStateCallback, backgroundHandler);
@@ -2741,7 +2773,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //         } catch(CameraAccessException e){
 //             e.printStackTrace();
 //             Toast.makeText(getApplicationContext(),
-//                     getResources().getString(R.string.camera_access_issue), Toast.LENGTH_SHORT).show();
+//                     getResources().getString(com.shopi.android.receiptreader.R.string.camera_access_issue), Toast.LENGTH_SHORT).show();
 //         }
 //    }
 
@@ -2848,7 +2880,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //            cameraDevice = null;
 //
 //            Toast.makeText(getApplicationContext(),
-//                    getResources().getString(R.string.camera_access_issue), Toast.LENGTH_SHORT).show();
+//                    getResources().getString(com.shopi.android.receiptreader.R.string.camera_access_issue), Toast.LENGTH_SHORT).show();
 //
 //        }
 //    };
@@ -2856,7 +2888,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //    private void createCameraPreviewSession(){
 //        try{
 //            System.out.print("CREATING CAMERA PREVIEW");
-////            cameraView = getWindow().getLayoutInflater().findViewById(R.id.camera_view);
+////            cameraView = getWindow().getLayoutInflater().findViewById(com.shopi.android.receiptreader.R.id.camera_view);
 //            Surface surface = cameraView.getHolder().getSurface();
 //            // forcing a 1 second break in the code to allow the camera to get ready via a countdown latch
 //            CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -2945,7 +2977,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //                            Toast.makeText(ShoppingListUserItemsActivity.this, "Network error", Toast.LENGTH_SHORT).show();
 //                        }
 //                    });
-                    // create the generative gemini model using personal google api key
+    // create the generative gemini model using personal google api key
 //                    String apiKey = BuildConfig.API_KEY;
 //                    GenerativeModel gm = new GenerativeModel("gemini-1.5-flash", apiKey);
 //                    GenerativeModelFutures model = GenerativeModelFutures.from(gm);
@@ -2966,7 +2998,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //                        public void onFailure(Throwable t) {
 //                            t.printStackTrace();
 //                            Toast.makeText(getApplicationContext(),
-//                                    getString(R.string.gemini_ai_request_failure), Toast.LENGTH_LONG).show();
+//                                    getString(com.shopi.android.receiptreader.R.string.gemini_ai_request_failure), Toast.LENGTH_LONG).show();
 //
 //                        }
 //                    }, this.getMainExecutor());
@@ -2978,16 +3010,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     private void calendarDialog() {
         androidx.appcompat.app.AlertDialog.Builder builder =
                 new androidx.appcompat.app.AlertDialog.Builder
-                        (ShoppingListUserItemsActivity.this, R.style.AlertDialogCustom);
+                        (ShoppingListUserItemsActivity.this, com.shopi.android.receiptreader.R.style.AlertDialogCustom);
         View view = LayoutInflater.from(ShoppingListUserItemsActivity.this).inflate(
-                R.layout.calendar_layout,
-                (ConstraintLayout) findViewById(R.id.layoutDialogContainer)
+                com.shopi.android.receiptreader.R.layout.calendar_layout,
+                (ConstraintLayout) findViewById(com.shopi.android.receiptreader.R.id.layoutDialogContainer)
         );
         builder.setView(view);
         androidx.appcompat.app.AlertDialog alertDialog = builder.create();
-        CalendarView calendarView = view.findViewById(R.id.calendar_view);
+        CalendarView calendarView = view.findViewById(com.shopi.android.receiptreader.R.id.calendar_view);
         calendarView.setDate(System.currentTimeMillis(),false,true); // setting date to current day
         alertDialog.setCanceledOnTouchOutside(true);
+
         if(date != null){
             calendarView.setDate(date.getTime());
         }
@@ -3064,7 +3097,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
     private boolean isMeasurementUnit(String string) {
         ArrayList<String> measurementUnitsArrayList = new ArrayList<>();
-        String[] measurementUnitsArray = getResources().getStringArray(R.array.measurement_units_array);
+        String[] measurementUnitsArray = getResources().getStringArray(com.shopi.android.receiptreader.R.array.measurement_units_array);
         for(int i = 0; i < measurementUnitsArray.length; i++){
             String item =measurementUnitsArray[i];
             measurementUnitsArrayList.add(item.substring(item.indexOf("(")+1, item.indexOf(")")));
@@ -3083,9 +3116,9 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             if (permissions.length > 0) {
                 if (permissions[0].equals(Manifest.permission.RECORD_AUDIO)) {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, getString(R.string.audio_permission_granted), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(com.shopi.android.receiptreader.R.string.audio_permission_granted), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(this, getString(R.string.cant_use_this_feature), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(com.shopi.android.receiptreader.R.string.cant_use_this_feature), Toast.LENGTH_SHORT).show();
                     }
                 }
 //                else if (permissions[0].equals(Manifest.permission.CAMERA)) {
@@ -3096,7 +3129,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 //                        }
 //                    } else {
 //                        // Handle camera permission denied
-//                        Toast.makeText(this, getString(R.string.cant_use_camera_feature), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(this, getString(com.shopi.android.receiptreader.R.string.cant_use_camera_feature), Toast.LENGTH_SHORT).show();
 //                    }
 //                }
             }
@@ -3109,13 +3142,13 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.shopping_list_items_layout);
+        setContentView(com.shopi.android.receiptreader.R.layout.shopping_list_items_layout);
         shoppingListName = getIntent().getStringExtra("shoppingListName");
-        shoppingListUserItemsListView = findViewById(R.id.shopping_list_user_items_list_view);
-        resultsForshoppingListUserItemsView = findViewById(R.id.results_for_user_item_text);
-        SearchView searchView = findViewById(R.id.search_bar);
-        Toolbar toolBar = findViewById(R.id.my_toolbar);
-        TextView titleTextView = findViewById(R.id.title);
+        shoppingListUserItemsListView = findViewById(com.shopi.android.receiptreader.R.id.shopping_list_user_items_list_view);
+        resultsForshoppingListUserItemsView = findViewById(com.shopi.android.receiptreader.R.id.results_for_user_item_text);
+        SearchView searchView = findViewById(com.shopi.android.receiptreader.R.id.search_bar);
+        Toolbar toolBar = findViewById(com.shopi.android.receiptreader.R.id.my_toolbar);
+        TextView titleTextView = findViewById(com.shopi.android.receiptreader.R.id.title);
         titleTextView.setText(shoppingListName);
         updateObserver = new Observer<Boolean>() {
             @Override
@@ -3152,25 +3185,49 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             }
         };
         actuallyNeedsToBeUpdated.observeForever(updateObserver);
-        ImageButton removeAllGreenTickMarksButton = findViewById(R.id.remove_check_marks_button);
+        ImageButton removeAllGreenTickMarksButton = findViewById(com.shopi.android.receiptreader.R.id.remove_check_marks_button);
         removeAllGreenTickMarksButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 for(ShoppingListUserItem item: shoppingListUserItems){
-                    try {
-                        if(item.isIfGreenMarked()) {
-                            QueryUtils.setItemNotGreenTickMarked(item.getName(), shoppingListName, getApplicationContext());
-                            item.setIfGreenMarked(false);
+
+                    AsyncTask<Void, Void, Void> execute = new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            // Perform background operations (e.g., update the database)
+                            try {
+                                if(item.isIfGreenMarked()) {
+                                    QueryUtils.setItemNotGreenTickMarked(item.getName(), shoppingListName, getApplicationContext());
+                                    item.setIfGreenMarked(false);
+                                }
+                                if(item.getIfSavedForLater()) {
+                                    QueryUtils.setShoppingListItemToNotSavedForLater(item.getName(), shoppingListName, getApplicationContext());
+                                    item.setIfSavedForLater(false);
+                                }
+                            } catch (ParseException e) {
+                                throw new RuntimeException(e);
+                            }
+                            return null;
                         }
-                        if(item.getIfSavedForLater()) {
-                            QueryUtils.setShoppingListItemToNotSavedForLater(item.getName(), shoppingListName, getApplicationContext());
-                            item.setIfSavedForLater(false);
+
+                        @Override
+                        protected void onPostExecute(Void result) {
+                            // Update UI after background work is done
+                            // For example, update the bookmark icon or UI element
+                            try {
+                                shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingListName);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            } catch (ParseException e) {
+                                throw new RuntimeException(e);
+                            }
+                            shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
+                            shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                            shoppingListUserItemsListView.invalidateViews();
                         }
-                        System.out.println("UPDATING GREEN AND BLUE TICKE MARKS DONE");
-                    } catch (ParseException e) {
-                        System.out.println("EXCEPTION IN REMOVING GREEN AND BLUE MARKS");
-                        e.printStackTrace();
-                    }
+                    }.execute();
+
+                    System.out.println("UPDATING GREEN AND BLUE TICKE MARKS DONE");
                 }
                 System.out.println("UPDATE CALLED @setOnClickListener for removeAllGreenTickMarks");
                 update();
@@ -3182,8 +3239,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 Intent intent = new Intent();
                 if(getIntent().getBooleanExtra("isTour", false)){
                     try {
-                        QueryUtils.deleteShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
-                        QueryUtils.deleteStore(getString(R.string.empty_store), getApplicationContext());
+                        QueryUtils.deleteShoppingList(getString(com.shopi.android.receiptreader.R.string.empty_shoping_list), getApplicationContext());
+                        QueryUtils.deleteStore(getString(com.shopi.android.receiptreader.R.string.empty_store), getApplicationContext());
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -3214,7 +3271,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 finish();
             }
         });
-        ImageButton add_item_button = findViewById(R.id.add_image_button);
+        ImageButton add_item_button = findViewById(com.shopi.android.receiptreader.R.id.add_image_button);
         add_item_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -3247,7 +3304,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         }
         if(getIntent().getBooleanExtra("isTour", false) && shoppingListUserItems.isEmpty()){
             try {
-                QueryUtils.addShoppingListItem(shoppingListName,getString(R.string.granola_bar), "10/7/2023", getApplicationContext());
+                QueryUtils.addShoppingListItem(shoppingListName,getString(com.shopi.android.receiptreader.R.string.granola_bar), "10/7/2023", getApplicationContext());
                 updateUserItems();
             } catch (ParseException | IOException e) {
                 e.printStackTrace();
@@ -3265,7 +3322,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                 // set item width
                 item.setWidth(100);
                 // set a icon
-                item.setIcon(R.drawable.ic_baseline_bookmark_border_24);
+                item.setIcon(com.shopi.android.receiptreader.R.drawable.ic_baseline_bookmark_border_24);
                 // add to menu
                 menu.addMenuItem(item);
             }
@@ -3277,21 +3334,47 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
                 ShoppingListUserItem shoppingListUserItem = shoppingListUserItemAdapter.getItem(position);
-                if(shoppingListUserItem.getIfSavedForLater()){
-                    try {
-                        QueryUtils.setShoppingListItemToNotSavedForLater(shoppingListUserItem.getName(), shoppingListName, getApplicationContext());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+
+                AsyncTask<Void, Void, Void> execute = new AsyncTask<Void, Void, Void>() {
+                    @SuppressLint("StaticFieldLeak")
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        // Perform background operations (e.g., update the database)
+                        if(shoppingListUserItem.getIfSavedForLater()){
+                            try {
+                                QueryUtils.setShoppingListItemToNotSavedForLater(shoppingListUserItem.getName(), shoppingListName, getApplicationContext());
+
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
+                        } else{
+                            try {
+                                QueryUtils.setShoppingListItemToSavedForLater(shoppingListUserItem.getName(), shoppingListName, getApplicationContext());
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                        return null;
                     }
 
-                } else{
-                    try {
-                        QueryUtils.setShoppingListItemToSavedForLater(shoppingListUserItem.getName(), shoppingListName, getApplicationContext());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                    @Override
+                    protected void onPostExecute(Void result) {
+                        // Update UI after background work is done
+                        // For example, update the bookmark icon or UI element
+                        try {
+                            shoppingListUserItems = QueryUtils.getShoppingListUserItems(shoppingListName);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                        shoppingListUserItemAdapter = new ShoppingListUserItemAdapter(getApplicationContext(), shoppingListUserItems, shoppingListName);
+                        shoppingListUserItemsListView.setAdapter(shoppingListUserItemAdapter);
+                        shoppingListUserItemsListView.invalidateViews();
                     }
-
-                }
+                }.execute();
 
                 update();
                 return true;
@@ -3429,7 +3512,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     public boolean onLongClick(View v) {
                         System.out.println("LONG CLICKED");
                         try {
-                            TextView name = (TextView) v.findViewById(R.id.shopping_list_item_name);
+                            TextView name = (TextView) v.findViewById(com.shopi.android.receiptreader.R.id.shopping_list_item_name);
                             if (!shoppingListUserItem.isIfGreenMarked()) {
                                 QueryUtils.setItemGreenTickMarked(name.getText().toString(), shoppingListName, getApplicationContext());
                                 System.out.println("SET ITEM GREEN TICK MARKED: " + shoppingListUserItemName);
@@ -3447,8 +3530,8 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
                     }
 
                 });
-                ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(R.id.record_details_button);
-                ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(R.id.more_vert_actions_item_button);
+                ImageView microphoneButton = (ImageView) selectedStoreView.findViewById(com.shopi.android.receiptreader.R.id.record_details_button);
+                ImageView eyeImageView = (ImageView) selectedStoreView.findViewById(com.shopi.android.receiptreader.R.id.more_vert_actions_item_button);
                 eyeImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -3483,23 +3566,17 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
 
         });
 
-        if(getIntent().getBooleanExtra("isTour", false) && getIntent().getStringExtra("tourSection").equals("addItemsToShoppingList")){
+        if(getIntent().getBooleanExtra("isTour", false)){
             try {
-                addItemsToShoppingListSectionTour();
+                if(!QueryUtils.ifShoppingListAlreadyExists(shoppingListName)){
+                    QueryUtils.addShoppingList(shoppingListName, getApplicationContext());
+                }
+                shoppingListSectionTour();
             } catch (Exception e) {
                 System.out.println("EXCEPTION");
                 e.printStackTrace();
             }
         }
-        else if (getIntent().getBooleanExtra("isTour", false) && getIntent().getStringExtra("tourSection").equals("shopping")){
-            try {
-                shoppingSectionTour();
-            } catch (Exception e){
-                System.out.println("EXCEPTION");
-                e.printStackTrace();
-            }
-        }
-
 
     }
 
@@ -3508,270 +3585,145 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
 
         if (pos < firstListItemPosition || pos > lastListItemPosition ) {
-            return listView.getAdapter().getView(pos, findViewById(R.id.user_item_card_view), listView);
+            return listView.getAdapter().getView(pos, findViewById(com.shopi.android.receiptreader.R.id.user_item_card_view), listView);
         } else {
             final int childIndex = pos - firstListItemPosition;
             return listView.getChildAt(childIndex);
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void addItemsToShoppingListSectionTour() throws ParseException, IOException {
-        System.out.println("FIRST RUN TOUR");
-        updateUserItems();
-        ImageButton tourGuideNavButton = findViewById(R.id.shopping_list_tour_guide_nav_button);
-        tourGuideNavButton.setVisibility(View.VISIBLE);
-        System.out.println("SHOPPING LIST USER VIEW: " + shoppingListUserItemsListView.getCount());
-        shoppingListUserItemsListView.setItemChecked(0, true);
-        int[] point = new int[2];
-        View exampleShoppingListUserItemView = shoppingListUserItemAdapter.getView(0, null, shoppingListUserItemsListView);
-        final int[] clickNum = {PreferenceManager.getDefaultSharedPreferences(this).getInt("shoppingListPageTourClickNum", 0)};
-        clickNum[0] = 0;
-        System.out.print("CLICK NUM:" + clickNum[0]);
-        GuideView shoppingListItemNameGuideView = new GuideView.Builder(this)
-                .setTitle("Shopping List User Item Name")
-                .setContentText("Name of Item added to  shopping list")
-                .setTargetView(exampleShoppingListUserItemView)
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
+    private void shoppingListSectionTour() {
+        // First item to show (if applicable)
+        View firstItemView = null;
+        if (Build.VERSION.SDK_INT >= O) {
+            firstItemView = shoppingListUserItemAdapter.getView(0, null, shoppingListUserItemsListView);
+        }
 
-        GuideView shoppingListUserItemQuantityGuideView = new GuideView.Builder(this)
-                .setTitle("Shopping List User Item Quantity")
-                .setContentText("Quantity of item added to shopping list you can change with plus/minus buttons.")
-                .setTargetView(exampleShoppingListUserItemView)
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
-
-        GuideView bookmark_for_later = new GuideView.Builder(this)
-                .setTitle("Save For Later")
-                .setContentText("Swipe right on any shopping list item and hit the bookmark icon to mark the item in blue as saved for another trip or later.")
-                .setTargetView(exampleShoppingListUserItemView)
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
-
-        GuideView remove_all_green_tick_mark = new GuideView.Builder(this)
-                .setTitle("Remove All Green Tick Marks and Saved Items Button")
-                .setContentText("Removes all green check marks from previous shopping trip and Save for Later.")
-                .setTargetView(findViewById(R.id.remove_check_marks_button))
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
-
-
-
-        ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
-        tourGuideViewArrayList.add(shoppingListItemNameGuideView);
-        tourGuideViewArrayList.add(shoppingListUserItemQuantityGuideView);
-        tourGuideViewArrayList.add(bookmark_for_later);
-        tourGuideViewArrayList.add(remove_all_green_tick_mark);
-        ShoppingListUserItem shoppingListUserItemExample = shoppingListUserItemAdapter.getItem(0);
-        QueryUtils.setItemNotGreenTickMarked(shoppingListUserItemExample.getName(), shoppingListName, getApplicationContext());
-        updateUserItems();
-        TextView last_bought_date = exampleShoppingListUserItemView.findViewById(R.id.last_bought_date);
-        ImageView check_mark = (ImageView) exampleShoppingListUserItemView.findViewById(R.id.check_mark);
-        System.out.print("MADE IT 1");
-        tourGuideViewArrayList.get(clickNum[0]).show();
-        System.out.print("MADE IT 2!");
-        tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("CLICK NUM: " + clickNum[0]);
-                if(clickNum[0] < tourGuideViewArrayList.size()){
-                    tourGuideViewArrayList.get(clickNum[0]).dismiss();
-
-                    clickNum[0]++;
-                    if(clickNum[0] < tourGuideViewArrayList.size()) {
-                        tourGuideViewArrayList.get(clickNum[0]).show();
-                        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                    }
-
-                }
-                if(clickNum[0] == tourGuideViewArrayList.size()){
-                    tourGuideNavButton.setVisibility(GONE);
-                    try {
-                        QueryUtils.deleteShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
-                        QueryUtils.deleteStore(getString(R.string.empty_store), getApplicationContext());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    Intent intent = new Intent(ShoppingListUserItemsActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }
-            }
-
-
-            });
-        System.out.println("DONE");
-
+        // If the first item view exists, begin the tour
+        if (firstItemView != null) {
+            startShoppingListTour(firstItemView, "<i>Click outside the circle to skip tutorial.</i>");
+        }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void shoppingSectionTour() throws ParseException, IOException {
-        System.out.println("FIRST RUN TOUR");
-        updateUserItems();
-        System.out.println("size : " + shoppingListUserItems.size());
-        ImageButton tourGuideNavButton = findViewById(R.id.shopping_list_tour_guide_nav_button);
-        tourGuideNavButton.setVisibility(View.VISIBLE);
-        shoppingListUserItemsListView.setItemChecked(0, true);
-        int[] point = new int[2];
-        View exampleShoppingListUserItemView = shoppingListUserItemAdapter.getView(0, null, shoppingListUserItemsListView);
-        final int[] clickNum = {PreferenceManager.getDefaultSharedPreferences(this).getInt("shoppingListPageTourClickNum", 0)};
-        clickNum[0] = 0;
-        System.out.print("CLICK NUM:" + clickNum[0]);
+    private void startShoppingListTour(View firstItemView, String skipText) {
+        // First step: Add item button
+        final TapTarget addItemTarget = TapTarget.forView(findViewById(com.shopi.android.receiptreader.R.id.add_image_button),
+                        "Prepare for Shopping",
+                        Html.fromHtml("Add items to existing Shopping List.\n" + skipText))
+                .outerCircleColor(com.shopi.android.receiptreader.R.color.light_blue)
+                .targetCircleColor(com.shopi.android.receiptreader.R.color.white)
+                .titleTextSize(20)
+                .descriptionTextSize(16)
+                .textColor(com.shopi.android.receiptreader.R.color.black)
+                .dimColor(com.shopi.android.receiptreader.R.color.grey_four)
+                .outerCircleAlpha(0.96f)
+                .targetRadius(60)
+                .cancelable(true) // Outside click will dismiss
+                .drawShadow(true);
 
-        GuideView recordPurchaseDetails = new GuideView.Builder(this)
-                .setTitle("Record Purchase Details")
-                .setContentText("Ability to record purchase details of item in shopping list")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.record_details_button))
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
+        // Second step: Increment Item button
+        final TapTarget incrementItemTarget = TapTarget.forView(findViewById(com.shopi.android.receiptreader.R.id.shopping_list_user_items_list_view),
+                        "Prepare for Shopping",
+                        Html.fromHtml("Increase/decrease count of an item.\n" + skipText))
+                .outerCircleColor(com.shopi.android.receiptreader.R.color.light_blue)
+                .targetCircleColor(com.shopi.android.receiptreader.R.color.white)
+                .titleTextSize(20)
+                .descriptionTextSize(16)
+                .textColor(com.shopi.android.receiptreader.R.color.black)
+                .dimColor(com.shopi.android.receiptreader.R.color.grey_four)
+                .outerCircleAlpha(0.96f)
+                .targetRadius(60)
+                .cancelable(true)
+                .drawShadow(true);
 
-        GuideView greenTickMarkGuideView = new GuideView.Builder(this)
-                .setTitle("Green Tick Mark")
-                .setContentText("Green Check Mark Ability to mark item in shopping list  as purchased with short-double long tap.")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.check_circle))
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
-
-
-        GuideView blueTickMark = new GuideView.Builder(this)
-                .setTitle("Blue Item Name")
-                .setContentText("Item name in blue color for items with recorded purchase history")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.shopping_list_item_name))
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
-
-
-        GuideView mostRecentPurchaseDateGuideView = new GuideView.Builder(this)
-                .setTitle("Most Recent Purchase Date")
-                .setContentText("Most recent puchase date recorded for item")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.last_bought_date))
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
-
-        GuideView moreOptionsGuideView = new GuideView.Builder(this)
-                .setTitle("More Options")
-                .setContentText("More Options such as the purchase history of item, move item to another list, delete item from list, and the insights graph ")
-                .setTargetView(exampleShoppingListUserItemView.findViewById(R.id.more_vert_actions_item_button))
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
-        moreVertActionsView = findViewById(R.id.search_bar);
-        insightsView = findViewById(R.id.search_bar);
-        GuideView moreOptionsGuideViewExplained = new GuideView.Builder(this)
-                .setTitle("More Options Explained")
-                .setContentText("Insight graph helps compare price over time. Purchase History and Insights grpah are greyed out if no recroded purchase history exists for item")
-                .setTargetView(moreVertActionsView)
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
-
-        GuideView insightsGraphExplained = new GuideView.Builder(this)
-                .setTitle("Insights Graph Explained")
-                .setContentText("The insights graph compares the price of an item against a common measurement of weight(e.g. lb) over time for each store it has recorded history for in a line graph. Some choices will be greyed out such as purchase history and insights graph based on the recorded data for the item. Insights graph is only available if you record purchase details for the item on at least 2 different dates and have your price comparison setting toggled on from the main page. Note that dates with multiple purchases in one day have the unit-price for that day averaged. You can press each data point for more details.")
-                .setTargetView(insightsView)
-                .setContentTextSize(12)//optional
-                .setTitleTextSize(14)//optional
-                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                .setDismissType(DismissType.outside)
-                .build(); //optional - default dismissible by TargetView
+        // Third step: Swipe to left and bookmark
+        final TapTarget swipeStepTarget = TapTarget.forView(firstItemView,
+                        "Prepare for Shopping",
+                        Html.fromHtml("Swipe to the left and select bookmark icon to mark an item for shopping later..\n" + skipText))
+                .outerCircleColor(com.shopi.android.receiptreader.R.color.light_blue)
+                .targetCircleColor(com.shopi.android.receiptreader.R.color.white)
+                .titleTextSize(20)
+                .descriptionTextSize(16)
+                .textColor(com.shopi.android.receiptreader.R.color.black)
+                .dimColor(com.shopi.android.receiptreader.R.color.grey_four)
+                .outerCircleAlpha(0.96f)
+                .targetRadius(60)
+                .cancelable(true)
+                .drawShadow(true);
 
 
-        ArrayList<GuideView> tourGuideViewArrayList = new ArrayList<>();
-        tourGuideViewArrayList.add(recordPurchaseDetails);
-        tourGuideViewArrayList.add(greenTickMarkGuideView);
-        tourGuideViewArrayList.add(blueTickMark);
-        tourGuideViewArrayList.add(mostRecentPurchaseDateGuideView);
-        tourGuideViewArrayList.add(moreOptionsGuideView);
-        tourGuideViewArrayList.add(moreOptionsGuideViewExplained);
-//        tourGuideViewArrayList.add(insightsGraphExplained);
-//        tourGuideViewArrayList.add(insightsGraphExplained); // filler #9
-        ShoppingListUserItem shoppingListUserItemExample = shoppingListUserItemAdapter.getItem(0);
-        QueryUtils.setItemNotGreenTickMarked(shoppingListUserItemExample.getName(), shoppingListName, getApplicationContext());
-        updateUserItems();
-        TextView last_bought_date = exampleShoppingListUserItemView.findViewById(R.id.last_bought_date);
-        ImageView check_mark = (ImageView) exampleShoppingListUserItemView.findViewById(R.id.check_mark);
-        System.out.print("MADE IT 1");
-        tourGuideViewArrayList.get(clickNum[0]).show();
-        System.out.print("MADE IT 2!");
-        tourGuideNavButton.setOnClickListener(new View.OnClickListener() {
+
+        // Add a small delay after each target to ensure that each target appears after the previous one.
+        Handler handler = new Handler();
+
+        // Step 1 - Add Item button
+        TapTargetView.showFor(ShoppingListUserItemsActivity.this, addItemTarget, new TapTargetView.Listener() {
             @Override
-            public void onClick(View v) {
-                System.out.println("CLICK NUM: " + clickNum[0]);
-                if(clickNum[0] < tourGuideViewArrayList.size()){
-                    tourGuideViewArrayList.get(clickNum[0]).dismiss();
-
-                    clickNum[0]++;
-                    if(clickNum[0] == 5){
-                        try {
-                            moreVertActionsDialog(shoppingListUserItemExample);
-                        } catch (Exception e){
-                            System.out.println("BIG EXCEPTION");
-                        }
-
-                        GuideView newMoreOptionsGuideViewExplained = new GuideView.Builder(ShoppingListUserItemsActivity.this)
-                                .setTitle("More Options Explained")
-                                .setContentText("Insight graph helps compare price over time. Purchase History and Insights grpah are greyed out if no recroded purchase history exists for item")
-                                .setTargetView(moreVertActionsView)
-                                .setContentTextSize(12)//optional
-                                .setTitleTextSize(14)//optional
-                                .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
-                                .setDismissType(DismissType.outside)
-                                .build(); //optional - default dismissible by TargetView
-
-                        alertDialog.getWindow().setDimAmount(0f);
-                        tourGuideViewArrayList.set(clickNum[0], newMoreOptionsGuideViewExplained);
+            public void onTargetClick(TapTargetView view) {
+                System.out.println("TARGET CLICKED");
+                super.onTargetClick(view);
+                // Wait before showing the next step
+                        // Step 2 - Increment Item button
+                        TapTargetView.showFor(ShoppingListUserItemsActivity.this, incrementItemTarget, new TapTargetView.Listener() {
+                            @Override
+                            public void onTargetClick(TapTargetView view) {
+                                super.onTargetClick(view);
+                                // Wait before showing the next step
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // Step 3 - Swipe to left and bookmark
+                                        TapTargetView.showFor(ShoppingListUserItemsActivity.this, swipeStepTarget, new TapTargetView.Listener() {
+                                            @Override
+                                            public void onTargetClick(TapTargetView view) {
+                                                super.onTargetClick(view);
+                                                // Wait before showing the next step
+                                                handler.postDelayed(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        // Step 4 - More options (Move item)
+                                                        TapTargetView.showFor(ShoppingListUserItemsActivity.this, TapTarget.forView(findViewById(com.shopi.android.receiptreader.R.id.reorder_item_cl),
+                                                                        "Prepare for Shopping",
+                                                                        Html.fromHtml("Move an item to a different shopping list.\n" + skipText))
+                                                                .outerCircleColor(com.shopi.android.receiptreader.R.color.light_blue)
+                                                                .targetCircleColor(com.shopi.android.receiptreader.R.color.white)
+                                                                .titleTextSize(20)
+                                                                .descriptionTextSize(16)
+                                                                .textColor(com.shopi.android.receiptreader.R.color.black)
+                                                                .dimColor(com.shopi.android.receiptreader.R.color.grey_four)
+                                                                .outerCircleAlpha(0.96f)
+                                                                .targetRadius(60)
+                                                                .cancelable(true)
+                                                                .drawShadow(true), new TapTargetView.Listener() {
+                                                            @Override
+                                                            public void onTargetClick(TapTargetView view) {
+                                                                super.onTargetClick(view);
+                                                                // Show the final dialog after the last step
+                                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                                    try {
+                                                                        moreVertActionsDialog((ShoppingListUserItem) shoppingListUserItems.get(0));
+                                                                    } catch (IOException | ParseException | java.text.ParseException e) {
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                }, 300); // Delay before showing the next target (More options)
+                                            }
+                                        });
+                                    }
+                                }, 300); // Delay before showing the next target (Swipe step)
+                            }
+                        });
                     }
 
-                    if(clickNum[0] < tourGuideViewArrayList.size()) {
-                        tourGuideViewArrayList.get(clickNum[0]).show();
-                    }
-
-
-                }
-                if(clickNum[0] == tourGuideViewArrayList.size()){
-                    tourGuideNavButton.setVisibility(GONE);
-                    try {
-                        QueryUtils.deleteShoppingList(getString(R.string.empty_shoping_list), getApplicationContext());
-                        QueryUtils.deleteStore(getString(R.string.empty_store), getApplicationContext());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    Intent intent = new Intent(ShoppingListUserItemsActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }
-            }
         });
-        System.out.println("DONE");
-
     }
+
+
+
+
 
     @RequiresApi(api = O)
     private void updateUserItems() throws IOException, ParseException {
@@ -3784,7 +3736,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(com.shopi.android.receiptreader.R.menu.menu_main, menu);
         return true;
     }
 
@@ -3797,7 +3749,7 @@ public class ShoppingListUserItemsActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == com.shopi.android.receiptreader.R.id.action_settings) {
             return true;
         }
 

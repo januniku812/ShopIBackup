@@ -6,8 +6,8 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:layout_height="match_parent"
-    tools:openDrawer="end"
     android:id="@+id/drawer_layout"
+    tools:openDrawer="end"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
@@ -29,42 +29,42 @@
         <!--            android:inputType="text"-->
         <!--            android:queryHint="Search For a Item" />-->
 
-        <ScrollView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:fillViewport="true" >
+        <!--        <ScrollView-->
+        <!--            android:layout_width="fill_parent"-->
+        <!--            android:layout_height="fill_parent"-->
+        <!--            android:fillViewport="true" >-->
 
-            <LinearLayout
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
-                <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_height="wrap_content">
+                <RelativeLayout
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:id="@+id/shopping_lists_ly"
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
+                    android:focusable="false"
+                    android:focusableInTouchMode="true"
+                    android:weightSum="2"
                     android:layout_height="wrap_content">
-                    <RelativeLayout
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        android:id="@+id/shopping_lists_ly"
-                        android:orientation="horizontal"
-                        android:layout_width="match_parent"
-                        android:focusable="false"
-                        android:focusableInTouchMode="true"
-                        android:weightSum="2"
-                        android:layout_height="wrap_content">
 
-                        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:id="@+id/shopping_list_fab"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentTop="true"
-                            android:layout_gravity="center_vertical"
-                            android:layout_marginStart="@dimen/fab_margin"
-                            android:layout_marginTop="@dimen/fab_margin"
-                            android:layout_marginEnd="@dimen/fab_margin"
-                            android:layout_marginBottom="@dimen/fab_margin"
-                            app:fabCustomSize="40dp"
-                            app:srcCompat="@drawable/add_sign" />
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/shopping_list_fab"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="@dimen/fab_margin"
+                        android:layout_marginTop="@dimen/fab_margin"
+                        android:layout_marginEnd="@dimen/fab_margin"
+                        android:layout_marginBottom="@dimen/fab_margin"
+                        app:fabCustomSize="40dp"
+                        app:srcCompat="@drawable/add_sign" />
                     <TextView
                         style="@style/user_item_details_text_style"
                         android:textSize="20sp"
@@ -94,8 +94,8 @@
                             android:layout_height="45dp"
                             android:layout_weight="2"
                             android:inputType="text"
-                            android:src="@drawable/ic_baseline_shopping_cart_24"
-                            android:tint="@color/grey_two" />
+                            android:src="@drawable/baseline_storefront_24"
+                            app:tint="@color/grey_two" />
                         <ImageView
                             app:layout_constraintStart_toEndOf="@id/shopping_list_icon"
                             app:layout_constraintTop_toTopOf="parent"
@@ -105,7 +105,7 @@
                             android:layout_weight="2"
                             android:inputType="text"
                             android:src="@drawable/ic_groeryitems"
-                            android:tint="@color/black" />
+                            app:tint="@color/black" />
 
                         <ImageView
                             android:id="@+id/menu_image_view"
@@ -118,10 +118,10 @@
                             android:layout_marginEnd="15dp"
                             android:layout_weight="2"
                             android:inputType="text"
-                            android:tint="@color/black"
                             android:src="@drawable/menu"
 
-                            android:queryHint="Search For a Shopping List" />
+                            android:queryHint="Search For a Shopping List"
+                            app:tint="@color/black" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -142,7 +142,7 @@
                 <!--                    android:inputType="text"-->
                 <!--                    android:queryHint="Search For a Shopping List" />-->
 
-                <SearchView
+                <android.widget.SearchView
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/shopping_lists_ly"
                     android:id="@+id/shopping_list_search_bar"
@@ -158,16 +158,20 @@
                     android:insetTop="0dp"
                     android:queryHint="Search For a Shopping List" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <ListView
-                    android:id="@+id/shopping_list_items_list_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="250dp"
-                    android:layout_marginTop="5dp"
-                    android:nestedScrollingEnabled="true"
-                    tools:listitem="@layout/shopping_list" />
+            <ListView
+                android:id="@+id/shopping_list_items_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginTop="5dp"
+                android:nestedScrollingEnabled="true"
+                tools:listitem="@layout/shopping_list" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
                 <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
@@ -198,39 +202,24 @@
                         android:gravity="center_vertical"
                         android:text="@string/store" />
 
-<!--                    <SearchView-->
-<!--                        android:id="@+id/store_list_search_bars"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_weight="2"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_marginEnd="5dp"-->
-<!--                        android:focusedByDefault="false"-->
-<!--                        android:focusable="true"-->
-<!--                        android:focusableInTouchMode="true"-->
-<!--                        android:layout_gravity="center_vertical"-->
-<!--                        android:background="@color/white_two"-->
-<!--                        android:inputType="text"-->
-<!--                        android:queryHint="Search For a Store" />-->
+                    <!--                    <SearchView-->
+                    <!--                        android:id="@+id/store_list_search_bars"-->
+                    <!--                        android:layout_width="wrap_content"-->
+                    <!--                        android:layout_weight="2"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:layout_marginEnd="5dp"-->
+                    <!--                        android:focusedByDefault="false"-->
+                    <!--                        android:focusable="true"-->
+                    <!--                        android:focusableInTouchMode="true"-->
+                    <!--                        android:layout_gravity="center_vertical"-->
+                    <!--                        android:background="@color/white_two"-->
+                    <!--                        android:inputType="text"-->
+                    <!--                        android:queryHint="Search For a Store" />-->
                 </LinearLayout>
-                <!--                <SearchView-->
-                <!--                    android:id="@+id/general_store_items_search"-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    android:layout_marginLeft="5dp"-->
-                <!--                    android:layout_marginTop="5dp"-->
-                <!--                    app:layout_constraintTop_toTopOf="parent"-->
-                <!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-                <!--                    app:layout_constraintStart_toEndOf="@id/store_history_label"-->
-                <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-                <!--                    android:layout_marginRight="5dp"-->
-                <!--                    android:background="@color/white_two"-->
-                <!--                    android:inputType="text"-->
-                <!--                    android:queryHint="Search For a Shopping List" />-->
-                <SearchView
+                <android.widget.SearchView
                     android:id="@+id/store_list_search_bars"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
                     android:focusedByDefault="false"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
@@ -238,70 +227,103 @@
                     android:background="@color/white_two"
                     android:inputType="text"
                     android:queryHint="Search For a Store" />
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:id="@+id/stores_list_view_and_item_rep_label_cl"
-                    android:layout_height="fill_parent">
-
-                    <ListView
-                        android:id="@+id/stores_list_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:nestedScrollingEnabled="true"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:listitem="@layout/store_item" />
-                    <ImageButton
-                        android:id="@+id/tour_guide_nav_button"
-                        android:visibility="invisible"
-                        android:background="@drawable/circle_shape"
-                        android:src="@drawable/ic_baseline_navigate_next_24"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_marginEnd="60dp"
-                        android:layout_marginBottom="60dp"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"/>
-
-<!--                    <TextView-->
-<!--                        app:layout_constraintStart_toStartOf="parent"-->
-<!--                        app:layout_constraintTop_toBottomOf="@id/stores_list_view"-->
-<!--                        android:id="@+id/item_repository_label"-->
-<!--                        style="@style/user_item_details_text_style"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_marginTop="5dp"-->
-<!--                        android:layout_height="40dp"-->
-<!--                        android:layout_marginStart="15dp"-->
-<!--                        android:layout_marginBottom="5dp"-->
-<!--                        android:text="@string/item_rep"-->
-<!--                        android:textSize="18sp" />-->
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
             </LinearLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:id="@+id/stores_list_view_and_item_rep_label_cl"
+                android:layout_height="fill_parent">
+                <ListView
+                    android:id="@+id/stores_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:nestedScrollingEnabled="true"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:listitem="@layout/store_item" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <!--                <SearchView-->
+            <!--                    android:id="@+id/general_store_items_search"-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:layout_marginLeft="5dp"-->
+            <!--                    android:layout_marginTop="5dp"-->
+            <!--                    app:layout_constraintTop_toTopOf="parent"-->
+            <!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--                    app:layout_constraintStart_toEndOf="@id/store_history_label"-->
+            <!--                    app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                    android:layout_marginRight="5dp"-->
+            <!--                    android:background="@color/white_two"-->
+            <!--                    android:inputType="text"-->
+            <!--                    android:queryHint="Search For a Shopping List" />-->
+            <!--                <androidx.constraintlayout.widget.ConstraintLayout-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:id="@+id/stores_list_view_and_item_rep_label_cl"-->
+            <!--                    android:layout_height="wrap_content">-->
+            <!--                    <ImageButton-->
+            <!--                        android:id="@+id/tour_guide_nav_button"-->
+            <!--                        android:visibility="invisible"-->
+            <!--                        android:background="@drawable/circle_shape"-->
+            <!--                        android:src="@drawable/ic_baseline_navigate_next_24"-->
+            <!--                        app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--                        app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                        android:layout_marginEnd="60dp"-->
+            <!--                        android:layout_marginBottom="60dp"-->
+            <!--                        android:layout_width="60dp"-->
+            <!--                        android:layout_height="60dp"/>-->
 
-        </ScrollView>
+            <!--                    &lt;!&ndash;                    <TextView&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        app:layout_constraintStart_toStartOf="parent"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        app:layout_constraintTop_toBottomOf="@id/stores_list_view"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        android:id="@+id/item_repository_label"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        style="@style/user_item_details_text_style"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        android:layout_width="wrap_content"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        android:layout_marginTop="5dp"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        android:layout_height="40dp"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        android:layout_marginStart="15dp"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        android:layout_marginBottom="5dp"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        android:text="@string/item_rep"&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                        android:textSize="18sp" />&ndash;&gt;-->
+            <!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+
+
+        </LinearLayout>
+
+        <!--        </ScrollView>-->
     </LinearLayout>
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/side_menu"
         android:layout_gravity="end"
+        style="@style/priceComparisonItemMenuItemStyle"
+        app:textSt
         android:backgroundTintMode="src_over"
         android:backgroundTint="@color/light_blue_2"
         android:visibility="invisible"
         android:background="@drawable/side_menu_background"
         app:headerLayout="@layout/menu_header"
-        app:menu="@menu/app_menu"/>
-<!--&lt;!&ndash;        <TextView&ndash;&gt;-->
-<!--&lt;!&ndash;            android:layout_marginStart="40dp"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:layout_marginTop="60dp"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:textStyle="bold"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:text="@string/measurement_unit"/>&ndash;&gt;-->
-<!--    </com.google.android.material.navigation.NavigationView>-->
+        app:menu="@menu/app_menu">
+
+        <ExpandableListView
+            android:id="@+id/expandableNavTutorialDrawer"
+            android:layout_width="250dp"
+            android:layout_marginTop="125dp"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:choiceMode="multipleChoice"
+            android:dividerHeight="0dp"
+            />
+
+    </com.google.android.material.navigation.NavigationView>
+    <!--&lt;!&ndash;        <TextView&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:layout_marginStart="40dp"&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:layout_marginTop="60dp"&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:textStyle="bold"&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+    <!--&lt;!&ndash;            android:text="@string/measurement_unit"/>&ndash;&gt;-->
+    <!--    </com.google.android.material.navigation.NavigationView>-->
 
 </androidx.drawerlayout.widget.DrawerLayout>

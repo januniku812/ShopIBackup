@@ -2,9 +2,12 @@ package com.shopi.android.receiptreader;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -26,12 +29,17 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 
 public class RepItemsActivity extends AppCompatActivity {
     RepItemAdapter repItemAdapter;
@@ -150,6 +158,7 @@ public class RepItemsActivity extends AppCompatActivity {
         ImageView icon = (ImageView) view.findViewById(R.id.imageIcon);
         TextView editText = view.findViewById(R.id.custom_dialog_edit_text);
         Button enterButton = (Button) view.findViewById(R.id.enterButton);
+        icon.setVisibility(View.INVISIBLE);
         if(jsonEditCode == JSONEditCodes.DELETE_REP_ITEM){
             editText.setVisibility(View.INVISIBLE);
             icon.setMinimumHeight(50);
@@ -204,14 +213,20 @@ public class RepItemsActivity extends AppCompatActivity {
                 }
                 if(finalJsonEditCode == JSONEditCodes.ADD_REP_ITEM){
                     try {
-                        System.out.println("REP ITEMS ARRAY LIST: " + repItems.toArray().toString());
-                        boolean worked = QueryUtils.addRepItem(editText.getText().toString(), getApplicationContext());
-                        if(!worked){
-                            Toast.makeText(getApplicationContext(), String.format(getString(R.string.rep_item_already_exists), editText.getText().toString()), Toast.LENGTH_SHORT).show();
+                        String editTextVal = editText.getText().toString();
+                        if(editTextVal.isEmpty() || editTextVal.isBlank()){
+                            Toast.makeText(getApplicationContext(), getString(R.string.no_empty_item_names), Toast.LENGTH_SHORT).show();
                         }
-                        update();
-                        alertDialog.dismiss();
-                        occupied = false;
+                        else {
+                            System.out.println("REP ITEMS ARRAY LIST: " + repItems.toArray().toString());
+                            boolean worked = QueryUtils.addRepItem(editText.getText().toString(), getApplicationContext());
+                            if (!worked) {
+                                Toast.makeText(getApplicationContext(), String.format(getString(R.string.rep_item_already_exists), editText.getText().toString()), Toast.LENGTH_SHORT).show();
+                            }
+                            update();
+                            alertDialog.dismiss();
+                            occupied = false;
+                        }
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();
                     }
@@ -269,6 +284,66 @@ public class RepItemsActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        if(getIntent().getBooleanExtra("itemRepSetUpSectionTour", false)){
+//            GuideView itemsRepSearchItemsGuideView = new GuideView.Builder(this)
+//                    .setTitle("              Items Set-up              ")
+//                    .setContentText("Search Item")
+//                    .setTargetView(findViewById(R.id.search_bar))
+//                    .setContentTextSize(12)//optional
+//                    .setTitleTextSize(14)//optional
+//                    .setTitleTypeFace(Typeface.defaultFromStyle(Typeface.BOLD))
+//                    .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+//                    .build();
+//            itemsRepSearchItemsGuideView.show();
+//            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//            SharedPreferences.Editor editor = prefs.edit();
+//            editor.putInt("itemsSetUpTutorialSectionClickNumber", PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("itemsSetUpTutorialSectionClickNumber",1));
+//            editor.apply();
+            TapTargetView.showFor(RepItemsActivity.this,
+                    TapTarget.forView(findViewById(R.id.add_image_button_ril), "Items Set-up", "Items Set-up - Add an item to the item repository by clicking the plus icon. <i>Click outside the circle to skip tutorial.</i>")
+                            .outerCircleColorInt(getResources().getColor(R.color.light_blue))
+                            .targetCircleColorInt(getResources().getColor(R.color.white))
+                            .titleTextSize(20)
+                            .descriptionTextSize(16)
+                            .cancelable(true)
+                            .drawShadow(true)
+                            .tintTarget(true)
+                            .transparentTarget(true)
+                            .dimColor(R.color.grey_four)
+                            .textColor(R.color.black)
+                            .id(1) // Optional, helps to track which target is shown
+                            .targetRadius(60),
+                    new TapTargetView.Listener() {
+                        @Override
+                        public void onTargetClick(TapTargetView view) {
+                            super.onTargetClick(view);
+                            // After the first target is clicked, show the second target (store_list_search_bars)
+                            TapTargetView.showFor(RepItemsActivity.this,
+                                    TapTarget.forView(findViewById(R.id.search_bar), "Items Set-up", "Search for an item. <i>Click outside the circle to skip tutorial.</i>")
+                                            .outerCircleColorInt(getResources().getColor(R.color.light_blue))
+                                            .targetCircleColorInt(getResources().getColor(R.color.white))
+                                            .titleTextSize(20)
+                                            .descriptionTextSize(16)
+                                            .cancelable(true)
+                                            .drawShadow(true)
+                                            .tintTarget(true)
+                                            .transparentTarget(true)
+                                            .dimColor(R.color.grey_four)
+                                            .textColor(R.color.black)
+                                            .id(2) // Optional, helps to track which target is shown
+                                            .targetRadius(60),
+                                    new TapTargetView.Listener() {
+                                        @Override
+                                        public void onTargetClick(TapTargetView view) {
+                                            super.onTargetClick(view);
+                                            // After the second target is clicked, move to next tutorial step or close
+                                        }
+                                    }
+                            );
+                        }
+                    }
+            );
+        }
         repItemsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -330,46 +405,46 @@ public class RepItemsActivity extends AppCompatActivity {
 
         });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                                                    @Override
-                                                    public boolean onQueryTextSubmit(String query) {
-                                                        searchViewFilter = query; // updating global search view filter just in case user edits, deletes, or adds in item while running a filter in the search view
-                                                        try {
-                                                            repItemAdapter = new RepItemAdapter(getApplicationContext(), filter(QueryUtils.getRepItems(), query));
-                                                        } catch (IOException e) {
-                                                            e.printStackTrace();
-                                                        } catch (ParseException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                        repItemsListView.setAdapter(repItemAdapter);
-                                                        return false;
+                                              @Override
+                                              public boolean onQueryTextSubmit(String query) {
+                                                  searchViewFilter = query; // updating global search view filter just in case user edits, deletes, or adds in item while running a filter in the search view
+                                                  try {
+                                                      repItemAdapter = new RepItemAdapter(getApplicationContext(), filter(QueryUtils.getRepItems(), query));
+                                                  } catch (IOException e) {
+                                                      e.printStackTrace();
+                                                  } catch (ParseException e) {
+                                                      e.printStackTrace();
+                                                  }
+                                                  repItemsListView.setAdapter(repItemAdapter);
+                                                  return false;
 
-                                                    }
+                                              }
 
-                                                    @Override
-                                                    public boolean onQueryTextChange(String newText) {
-                                                        searchViewFilter = newText; // updating global search view filter just in case user edits, deletes, or adds in item while running a filter in the search view
-                                                        try {
-                                                            repItemAdapter = new RepItemAdapter(getApplicationContext(), filter(QueryUtils.getRepItems(), newText));
-                                                        } catch (IOException e) {
-                                                            e.printStackTrace();
-                                                        } catch (ParseException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                        repItemsListView.setAdapter(repItemAdapter);
-                                                        return false;
-                                                    }
+                                              @Override
+                                              public boolean onQueryTextChange(String newText) {
+                                                  searchViewFilter = newText; // updating global search view filter just in case user edits, deletes, or adds in item while running a filter in the search view
+                                                  try {
+                                                      repItemAdapter = new RepItemAdapter(getApplicationContext(), filter(QueryUtils.getRepItems(), newText));
+                                                  } catch (IOException e) {
+                                                      e.printStackTrace();
+                                                  } catch (ParseException e) {
+                                                      e.printStackTrace();
+                                                  }
+                                                  repItemsListView.setAdapter(repItemAdapter);
+                                                  return false;
+                                              }
 
 
-                                                }
+                                          }
 
         );
         // filter through user_items list with user items list adapter
         searchView.setOnCloseListener( new SearchView.OnCloseListener() {
-                                                 @Override
-                                                 public boolean onClose() {
-                                                     return false;
-                                                 }
-                                             }
+                                           @Override
+                                           public boolean onClose() {
+                                               return false;
+                                           }
+                                       }
         );
 
 
